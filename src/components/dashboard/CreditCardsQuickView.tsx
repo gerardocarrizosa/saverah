@@ -31,6 +31,7 @@ export function CreditCardsQuickView() {
 
   useEffect(() => {
     loadCreditCards();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const loadCreditCards = async () => {

@@ -5,9 +5,10 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const supabase = await createSupabaseServerClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     
@@ -15,7 +16,7 @@ export async function GET(
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
     }
 
-    const payments = await getReminderPayments(user.id, params.id);
+    const payments = await getReminderPayments(user.id, id);
     return NextResponse.json({ data: payments });
   } catch (error) {
     console.error('Error fetching payments:', error);
@@ -28,9 +29,10 @@ export async function GET(
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const supabase = await createSupabaseServerClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     
@@ -53,7 +55,7 @@ export async function POST(
 
     const payment = await createReminderPayment(
       user.id,
-      params.id,
+      id,
       body.amount_paid,
       body.paid_at
     );

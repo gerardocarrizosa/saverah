@@ -4,9 +4,10 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string; paymentId: string } }
+  { params }: { params: Promise<{ id: string; paymentId: string }> }
 ) {
   try {
+    const { id, paymentId } = await params;
     const supabase = await createSupabaseServerClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     
@@ -33,8 +34,8 @@ export async function PATCH(
         amount_paid: body.amount_paid,
         paid_at: body.paid_at,
       })
-      .eq('id', params.paymentId)
-      .eq('reminder_id', params.id)
+      .eq('id', paymentId)
+      .eq('reminder_id', id)
       .eq('user_id', user.id);
 
     if (error) throw error;
@@ -51,9 +52,10 @@ export async function PATCH(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string; paymentId: string } }
+  { params }: { params: Promise<{ id: string; paymentId: string }> }
 ) {
   try {
+    const { id, paymentId } = await params;
     const supabase = await createSupabaseServerClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     
@@ -64,8 +66,8 @@ export async function DELETE(
     const { error } = await supabase
       .from('reminder_payments')
       .delete()
-      .eq('id', params.paymentId)
-      .eq('reminder_id', params.id)
+      .eq('id', paymentId)
+      .eq('reminder_id', id)
       .eq('user_id', user.id);
 
     if (error) throw error;

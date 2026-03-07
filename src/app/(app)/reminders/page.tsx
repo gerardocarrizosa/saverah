@@ -79,10 +79,10 @@ async function searchReminders(query: string, category: string | null) {
 }
 
 interface RemindersPageProps {
-  searchParams: { 
+  searchParams: Promise<{ 
     q?: string;
     category?: string;
-  };
+  }>;
 }
 
 function RemindersLoading() {
@@ -102,16 +102,13 @@ function RemindersLoading() {
 }
 
 export default async function RemindersPage({ searchParams }: RemindersPageProps) {
+  const { q: searchQuery = '', category: selectedCategory = null } = await searchParams;
   const supabase = await createSupabaseServerClient();
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
     redirect('/login');
   }
-
-  // Get search params
-  const searchQuery = searchParams.q || '';
-  const selectedCategory = searchParams.category || null;
 
   // Fetch reminders (with search if query exists)
   let reminders: ReminderWithDays[];

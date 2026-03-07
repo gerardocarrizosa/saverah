@@ -19,9 +19,9 @@ import {
 } from 'lucide-react';
 
 interface ReminderDetailPageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 // Server actions for reminder management
@@ -60,6 +60,7 @@ async function deleteReminder(id: string) {
 }
 
 export default async function ReminderDetailPage({ params }: ReminderDetailPageProps) {
+  const { id } = await params;
   const supabase = await createSupabaseServerClient();
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -69,8 +70,8 @@ export default async function ReminderDetailPage({ params }: ReminderDetailPageP
 
   // Fetch reminder and analytics in parallel
   const [reminder, analytics] = await Promise.all([
-    getReminderById(user.id, params.id),
-    getReminderAnalytics(user.id, params.id),
+    getReminderById(user.id, id),
+    getReminderAnalytics(user.id, id),
   ]);
 
   if (!reminder) {

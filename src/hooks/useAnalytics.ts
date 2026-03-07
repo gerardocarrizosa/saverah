@@ -24,6 +24,7 @@ export function useAnalytics(reminderId: string) {
 
   useEffect(() => {
     if (reminderId) refresh();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [reminderId]);
 
   return {

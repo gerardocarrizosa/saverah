@@ -6,14 +6,15 @@ import { ReminderEditFormClientEdit } from '@/components/reminders/ReminderEditF
 import { ArrowLeft, Edit3 } from 'lucide-react';
 
 interface ReminderEditPageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 export default async function ReminderEditPage({
   params,
 }: ReminderEditPageProps) {
+  const { id } = await params;
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },
@@ -24,7 +25,7 @@ export default async function ReminderEditPage({
   }
 
   // Fetch reminder
-  const reminder = await getReminderById(user.id, params.id);
+  const reminder = await getReminderById(user.id, id);
 
   if (!reminder) {
     notFound();

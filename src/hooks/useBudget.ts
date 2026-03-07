@@ -32,6 +32,7 @@ export function useBudget(initialData?: { income?: Income[]; expenses?: Expense[
 
   useEffect(() => {
     if (!initialData?.income?.length) refresh();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const addIncome = async (data: Omit<Income, 'id' | 'user_id' | 'created_at'>) => {

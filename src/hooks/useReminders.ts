@@ -24,6 +24,7 @@ export function useReminders(initialData: Reminder[] = []) {
 
   useEffect(() => {
     if (!initialData.length) refresh();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const createReminder = async (data: { name: string; due_day: number; cutoff_day?: number; category: string; recurrence: 'monthly' | 'yearly' | 'weekly'; notes?: string }) => {
