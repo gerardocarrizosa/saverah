@@ -1,14 +1,11 @@
 'use client';
 
-import { useState } from 'react';
 import { ReminderCard } from './ReminderCard';
 import type { Reminder } from '@/types/reminder.types';
 import { AlertCircle, Clock, Calendar, CheckCircle, PauseCircle } from 'lucide-react';
 
 interface ReminderListProps {
   reminders: (Reminder & { daysUntilDue: number; isOverdue: boolean })[];
-  onToggleActive: (id: string, isActive: boolean) => void;
-  onDelete: (id: string) => void;
 }
 
 interface GroupedReminders {
@@ -42,25 +39,17 @@ function groupReminders(reminders: (Reminder & { daysUntilDue: number; isOverdue
   } as GroupedReminders);
 }
 
-export function ReminderList({ reminders, onToggleActive, onDelete }: ReminderListProps) {
-  const [deletingId, setDeletingId] = useState<string | null>(null);
-
-  const handleDelete = async (id: string) => {
-    setDeletingId(id);
-    await onDelete(id);
-    setDeletingId(null);
-  };
-
+export function ReminderList({ reminders }: ReminderListProps) {
   const grouped = groupReminders(reminders);
   const hasActiveReminders = grouped.urgent.length > 0 || grouped.soon.length > 0 || 
                               grouped.future.length > 0 || grouped.overdue.length > 0;
 
   if (reminders.length === 0) {
     return (
-      <div className="text-center py-16">
-        <div className="text-6xl mb-4">🗓️</div>
-        <h3 className="text-xl font-bold mb-2">No tienes recordatorios</h3>
-        <p className="text-base-content/60 max-w-md mx-auto">
+      <div className="text-center py-12 sm:py-16 px-4">
+        <div className="text-5xl sm:text-6xl mb-4">🗓️</div>
+        <h3 className="text-lg sm:text-xl font-bold mb-2">No tienes recordatorios</h3>
+        <p className="text-base-content/60 max-w-md mx-auto text-sm sm:text-base">
           Comienza agregando tus pagos recurrentes, tarjetas de crédito, servicios y suscripciones.
         </p>
       </div>
@@ -68,28 +57,25 @@ export function ReminderList({ reminders, onToggleActive, onDelete }: ReminderLi
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 sm:space-y-8">
       {/* Urgent Section */}
       {grouped.urgent.length > 0 && (
         <section>
-          <div className="flex items-center gap-3 mb-4">
-            <div className="p-2 rounded-lg bg-error/10">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-4">
+            <div className="p-2 rounded-lg bg-error/10 w-fit">
               <AlertCircle className="w-5 h-5 text-error" />
             </div>
-            <div>
-              <h2 className="text-lg font-bold text-error">🔴 URGENTE</h2>
-              <p className="text-sm text-base-content/60">Vence en los próximos 3 días</p>
+            <div className="flex-1">
+              <h2 className="text-base sm:text-lg font-bold text-error">🔴 URGENTE</h2>
+              <p className="text-xs sm:text-sm text-base-content/60">Vence en los próximos 3 días</p>
             </div>
-            <span className="badge badge-error badge-sm ml-auto">{grouped.urgent.length}</span>
+            <span className="badge badge-error badge-sm mt-1 sm:mt-0 w-fit">{grouped.urgent.length}</span>
           </div>
           <div className="space-y-3">
             {grouped.urgent.map((reminder) => (
               <ReminderCard
                 key={reminder.id}
                 reminder={reminder}
-                onToggleActive={onToggleActive}
-                onDelete={handleDelete}
-                isDeleting={deletingId === reminder.id}
               />
             ))}
           </div>
@@ -99,24 +85,21 @@ export function ReminderList({ reminders, onToggleActive, onDelete }: ReminderLi
       {/* Soon Section */}
       {grouped.soon.length > 0 && (
         <section>
-          <div className="flex items-center gap-3 mb-4">
-            <div className="p-2 rounded-lg bg-warning/10">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-4">
+            <div className="p-2 rounded-lg bg-warning/10 w-fit">
               <Clock className="w-5 h-5 text-warning" />
             </div>
-            <div>
-              <h2 className="text-lg font-bold text-warning">🟡 PRÓXIMOS</h2>
-              <p className="text-sm text-base-content/60">Vence esta semana</p>
+            <div className="flex-1">
+              <h2 className="text-base sm:text-lg font-bold text-warning">🟡 PRÓXIMOS</h2>
+              <p className="text-xs sm:text-sm text-base-content/60">Vence esta semana</p>
             </div>
-            <span className="badge badge-warning badge-sm ml-auto">{grouped.soon.length}</span>
+            <span className="badge badge-warning badge-sm mt-1 sm:mt-0 w-fit">{grouped.soon.length}</span>
           </div>
           <div className="space-y-3">
             {grouped.soon.map((reminder) => (
               <ReminderCard
                 key={reminder.id}
                 reminder={reminder}
-                onToggleActive={onToggleActive}
-                onDelete={handleDelete}
-                isDeleting={deletingId === reminder.id}
               />
             ))}
           </div>
@@ -126,24 +109,21 @@ export function ReminderList({ reminders, onToggleActive, onDelete }: ReminderLi
       {/* Future Section */}
       {grouped.future.length > 0 && (
         <section>
-          <div className="flex items-center gap-3 mb-4">
-            <div className="p-2 rounded-lg bg-success/10">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-4">
+            <div className="p-2 rounded-lg bg-success/10 w-fit">
               <Calendar className="w-5 h-5 text-success" />
             </div>
-            <div>
-              <h2 className="text-lg font-bold text-success">🟢 FUTUROS</h2>
-              <p className="text-sm text-base-content/60">Vence en más de una semana</p>
+            <div className="flex-1">
+              <h2 className="text-base sm:text-lg font-bold text-success">🟢 FUTUROS</h2>
+              <p className="text-xs sm:text-sm text-base-content/60">Vence en más de una semana</p>
             </div>
-            <span className="badge badge-success badge-sm ml-auto">{grouped.future.length}</span>
+            <span className="badge badge-success badge-sm mt-1 sm:mt-0 w-fit">{grouped.future.length}</span>
           </div>
           <div className="space-y-3">
             {grouped.future.map((reminder) => (
               <ReminderCard
                 key={reminder.id}
                 reminder={reminder}
-                onToggleActive={onToggleActive}
-                onDelete={handleDelete}
-                isDeleting={deletingId === reminder.id}
               />
             ))}
           </div>
@@ -153,24 +133,21 @@ export function ReminderList({ reminders, onToggleActive, onDelete }: ReminderLi
       {/* Overdue Section */}
       {grouped.overdue.length > 0 && (
         <section>
-          <div className="flex items-center gap-3 mb-4">
-            <div className="p-2 rounded-lg bg-neutral/10">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-4">
+            <div className="p-2 rounded-lg bg-neutral/10 w-fit">
               <CheckCircle className="w-5 h-5 text-neutral" />
             </div>
-            <div>
-              <h2 className="text-lg font-bold text-neutral">⚫ VENCIDOS</h2>
-              <p className="text-sm text-base-content/60">Ya pasó la fecha de vencimiento</p>
+            <div className="flex-1">
+              <h2 className="text-base sm:text-lg font-bold text-neutral">⚫ VENCIDOS</h2>
+              <p className="text-xs sm:text-sm text-base-content/60">Ya pasó la fecha de vencimiento</p>
             </div>
-            <span className="badge badge-neutral badge-sm ml-auto">{grouped.overdue.length}</span>
+            <span className="badge badge-neutral badge-sm mt-1 sm:mt-0 w-fit">{grouped.overdue.length}</span>
           </div>
           <div className="space-y-3 opacity-75">
             {grouped.overdue.map((reminder) => (
               <ReminderCard
                 key={reminder.id}
                 reminder={reminder}
-                onToggleActive={onToggleActive}
-                onDelete={handleDelete}
-                isDeleting={deletingId === reminder.id}
               />
             ))}
           </div>
@@ -180,24 +157,21 @@ export function ReminderList({ reminders, onToggleActive, onDelete }: ReminderLi
       {/* Inactive Section */}
       {grouped.inactive.length > 0 && (
         <section>
-          <div className="flex items-center gap-3 mb-4">
-            <div className="p-2 rounded-lg bg-base-300">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-4">
+            <div className="p-2 rounded-lg bg-base-300 w-fit">
               <PauseCircle className="w-5 h-5 text-base-content/50" />
             </div>
-            <div>
-              <h2 className="text-lg font-bold text-base-content/50">⏸️ INACTIVOS</h2>
-              <p className="text-sm text-base-content/60">Recordatorios pausados</p>
+            <div className="flex-1">
+              <h2 className="text-base sm:text-lg font-bold text-base-content/50">⏸️ INACTIVOS</h2>
+              <p className="text-xs sm:text-sm text-base-content/60">Recordatorios pausados</p>
             </div>
-            <span className="badge badge-ghost badge-sm ml-auto">{grouped.inactive.length}</span>
+            <span className="badge badge-ghost badge-sm mt-1 sm:mt-0 w-fit">{grouped.inactive.length}</span>
           </div>
           <div className="space-y-3 opacity-50">
             {grouped.inactive.map((reminder) => (
               <ReminderCard
                 key={reminder.id}
                 reminder={reminder}
-                onToggleActive={onToggleActive}
-                onDelete={handleDelete}
-                isDeleting={deletingId === reminder.id}
               />
             ))}
           </div>

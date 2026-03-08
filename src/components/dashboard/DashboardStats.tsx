@@ -1,13 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { 
-  Wallet, 
-  TrendingUp, 
-  TrendingDown,
-  Eye,
-  EyeOff
-} from 'lucide-react';
+import { Wallet, TrendingUp, TrendingDown, Eye, EyeOff } from 'lucide-react';
 
 interface DashboardStatsProps {
   balance: number;
@@ -15,7 +9,11 @@ interface DashboardStatsProps {
   totalExpenses: number;
 }
 
-export function DashboardStats({ balance, totalIncome, totalExpenses }: DashboardStatsProps) {
+export function DashboardStats({
+  balance,
+  totalIncome,
+  totalExpenses,
+}: DashboardStatsProps) {
   const [isVisible, setIsVisible] = useState(true);
 
   // Load preference from localStorage on mount
@@ -52,13 +50,13 @@ export function DashboardStats({ balance, totalIncome, totalExpenses }: Dashboar
         >
           {isVisible ? (
             <>
-              <EyeOff className="w-4 h-4" />
-              <span className="hidden sm:inline">Ocultar montos</span>
+              <span className="inline">Ocultar montos</span>
+              <EyeOff className="w-5 h-5" />
             </>
           ) : (
             <>
-              <Eye className="w-4 h-4" />
-              <span className="hidden sm:inline">Mostrar montos</span>
+              <span className="inline">Mostrar montos</span>
+              <Eye className="w-5 h-5" />
             </>
           )}
         </button>
@@ -70,19 +68,27 @@ export function DashboardStats({ balance, totalIncome, totalExpenses }: Dashboar
         <div className="card bg-base-100 shadow-xl">
           <div className="card-body">
             <div className="flex items-center gap-3">
-              <div className={`p-3 rounded-full ${balance >= 0 ? 'bg-success/20' : 'bg-error/20'}`}>
-                <Wallet className={`w-6 h-6 ${balance >= 0 ? 'text-success' : 'text-error'}`} />
+              <div
+                className={`p-3 rounded-full ${balance >= 0 ? 'bg-success/20' : 'bg-error/20'}`}
+              >
+                <Wallet
+                  className={`w-6 h-6 ${balance >= 0 ? 'text-success' : 'text-error'}`}
+                />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-base-content/70">Balance total</p>
-                <p className={`text-2xl font-bold ${balance >= 0 ? 'text-success' : 'text-error'} truncate`}>
+                <p className="text-sm font-medium text-base-content/70">
+                  Balance total
+                </p>
+                <p
+                  className={`text-2xl font-bold ${balance >= 0 ? 'text-success' : 'text-error'} truncate`}
+                >
                   {formatMoney(balance)}
                 </p>
               </div>
             </div>
           </div>
         </div>
-        
+
         {/* Income */}
         <div className="card bg-base-100 shadow-xl">
           <div className="card-body">
@@ -91,7 +97,9 @@ export function DashboardStats({ balance, totalIncome, totalExpenses }: Dashboar
                 <TrendingUp className="w-6 h-6 text-success" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-base-content/70">Ingresos</p>
+                <p className="text-sm font-medium text-base-content/70">
+                  Ingresos
+                </p>
                 <p className="text-2xl font-bold text-success truncate">
                   {formatMoney(totalIncome)}
                 </p>
@@ -99,7 +107,7 @@ export function DashboardStats({ balance, totalIncome, totalExpenses }: Dashboar
             </div>
           </div>
         </div>
-        
+
         {/* Expenses */}
         <div className="card bg-base-100 shadow-xl">
           <div className="card-body">
@@ -108,7 +116,9 @@ export function DashboardStats({ balance, totalIncome, totalExpenses }: Dashboar
                 <TrendingDown className="w-6 h-6 text-error" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-base-content/70">Gastos</p>
+                <p className="text-sm font-medium text-base-content/70">
+                  Gastos
+                </p>
                 <p className="text-2xl font-bold text-error truncate">
                   {formatMoney(totalExpenses)}
                 </p>

@@ -1,7 +1,14 @@
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { getReminders } from '@/lib/api/reminders';
 import { getBudgetSummary } from '@/lib/api/budget';
-import { ArrowRight, Activity, Target, Flame, Trophy, CreditCard } from 'lucide-react';
+import {
+  ArrowRight,
+  Activity,
+  Target,
+  Flame,
+  Trophy,
+  CreditCard,
+} from 'lucide-react';
 import { redirect } from 'next/navigation';
 import { Suspense } from 'react';
 import { DashboardStats } from '@/components/dashboard/DashboardStats';
@@ -15,12 +22,12 @@ import { SavingsGoals } from '@/components/dashboard/SavingsGoals';
 import { BudgetStreak } from '@/components/dashboard/BudgetStreak';
 import { Achievements } from '@/components/dashboard/Achievements';
 import { CreditCardsQuickView } from '@/components/dashboard/CreditCardsQuickView';
-import { 
+import {
   LayoutDashboard,
   Zap,
   AlertTriangle,
   PiggyBank,
-  CalendarDays
+  CalendarDays,
 } from 'lucide-react';
 
 export default async function DashboardPage() {
@@ -39,7 +46,7 @@ export default async function DashboardPage() {
   ]);
 
   const activeReminders = reminders.filter((r) => r.is_active);
-  
+
   // Calculate urgent count (sync version for server component)
   const urgentCount = activeReminders.filter((r) => {
     // Simple calculation: due_day close to today
@@ -50,7 +57,7 @@ export default async function DashboardPage() {
 
   // Count budget alerts for badge
   const alertCount = budget.categories.filter(
-    (cat) => cat.limit && (cat.percentage || 0) >= 80
+    (cat) => cat.limit && (cat.percentage || 0) >= 80,
   ).length;
 
   return (
@@ -58,7 +65,7 @@ export default async function DashboardPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-base-content flex items-center gap-2">
+          <h1 className="text-xl font-bold text-base-content flex items-center gap-2">
             <LayoutDashboard className="w-8 h-8 text-primary" />
             Panel de control
           </h1>
@@ -69,7 +76,7 @@ export default async function DashboardPage() {
       </div>
 
       {/* Main Stats - Always Visible */}
-      <DashboardStats 
+      <DashboardStats
         balance={budget.balance}
         totalIncome={budget.total_income}
         totalExpenses={budget.total_expenses}
@@ -95,7 +102,7 @@ export default async function DashboardPage() {
         action={{
           label: 'Ver todos',
           href: '/reminders',
-          icon: <ArrowRight className="w-4 h-4" />
+          icon: <ArrowRight className="w-4 h-4" />,
         }}
       >
         <Suspense fallback={<div className="loading loading-spinner"></div>}>
@@ -113,7 +120,7 @@ export default async function DashboardPage() {
         action={{
           label: 'Ver presupuesto',
           href: '/budget',
-          icon: <ArrowRight className="w-4 h-4" />
+          icon: <ArrowRight className="w-4 h-4" />,
         }}
       >
         <BudgetAlerts categories={budget.categories} />
@@ -141,9 +148,7 @@ export default async function DashboardPage() {
           defaultExpanded={true}
         >
           <Suspense fallback={<div className="loading loading-spinner"></div>}>
-            <MonthlyOverview 
-              currentBudget={budget} 
-            />
+            <MonthlyOverview currentBudget={budget} />
           </Suspense>
         </DashboardSection>
 
@@ -155,7 +160,7 @@ export default async function DashboardPage() {
           action={{
             label: 'Ver todo',
             href: '/budget',
-            icon: <ArrowRight className="w-4 h-4" />
+            icon: <ArrowRight className="w-4 h-4" />,
           }}
         >
           <Suspense fallback={<div className="loading loading-spinner"></div>}>

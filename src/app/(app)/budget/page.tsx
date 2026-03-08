@@ -5,11 +5,7 @@ import { Suspense } from 'react';
 import { BudgetStatsContainer } from '@/components/budget/BudgetStatsContainer';
 import { BudgetCategoryManager } from '@/components/budget/BudgetCategoryManager';
 import { RecentTransactions } from '@/components/budget/RecentTransactions';
-import { 
-  PiggyBank,
-  Target,
-  Sparkles
-} from 'lucide-react';
+import { Target } from 'lucide-react';
 
 // Server action to refresh the page after setting a limit
 async function refreshPage() {
@@ -35,7 +31,9 @@ function BudgetLoading() {
 
 export default async function BudgetPage() {
   const supabase = await createSupabaseServerClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   if (!user) {
     redirect('/login');
@@ -53,27 +51,17 @@ export default async function BudgetPage() {
   const balance = summary.balance;
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-4">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-base-content flex items-center gap-3">
-            <span className="text-4xl">💰</span>
-            Presupuesto
-          </h1>
-          <p className="text-base-content/70 mt-1 flex items-center gap-2">
-            <Sparkles className="w-4 h-4" />
-            Tu centro de control financiero
-          </p>
-        </div>
-        <div className="flex items-center gap-2 text-sm text-base-content/60 bg-base-200/50 px-4 py-2 rounded-full">
-          <PiggyBank className="w-4 h-4" />
-          <span>Moneda: MXN</span>
-        </div>
+      <div className="flex justify-between gap-4">
+        <h1 className="font-bold text-base-content flex items-center gap-3">
+          <span className="text-3xl">💰</span>
+          Presupuesto
+        </h1>
       </div>
 
       {/* Stats Overview with Visibility Toggle - Client Component */}
-      <BudgetStatsContainer 
+      <BudgetStatsContainer
         totalIncome={totalIncome}
         totalExpenses={totalExpenses}
         balance={balance}
@@ -90,7 +78,7 @@ export default async function BudgetPage() {
           <h2 className="text-xl font-bold">Tus categorías</h2>
         </div>
         <Suspense fallback={<BudgetLoading />}>
-          <BudgetCategoryManager 
+          <BudgetCategoryManager
             categories={summary.categories}
             onLimitSet={refreshPage}
           />
@@ -99,10 +87,7 @@ export default async function BudgetPage() {
 
       {/* Recent Transactions */}
       <div className="space-y-4">
-        <RecentTransactions 
-          income={income}
-          expenses={expenses}
-        />
+        <RecentTransactions income={income} expenses={expenses} />
       </div>
 
       {/* Empty State Helper */}
@@ -110,10 +95,13 @@ export default async function BudgetPage() {
         <div className="card bg-gradient-to-r from-primary/5 via-secondary/5 to-accent/5 border border-primary/20">
           <div className="card-body text-center py-12">
             <div className="text-6xl mb-4 animate-bounce">🚀</div>
-            <h3 className="text-xl font-bold mb-2">¡Comienza tu viaje financiero!</h3>
+            <h3 className="text-xl font-bold mb-2">
+              ¡Comienza tu viaje financiero!
+            </h3>
             <p className="text-base-content/60 max-w-lg mx-auto mb-6">
-              Para aprovechar al máximo tu presupuesto, comienza registrando tus ingresos y gastos. 
-              Podrás establecer límites, ver gráficos y mantener el control de tus finanzas.
+              Para aprovechar al máximo tu presupuesto, comienza registrando tus
+              ingresos y gastos. Podrás establecer límites, ver gráficos y
+              mantener el control de tus finanzas.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <a href="/budget/income" className="btn btn-success gap-2">

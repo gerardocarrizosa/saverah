@@ -7,7 +7,7 @@ import { Suspense } from 'react';
 import { ReminderList } from '@/components/reminders/ReminderList';
 import { ReminderStats } from '@/components/reminders/ReminderStats';
 import { CategoryFilterClient } from '@/components/reminders/CategoryFilterClient';
-import { Plus, Bell } from 'lucide-react';
+import { Plus } from 'lucide-react';
 
 import type { Reminder } from '@/types/reminder.types';
 
@@ -17,69 +17,34 @@ type ReminderWithDays = Reminder & {
   isOverdue: boolean;
 };
 
-// Server action to toggle reminder active status
-async function toggleReminderActive(id: string, isActive: boolean) {
-  'use server';
-  const supabase = await createSupabaseServerClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  
-  if (!user) throw new Error('No autorizado');
-  
-  const { error } = await supabase
-    .from('reminders')
-    .update({ is_active: isActive })
-    .eq('id', id)
-    .eq('user_id', user.id);
-  
-  if (error) throw error;
-}
-
-// Server action to delete reminder
-async function deleteReminder(id: string) {
-  'use server';
-  const supabase = await createSupabaseServerClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  
-  if (!user) throw new Error('No autorizado');
-  
-  const { error } = await supabase
-    .from('reminders')
-    .delete()
-    .eq('id', id)
-    .eq('user_id', user.id);
-  
-  if (error) throw error;
-}
-
 // Server action to search reminders
 async function searchReminders(query: string, category: string | null) {
   'use server';
   const supabase = await createSupabaseServerClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   if (!user) throw new Error('No autorizado');
-  
-  let dbQuery = supabase
-    .from('reminders')
-    .select('*')
-    .eq('user_id', user.id);
-  
+
+  let dbQuery = supabase.from('reminders').select('*').eq('user_id', user.id);
+
   if (query) {
     dbQuery = dbQuery.ilike('name', `%${query}%`);
   }
-  
+
   if (category) {
     dbQuery = dbQuery.eq('category', category);
   }
-  
+
   const { data, error } = await dbQuery.order('due_day', { ascending: true });
-  
+
   if (error) throw error;
   return data || [];
 }
 
 interface RemindersPageProps {
-  searchParams: Promise<{ 
+  searchParams: Promise<{
     q?: string;
     category?: string;
   }>;
@@ -101,10 +66,15 @@ function RemindersLoading() {
   );
 }
 
-export default async function RemindersPage({ searchParams }: RemindersPageProps) {
-  const { q: searchQuery = '', category: selectedCategory = null } = await searchParams;
+export default async function RemindersPage({
+  searchParams,
+}: RemindersPageProps) {
+  const { q: searchQuery = '', category: selectedCategory = null } =
+    await searchParams;
   const supabase = await createSupabaseServerClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   if (!user) {
     redirect('/login');
@@ -112,17 +82,17 @@ export default async function RemindersPage({ searchParams }: RemindersPageProps
 
   // Fetch reminders (with search if query exists)
   let reminders: ReminderWithDays[];
-  
+
   if (searchQuery || selectedCategory) {
     const rawReminders = await searchReminders(searchQuery, selectedCategory);
-    reminders = rawReminders.map(r => ({
+    reminders = rawReminders.map((r) => ({
       ...r,
       daysUntilDue: getDaysUntilDue(r.due_day, r.recurrence),
       isOverdue: isOverdue(getDaysUntilDue(r.due_day, r.recurrence)),
     }));
   } else {
     const rawReminders = await getReminders(user.id);
-    reminders = rawReminders.map(r => ({
+    reminders = rawReminders.map((r) => ({
       ...r,
       daysUntilDue: getDaysUntilDue(r.due_day, r.recurrence),
       isOverdue: isOverdue(getDaysUntilDue(r.due_day, r.recurrence)),
@@ -131,27 +101,25 @@ export default async function RemindersPage({ searchParams }: RemindersPageProps
 
   // Calculate stats
   const total = reminders.length;
-  const active = reminders.filter(r => r.is_active).length;
-  const inactive = reminders.filter(r => !r.is_active).length;
-  const upcoming = reminders.filter(r => r.is_active && r.daysUntilDue > 0 && r.daysUntilDue <= 7).length;
-  const overdue = reminders.filter(r => r.is_active && (r.isOverdue || r.daysUntilDue <= 3)).length;
+  const active = reminders.filter((r) => r.is_active).length;
+  const inactive = reminders.filter((r) => !r.is_active).length;
+  const upcoming = reminders.filter(
+    (r) => r.is_active && r.daysUntilDue > 0 && r.daysUntilDue <= 7,
+  ).length;
+  const overdue = reminders.filter(
+    (r) => r.is_active && (r.isOverdue || r.daysUntilDue <= 3),
+  ).length;
 
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-base-content flex items-center gap-3">
-            <span className="text-4xl">🗓️</span>
-            Recordatorios de pagos
-          </h1>
-          <p className="text-base-content/70 mt-1 flex items-center gap-2">
-            <Bell className="w-4 h-4" />
-            Nunca olvides un pago importante
-          </p>
-        </div>
-        <Link 
-          href="/reminders/new" 
+      <div className="flex gap-4 justify-between">
+        <h1 className="font-bold text-base-content flex items-center gap-3">
+          <span className="text-3xl">🗓️</span>
+          Recordatorios
+        </h1>
+        <Link
+          href="/reminders/new"
           className="btn btn-primary gap-2 self-start sm:self-auto"
         >
           <Plus className="w-5 h-5" />
@@ -160,7 +128,7 @@ export default async function RemindersPage({ searchParams }: RemindersPageProps
       </div>
 
       {/* Stats */}
-      <ReminderStats 
+      <ReminderStats
         total={total}
         active={active}
         upcoming={upcoming}
@@ -172,7 +140,7 @@ export default async function RemindersPage({ searchParams }: RemindersPageProps
       <div className="card bg-base-100 border border-base-300">
         <div className="card-body p-4">
           <Suspense fallback={<div className="loading loading-spinner"></div>}>
-            <CategoryFilterClient 
+            <CategoryFilterClient
               initialQuery={searchQuery}
               initialCategory={selectedCategory}
             />
@@ -182,11 +150,7 @@ export default async function RemindersPage({ searchParams }: RemindersPageProps
 
       {/* Reminders List */}
       <Suspense fallback={<RemindersLoading />}>
-        <ReminderList 
-          reminders={reminders}
-          onToggleActive={toggleReminderActive}
-          onDelete={deleteReminder}
-        />
+        <ReminderList reminders={reminders} />
       </Suspense>
 
       {/* Empty State */}
@@ -194,10 +158,12 @@ export default async function RemindersPage({ searchParams }: RemindersPageProps
         <div className="card bg-gradient-to-r from-primary/5 via-secondary/5 to-accent/5 border border-primary/20">
           <div className="card-body text-center py-12">
             <div className="text-6xl mb-4 animate-bounce">🚀</div>
-            <h3 className="text-xl font-bold mb-2">¡Comienza a organizar tus pagos!</h3>
+            <h3 className="text-xl font-bold mb-2">
+              ¡Comienza a organizar tus pagos!
+            </h3>
             <p className="text-base-content/60 max-w-lg mx-auto mb-6">
-              Agrega tus tarjetas de crédito, servicios, suscripciones y otros pagos recurrentes. 
-              Te avisaremos antes de que venzan.
+              Agrega tus tarjetas de crédito, servicios, suscripciones y otros
+              pagos recurrentes. Te avisaremos antes de que venzan.
             </p>
             <Link href="/reminders/new" className="btn btn-primary gap-2">
               <Plus className="w-5 h-5" />
@@ -211,7 +177,9 @@ export default async function RemindersPage({ searchParams }: RemindersPageProps
       {total === 0 && (searchQuery || selectedCategory) && (
         <div className="text-center py-12">
           <div className="text-5xl mb-4">🔍</div>
-          <h3 className="text-lg font-semibold mb-2">No se encontraron resultados</h3>
+          <h3 className="text-lg font-semibold mb-2">
+            No se encontraron resultados
+          </h3>
           <p className="text-base-content/60">
             Intenta con otros términos de búsqueda o categorías
           </p>
