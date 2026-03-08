@@ -53,15 +53,15 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       <div className="fixed bottom-0 left-0 right-0 lg:hidden btm-nav btm-nav-sm bg-base-100 border-t border-base-300 z-40">
         <div className="flex justify-around p-4 gap-4">
           <Link href="/reminders" className="flex flex-row items-center gap-1">
-            <Calendar className="w-8 h-8" />
+            <Calendar className="w-6 h-6" />
             {/* <span className="text-xs">Recordatorios</span> */}
           </Link>
           <Link href="/dashboard" className="flex flex-row items-center gap-1">
-            <LayoutDashboard className="w-8 h-8" />
+            <LayoutDashboard className="w-6 h-6" />
             {/* <span className="text-xs">Panel</span> */}
           </Link>
           <Link href="/budget" className="flex flex-row items-center gap-1">
-            <Wallet className="w-8 h-8" />
+            <Wallet className="w-6 h-6" />
             {/* <span className="text-xs">Presupuesto</span> */}
           </Link>
         </div>
