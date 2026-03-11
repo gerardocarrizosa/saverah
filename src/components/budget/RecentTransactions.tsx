@@ -1,12 +1,26 @@
 'use client';
 
 import Link from 'next/link';
-import { 
-  ArrowRight, 
-  TrendingUp, 
-  TrendingDown, 
+import {
+  ArrowRight,
+  TrendingUp,
+  TrendingDown,
   Calendar,
-  Plus
+  Plus,
+  Briefcase,
+  LineChart,
+  Banknote,
+  Utensils,
+  Car,
+  Home,
+  Gamepad2,
+  Heart,
+  GraduationCap,
+  Laptop,
+  Zap,
+  Shirt,
+  PiggyBank,
+  CreditCard,
 } from 'lucide-react';
 import { DEFAULT_CURRENCY } from '@/config/constants';
 import type { Income, Expense } from '@/types/budget.types';
@@ -15,6 +29,25 @@ interface RecentTransactionsProps {
   income: Income[];
   expenses: Expense[];
 }
+
+const incomeTypeIcons: Record<string, React.ReactNode> = {
+  steady: <Briefcase className="w-5 h-5" />,
+  variable: <LineChart className="w-5 h-5" />,
+  other: <Banknote className="w-5 h-5" />,
+};
+
+const categoryIcons: Record<string, React.ReactNode> = {
+  Alimentación: <Utensils className="w-5 h-5" />,
+  Transporte: <Car className="w-5 h-5" />,
+  Vivienda: <Home className="w-5 h-5" />,
+  Entretenimiento: <Gamepad2 className="w-5 h-5" />,
+  Salud: <Heart className="w-5 h-5" />,
+  Educación: <GraduationCap className="w-5 h-5" />,
+  Tecnología: <Laptop className="w-5 h-5" />,
+  Servicios: <Zap className="w-5 h-5" />,
+  Ropa: <Shirt className="w-5 h-5" />,
+  Ahorro: <PiggyBank className="w-5 h-5" />,
+};
 
 function formatCurrency(amount: number): string {
   return new Intl.NumberFormat('es-MX', {
@@ -31,14 +64,17 @@ function formatDate(dateString: string): string {
   });
 }
 
-export function RecentTransactions({ income, expenses }: RecentTransactionsProps) {
+export function RecentTransactions({
+  income,
+  expenses,
+}: RecentTransactionsProps) {
   const recentIncome = income.slice(0, 5);
   const recentExpenses = expenses.slice(0, 5);
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       {/* Recent Income */}
-      <div className="card bg-base-100 border border-base-300">
+      <div className="card bg-base-100 border border-base-300 rounded-xl">
         <div className="card-body">
           <div className="flex justify-between items-center mb-4">
             <div className="flex items-center gap-2">
@@ -47,10 +83,7 @@ export function RecentTransactions({ income, expenses }: RecentTransactionsProps
               </div>
               <h3 className="font-semibold">Últimos ingresos</h3>
             </div>
-            <Link 
-              href="/budget/income"
-              className="btn btn-ghost btn-sm gap-1"
-            >
+            <Link href="/budget/income" className="btn btn-ghost btn-sm gap-1">
               Ver todos
               <ArrowRight className="w-4 h-4" />
             </Link>
@@ -58,23 +91,34 @@ export function RecentTransactions({ income, expenses }: RecentTransactionsProps
 
           {recentIncome.length === 0 ? (
             <div className="text-center py-8">
-              <div className="text-4xl mb-3">💰</div>
-              <p className="text-base-content/60 mb-4">No hay ingresos registrados</p>
-              <Link href="/budget/income" className="btn btn-success btn-sm gap-2">
+              <div className="flex justify-center mb-4">
+                <div className="p-4 rounded-2xl bg-success/10">
+                  <TrendingUp className="w-8 h-8 text-success" />
+                </div>
+              </div>
+              <p className="text-base-content/60 mb-4">
+                No hay ingresos registrados
+              </p>
+              <Link
+                href="/budget/income"
+                className="btn btn-success btn-sm gap-2"
+              >
                 <Plus className="w-4 h-4" />
                 Agregar ingreso
               </Link>
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-2">
               {recentIncome.map((item) => (
-                <div 
+                <div
                   key={item.id}
                   className="flex items-center justify-between p-3 bg-base-200/50 rounded-xl hover:bg-base-200 transition-colors"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="text-2xl">
-                      {item.type === 'steady' ? '💼' : item.type === 'variable' ? '📈' : '💵'}
+                    <div className="p-2 rounded-lg bg-success/10 text-success">
+                      {incomeTypeIcons[item.type] || (
+                        <Banknote className="w-5 h-5" />
+                      )}
                     </div>
                     <div>
                       <p className="font-medium text-sm">{item.source}</p>
@@ -95,7 +139,7 @@ export function RecentTransactions({ income, expenses }: RecentTransactionsProps
       </div>
 
       {/* Recent Expenses */}
-      <div className="card bg-base-100 border border-base-300">
+      <div className="card bg-base-100 border border-base-300 rounded-xl">
         <div className="card-body">
           <div className="flex justify-between items-center mb-4">
             <div className="flex items-center gap-2">
@@ -104,7 +148,7 @@ export function RecentTransactions({ income, expenses }: RecentTransactionsProps
               </div>
               <h3 className="font-semibold">Últimos gastos</h3>
             </div>
-            <Link 
+            <Link
               href="/budget/expenses"
               className="btn btn-ghost btn-sm gap-1"
             >
@@ -115,32 +159,34 @@ export function RecentTransactions({ income, expenses }: RecentTransactionsProps
 
           {recentExpenses.length === 0 ? (
             <div className="text-center py-8">
-              <div className="text-4xl mb-3">💸</div>
-              <p className="text-base-content/60 mb-4">No hay gastos registrados</p>
-              <Link href="/budget/expenses" className="btn btn-error btn-sm gap-2">
+              <div className="flex justify-center mb-4">
+                <div className="p-4 rounded-2xl bg-error/10">
+                  <TrendingDown className="w-8 h-8 text-error" />
+                </div>
+              </div>
+              <p className="text-base-content/60 mb-4">
+                No hay gastos registrados
+              </p>
+              <Link
+                href="/budget/expenses"
+                className="btn btn-error btn-sm gap-2"
+              >
                 <Plus className="w-4 h-4" />
                 Agregar gasto
               </Link>
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-2">
               {recentExpenses.map((item) => (
-                <div 
+                <div
                   key={item.id}
                   className="flex items-center justify-between p-3 bg-base-200/50 rounded-xl hover:bg-base-200 transition-colors"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="text-2xl">
-                      {item.category === 'Alimentación' ? '🍽️' : 
-                       item.category === 'Transporte' ? '🚗' :
-                       item.category === 'Vivienda' ? '🏠' :
-                       item.category === 'Entretenimiento' ? '🎮' :
-                       item.category === 'Salud' ? '❤️' :
-                       item.category === 'Educación' ? '📚' :
-                       item.category === 'Tecnología' ? '💻' :
-                       item.category === 'Servicios' ? '⚡' :
-                       item.category === 'Ropa' ? '👕' :
-                       item.category === 'Ahorro' ? '🐷' : '💳'}
+                    <div className="p-2 rounded-lg bg-error/10 text-error">
+                      {categoryIcons[item.category] || (
+                        <CreditCard className="w-5 h-5" />
+                      )}
                     </div>
                     <div>
                       <p className="font-medium text-sm">{item.description}</p>

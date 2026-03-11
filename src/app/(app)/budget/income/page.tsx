@@ -1,15 +1,43 @@
 'use client';
 
+import { useState, useRef } from 'react';
 import { useBudget } from '@/hooks/useBudget';
 import { IncomeForm } from '@/components/budget/IncomeForm';
 import { IncomeList } from '@/components/budget/IncomeList';
-import { Wallet, TrendingUp, Loader2 } from 'lucide-react';
+import { Wallet, TrendingUp, Loader2, TrendingDown } from 'lucide-react';
+import type { Income } from '@/types/budget.types';
 
 export default function IncomePage() {
-  const { income, loading, error, refresh } = useBudget();
+  const { income, loading, error, refresh, deleteIncome } = useBudget();
+  const [editingIncome, setEditingIncome] = useState<Income | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const formRef = useRef<HTMLDivElement>(null);
 
   const handleSuccess = () => {
     refresh();
+    if (editingIncome) {
+      setEditingIncome(null);
+    }
+  };
+
+  const handleEdit = (income: Income) => {
+    setEditingIncome(income);
+    formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  const handleCancelEdit = () => {
+    setEditingIncome(null);
+  };
+
+  const handleDelete = async (id: string) => {
+    setDeletingId(id);
+    try {
+      await deleteIncome(id);
+    } catch (err) {
+      console.error('Error deleting income:', err);
+    } finally {
+      setDeletingId(null);
+    }
   };
 
   const totalIncome = income.reduce((sum, item) => sum + item.amount, 0);
@@ -29,15 +57,28 @@ export default function IncomePage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="space-y-4">
+        <div className="space-y-4" ref={formRef}>
           <div className="card bg-base-100 shadow-sm border border-base-300">
             <div className="card-body">
               <h2 className="card-title text-lg flex items-center gap-2">
-                <TrendingUp className="w-5 h-5 text-success" />
-                Registrar nuevo ingreso
+                {editingIncome ? (
+                  <>
+                    <TrendingDown className="w-5 h-5 text-warning" />
+                    Editar ingreso
+                  </>
+                ) : (
+                  <>
+                    <TrendingUp className="w-5 h-5 text-success" />
+                    Registrar nuevo ingreso
+                  </>
+                )}
               </h2>
               <div className="divider my-2"></div>
-              <IncomeForm onSuccess={handleSuccess} />
+              <IncomeForm 
+                onSuccess={handleSuccess} 
+                onCancel={handleCancelEdit}
+                editIncome={editingIncome}
+              />
             </div>
           </div>
         </div>
@@ -72,7 +113,12 @@ export default function IncomePage() {
                   <span>{error}</span>
                 </div>
               ) : (
-                <IncomeList income={income} />
+                <IncomeList 
+                  income={income} 
+                  onEdit={handleEdit}
+                  onDelete={handleDelete}
+                  deletingId={deletingId}
+                />
               )}
             </div>
           </div>

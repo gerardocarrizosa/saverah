@@ -1,14 +1,21 @@
 'use client';
 
+import { useState } from 'react';
 import { DEFAULT_CURRENCY } from '@/config/constants';
 import type { Income } from '@/types/budget.types';
 import {
   Calendar,
   Wallet,
+  Pencil,
+  Trash2,
+  Loader2,
 } from 'lucide-react';
 
 interface IncomeListProps {
   income: Income[];
+  onEdit: (income: Income) => void;
+  onDelete: (id: string) => void;
+  deletingId?: string | null;
 }
 
 function formatCurrency(amount: number): string {
@@ -46,7 +53,19 @@ function getTypeLabel(type: string): string {
   return typeMap[type] || type;
 }
 
-export function IncomeList({ income }: IncomeListProps) {
+export function IncomeList({ income, onEdit, onDelete, deletingId }: IncomeListProps) {
+  const [confirmingId, setConfirmingId] = useState<string | null>(null);
+
+  const handleDeleteClick = (id: string) => {
+    if (confirmingId === id) {
+      onDelete(id);
+      setConfirmingId(null);
+    } else {
+      setConfirmingId(id);
+      setTimeout(() => setConfirmingId(null), 3000);
+    }
+  };
+
   if (income.length === 0) {
     return (
       <div className="text-center py-12 bg-base-200 rounded-lg">
@@ -99,6 +118,31 @@ export function IncomeList({ income }: IncomeListProps) {
                   +{formatCurrency(item.amount)}
                 </span>
               </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-3 border-t border-base-200 mt-3">
+              <button
+                onClick={() => onEdit(item)}
+                className="btn btn-ghost btn-xs"
+                disabled={deletingId === item.id}
+              >
+                <Pencil className="w-3 h-3" />
+                Editar
+              </button>
+              <button
+                onClick={() => handleDeleteClick(item.id)}
+                className={`btn btn-xs ${
+                  confirmingId === item.id ? 'btn-error' : 'btn-ghost'
+                }`}
+                disabled={deletingId === item.id && deletingId !== item.id}
+              >
+                {deletingId === item.id ? (
+                  <Loader2 className="w-3 h-3 animate-spin" />
+                ) : (
+                  <Trash2 className="w-3 h-3" />
+                )}
+                {confirmingId === item.id ? 'Confirmar' : 'Eliminar'}
+              </button>
             </div>
           </div>
         </div>

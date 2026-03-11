@@ -4,13 +4,14 @@ import UserMenu from '@/components/UserMenu';
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-base-300">
-      <nav className="navbar bg-base-100 shadow-md sticky top-0 z-50 px-4 sm:px-6 lg:px-8">
+    // <div className="min-h-screen bg-base-300">
+    <div className="min-h-screen bg-base-100">
+      <nav className="navbar bg-base-300 shadow-md sticky top-0 z-50 px-4 sm:px-6 lg:px-8">
         <div className="navbar-start">
           {/* Logo */}
           <Link
             href="/dashboard"
-            className="btn btn-ghost text-2xl font-bold text-primary px-2"
+            className="btn btn-ghost text-2xl font-bold text-accent px-2"
           >
             Saverah
           </Link>
@@ -20,15 +21,15 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <div className="navbar-center hidden lg:flex">
           <ul className="menu menu-horizontal px-1 gap-1">
             <li>
-              <Link href="/dashboard" className="flex items-center gap-2">
-                <LayoutDashboard className="w-4 h-4" />
-                Panel
-              </Link>
-            </li>
-            <li>
               <Link href="/reminders" className={'flex items-center gap-2'}>
                 <Bell className="w-4 h-4" />
                 Recordatorios
+              </Link>
+            </li>
+            <li>
+              <Link href="/dashboard" className="flex items-center gap-2">
+                <LayoutDashboard className="w-4 h-4" />
+                Panel
               </Link>
             </li>
             <li>
@@ -45,12 +46,11 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         </div>
       </nav>
 
-      <main className="max-w-7xl mx-auto px-4 py-4 pb-24 sm:px-6 lg:px-8 lg:pb-8">
-        {children}
-      </main>
+      {/* <main className="max-w-7xl mx-auto px-4 py-4 pb-24 sm:px-6 lg:px-8 lg:pb-8"> */}
+      <main className="max-w-7xl mx-auto pb-14 lg:pb-0">{children}</main>
 
       {/* Bottom Navigation - Mobile/Tablet Only */}
-      <div className="fixed bottom-0 left-0 right-0 lg:hidden btm-nav btm-nav-sm bg-base-100 border-t border-base-300 z-40">
+      <div className="fixed bottom-0 left-0 right-0 lg:hidden btm-nav btm-nav-sm bg-base-300 border-t border-base-300 z-40">
         <div className="flex justify-around p-4 gap-4">
           <Link href="/reminders" className="flex flex-row items-center gap-1">
             <Calendar className="w-6 h-6" />

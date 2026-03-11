@@ -28,6 +28,8 @@ export const createExpenseSchema = Yup.object({
 
 export const updateExpenseSchema = createExpenseSchema.partial();
 
+export const updateIncomeSchema = createIncomeSchema.partial();
+
 export const budgetLimitSchema = Yup.object({
   category: Yup.string().required('La categoría es requerida'),
   monthly_limit: Yup.number()
@@ -40,5 +42,7 @@ export type CreateIncomeInput = Yup.InferType<typeof createIncomeSchema>;
 export type CreateExpenseInput = Yup.InferType<typeof createExpenseSchema>;
 
 export type UpdateExpenseInput = Yup.InferType<typeof updateExpenseSchema>;
+
+export type UpdateIncomeInput = Yup.InferType<typeof updateIncomeSchema>;
 
 export type BudgetLimitInput = Yup.InferType<typeof budgetLimitSchema>;

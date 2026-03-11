@@ -1,22 +1,24 @@
 'use client';
 
 import { useState } from 'react';
-import { 
-  Home, 
-  Utensils, 
-  Car, 
-  Zap, 
-  Heart, 
-  GraduationCap, 
-  Gamepad2, 
-  Shirt, 
-  Laptop, 
-  PiggyBank, 
+import {
+  Home,
+  Utensils,
+  Car,
+  Zap,
+  Heart,
+  GraduationCap,
+  Gamepad2,
+  Shirt,
+  Laptop,
+  PiggyBank,
   MoreHorizontal,
   CheckCircle2,
+  AlertCircle,
+  AlertTriangle,
   Target,
   Loader2,
-  X
+  X,
 } from 'lucide-react';
 import { DEFAULT_CURRENCY } from '@/config/constants';
 import type { CategorySummary } from '@/types/budget.types';
@@ -28,31 +30,17 @@ interface BudgetCategoryManagerProps {
 }
 
 const categoryIcons: Record<string, React.ReactNode> = {
-  'Vivienda': <Home className="w-5 h-5" />,
-  'Alimentación': <Utensils className="w-5 h-5" />,
-  'Transporte': <Car className="w-5 h-5" />,
-  'Servicios': <Zap className="w-5 h-5" />,
-  'Salud': <Heart className="w-5 h-5" />,
-  'Educación': <GraduationCap className="w-5 h-5" />,
-  'Entretenimiento': <Gamepad2 className="w-5 h-5" />,
-  'Ropa': <Shirt className="w-5 h-5" />,
-  'Tecnología': <Laptop className="w-5 h-5" />,
-  'Ahorro': <PiggyBank className="w-5 h-5" />,
-  'Otros': <MoreHorizontal className="w-5 h-5" />,
-};
-
-const categoryEmojis: Record<string, string> = {
-  'Vivienda': '🏠',
-  'Alimentación': '🍽️',
-  'Transporte': '🚗',
-  'Servicios': '⚡',
-  'Salud': '❤️',
-  'Educación': '📚',
-  'Entretenimiento': '🎮',
-  'Ropa': '👕',
-  'Tecnología': '💻',
-  'Ahorro': '🐷',
-  'Otros': '📦',
+  Vivienda: <Home className="w-5 h-5" />,
+  Alimentación: <Utensils className="w-5 h-5" />,
+  Transporte: <Car className="w-5 h-5" />,
+  Servicios: <Zap className="w-5 h-5" />,
+  Salud: <Heart className="w-5 h-5" />,
+  Educación: <GraduationCap className="w-5 h-5" />,
+  Entretenimiento: <Gamepad2 className="w-5 h-5" />,
+  Ropa: <Shirt className="w-5 h-5" />,
+  Tecnología: <Laptop className="w-5 h-5" />,
+  Ahorro: <PiggyBank className="w-5 h-5" />,
+  Otros: <MoreHorizontal className="w-5 h-5" />,
 };
 
 function formatCurrency(amount: number): string {
@@ -63,13 +51,13 @@ function formatCurrency(amount: number): string {
   }).format(amount);
 }
 
-function BudgetLimitForm({ 
-  currentLimit, 
-  onSave, 
-  onCancel 
-}: { 
-  currentLimit: number | null; 
-  onSave: (limit: number) => void; 
+function BudgetLimitForm({
+  currentLimit,
+  onSave,
+  onCancel,
+}: {
+  currentLimit: number | null;
+  onSave: (limit: number) => void;
   onCancel: () => void;
 }) {
   const [limit, setLimit] = useState(currentLimit?.toString() || '');
@@ -88,7 +76,9 @@ function BudgetLimitForm({
   return (
     <form onSubmit={handleSubmit} className="flex items-center gap-2">
       <div className="relative flex-1">
-        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/50 text-sm">$</span>
+        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/50 text-sm">
+          $
+        </span>
         <input
           type="number"
           value={limit}
@@ -101,15 +91,19 @@ function BudgetLimitForm({
           autoFocus
         />
       </div>
-      <button 
-        type="submit" 
+      <button
+        type="submit"
         className="btn btn-sm btn-success"
         disabled={saving || !limit}
       >
-        {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
+        {saving ? (
+          <Loader2 className="w-4 h-4 animate-spin" />
+        ) : (
+          <CheckCircle2 className="w-4 h-4" />
+        )}
       </button>
-      <button 
-        type="button" 
+      <button
+        type="button"
         onClick={onCancel}
         className="btn btn-sm btn-ghost"
         disabled={saving}
@@ -120,7 +114,10 @@ function BudgetLimitForm({
   );
 }
 
-export function BudgetCategoryManager({ categories, onLimitSet }: BudgetCategoryManagerProps) {
+export function BudgetCategoryManager({
+  categories,
+  onLimitSet,
+}: BudgetCategoryManagerProps) {
   const [editingCategory, setEditingCategory] = useState<string | null>(null);
   const [savingCategory, setSavingCategory] = useState<string | null>(null);
 
@@ -143,10 +140,17 @@ export function BudgetCategoryManager({ categories, onLimitSet }: BudgetCategory
     return (
       <div className="card bg-base-100 border border-base-300">
         <div className="card-body text-center py-12">
-          <div className="text-6xl mb-4">🎯</div>
-          <h3 className="text-lg font-semibold mb-2">Comienza a registrar tus gastos</h3>
+          <div className="flex justify-center mb-4">
+            <div className="p-4 rounded-2xl bg-primary/10">
+              <Target className="w-8 h-8 text-primary" />
+            </div>
+          </div>
+          <h3 className="text-lg font-semibold mb-2">
+            Comienza a registrar tus gastos
+          </h3>
           <p className="text-base-content/60 max-w-md mx-auto">
-            Aún no tienes gastos registrados. Una vez que los agregues, podrás ver el desglose por categoría y establecer límites de presupuesto.
+            Aún no tienes gastos registrados. Una vez que los agregues, podrás
+            ver el desglose por categoría y establecer límites de presupuesto.
           </p>
         </div>
       </div>
@@ -159,44 +163,62 @@ export function BudgetCategoryManager({ categories, onLimitSet }: BudgetCategory
         const percentage = category.percentage || 0;
         const isExceeded = category.status === 'exceeded';
         const isWarning = category.status === 'warning';
-        
+
         let progressColor = 'bg-success';
-        let statusEmoji = '✅';
+        let statusIcon = <CheckCircle2 className="w-4 h-4" />;
         if (isExceeded) {
           progressColor = 'bg-error';
-          statusEmoji = '⚠️';
+          statusIcon = <AlertCircle className="w-4 h-4" />;
         } else if (isWarning) {
           progressColor = 'bg-warning';
-          statusEmoji = '⚡';
+          statusIcon = <AlertTriangle className="w-4 h-4" />;
         }
 
         return (
-          <div 
+          <div
             key={category.category}
-            className="card bg-base-100 border border-base-300 hover:border-base-content/20 transition-all"
+            className="card bg-base-100 border border-base-300 hover:border-base-content/20 transition-all rounded-xl"
           >
             <div className="card-body p-4">
               <div className="flex items-start justify-between mb-3">
                 <div className="flex items-center gap-3">
-                  <div className={`p-2.5 rounded-xl ${isExceeded ? 'bg-error/10 text-error' : isWarning ? 'bg-warning/10 text-warning' : 'bg-success/10 text-success'}`}>
-                    {categoryIcons[category.category] || <MoreHorizontal className="w-5 h-5" />}
+                  <div
+                    className={`p-2.5 rounded-xl ${isExceeded ? 'bg-error/10 text-error' : isWarning ? 'bg-warning/10 text-warning' : 'bg-success/10 text-success'}`}
+                  >
+                    {categoryIcons[category.category] || (
+                      <MoreHorizontal className="w-5 h-5" />
+                    )}
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="text-lg">{categoryEmojis[category.category] || '📦'}</span>
                       <h4 className="font-semibold">{category.category}</h4>
                     </div>
                     <p className="text-sm text-base-content/60">
-                      Gastado: <span className="font-medium text-base-content">{formatCurrency(category.spent)}</span>
+                      Gastado:{' '}
+                      <span className="font-medium text-base-content">
+                        {formatCurrency(category.spent)}
+                      </span>
                     </p>
                   </div>
                 </div>
                 <div className="text-right">
                   {category.limit ? (
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-2xl">{statusEmoji}</span>
+                    <div className="flex items-center gap-2">
+                      <div
+                        className={
+                          isExceeded
+                            ? 'text-error'
+                            : isWarning
+                              ? 'text-warning'
+                              : 'text-success'
+                        }
+                      >
+                        {statusIcon}
+                      </div>
                       <div className="text-sm">
-                        <p className="font-medium">{formatCurrency(category.limit)}</p>
+                        <p className="font-medium">
+                          {formatCurrency(category.limit)}
+                        </p>
                         <p className="text-xs text-base-content/50">límite</p>
                       </div>
                     </div>
@@ -215,8 +237,20 @@ export function BudgetCategoryManager({ categories, onLimitSet }: BudgetCategory
               {category.limit && (
                 <div className="space-y-1.5">
                   <div className="flex justify-between text-xs">
-                    <span className={isExceeded ? 'text-error font-medium' : isWarning ? 'text-warning font-medium' : 'text-success'}>
-                      {isExceeded ? '¡Límite excedido!' : isWarning ? 'Cerca del límite' : 'Dentro del presupuesto'}
+                    <span
+                      className={
+                        isExceeded
+                          ? 'text-error font-medium'
+                          : isWarning
+                            ? 'text-warning font-medium'
+                            : 'text-success'
+                      }
+                    >
+                      {isExceeded
+                        ? '¡Límite excedido!'
+                        : isWarning
+                          ? 'Cerca del límite'
+                          : 'Dentro del presupuesto'}
                     </span>
                     <span className="text-base-content/60">
                       {Math.round(percentage)}%
@@ -238,7 +272,8 @@ export function BudgetCategoryManager({ categories, onLimitSet }: BudgetCategory
               {editingCategory === category.category && !category.limit && (
                 <div className="mt-3 pt-3 border-t border-base-300">
                   <p className="text-sm text-base-content/70 mb-2">
-                    Establece un límite mensual para {category.category.toLowerCase()}
+                    Establece un límite mensual para{' '}
+                    {category.category.toLowerCase()}
                   </p>
                   <BudgetLimitForm
                     currentLimit={category.limit}

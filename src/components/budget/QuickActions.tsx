@@ -1,15 +1,9 @@
 'use client';
 
 import Link from 'next/link';
-import { 
-  TrendingUp, 
-  TrendingDown, 
-  ArrowRight,
-  Plus,
-  Eye,
-  EyeOff
-} from 'lucide-react';
+import { TrendingUp, TrendingDown, ArrowRight, Plus } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import { formatCurrency } from '@/lib/utils/currency';
 
 interface QuickActionsPanelProps {
   totalIncome: number;
@@ -19,77 +13,82 @@ interface QuickActionsPanelProps {
   isVisible?: boolean;
 }
 
-export function QuickActionsPanel({ 
-  totalIncome, 
+export function QuickActionsPanel({
+  totalIncome,
   totalExpenses,
   incomeCount,
   expenseCount,
-  isVisible = true
+  isVisible = true,
 }: QuickActionsPanelProps) {
   const formatMoney = (amount: number) => {
     if (!isVisible) return '****';
-    return new Intl.NumberFormat('es-MX', {
-      style: 'currency',
-      currency: 'MXN',
-    }).format(amount);
+    return formatCurrency(amount, 0);
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
       {/* Income Card */}
-      <Link 
+      <Link
         href="/budget/income"
-        className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-success/20 via-success/10 to-success/5 border border-success/30 p-6 transition-all hover:scale-[1.02] hover:shadow-lg hover:shadow-success/20"
+        className="group card bg-base-100 border border-base-300 hover:border-success/40 transition-all rounded-xl"
       >
-        <div className="absolute top-4 right-4 text-4xl">💰</div>
-        <div className="relative z-10">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="p-2 rounded-xl bg-success/20">
-              <TrendingUp className="w-6 h-6 text-success" />
+        <div className="card-body p-5">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-xl bg-success/10 text-success">
+                <TrendingUp className="w-5 h-5" />
+              </div>
+              <div>
+                <p className="text-sm text-base-content/70">Ingresos</p>
+                <p className="text-xl font-bold text-base-content">
+                  {formatMoney(totalIncome)}
+                </p>
+              </div>
             </div>
-            <span className="text-sm font-medium text-success">Ingresos</span>
+            <div className="text-right">
+              <p className="text-xs text-base-content/50">
+                {incomeCount} registros
+              </p>
+            </div>
           </div>
-          <p className="text-2xl font-bold text-base-content mb-1">
-            {formatMoney(totalIncome)}
-          </p>
-          <p className="text-sm text-base-content/60 mb-4">
-            {incomeCount} {incomeCount === 1 ? 'registro' : 'registros'}
-          </p>
-          <div className="flex items-center gap-2 text-success font-medium group-hover:gap-3 transition-all">
+          <div className="flex items-center gap-2 mt-4 pt-4 border-t border-base-200 text-success text-sm font-medium group-hover:gap-3 transition-all">
             <Plus className="w-4 h-4" />
             <span>Agregar ingreso</span>
             <ArrowRight className="w-4 h-4" />
           </div>
         </div>
-        <div className="absolute -bottom-8 -right-8 w-32 h-32 bg-success/10 rounded-full blur-2xl group-hover:bg-success/20 transition-all" />
       </Link>
 
       {/* Expenses Card */}
-      <Link 
+      <Link
         href="/budget/expenses"
-        className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-error/20 via-error/10 to-error/5 border border-error/30 p-6 transition-all hover:scale-[1.02] hover:shadow-lg hover:shadow-error/20"
+        className="group card bg-base-100 border border-base-300 hover:border-error/40 transition-all rounded-xl"
       >
-        <div className="absolute top-4 right-4 text-4xl">💸</div>
-        <div className="relative z-10">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="p-2 rounded-xl bg-error/20">
-              <TrendingDown className="w-6 h-6 text-error" />
+        <div className="card-body p-5">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-xl bg-error/10 text-error">
+                <TrendingDown className="w-5 h-5" />
+              </div>
+              <div>
+                <p className="text-sm text-base-content/70">Gastos</p>
+                <p className="text-xl font-bold text-base-content">
+                  {formatMoney(totalExpenses)}
+                </p>
+              </div>
             </div>
-            <span className="text-sm font-medium text-error">Gastos</span>
+            <div className="text-right">
+              <p className="text-xs text-base-content/50">
+                {expenseCount} registros
+              </p>
+            </div>
           </div>
-          <p className="text-2xl font-bold text-base-content mb-1">
-            {formatMoney(totalExpenses)}
-          </p>
-          <p className="text-sm text-base-content/60 mb-4">
-            {expenseCount} {expenseCount === 1 ? 'registro' : 'registros'}
-          </p>
-          <div className="flex items-center gap-2 text-error font-medium group-hover:gap-3 transition-all">
+          <div className="flex items-center gap-2 mt-4 pt-4 border-t border-base-200 text-error text-sm font-medium group-hover:gap-3 transition-all">
             <Plus className="w-4 h-4" />
             <span>Agregar gasto</span>
             <ArrowRight className="w-4 h-4" />
           </div>
         </div>
-        <div className="absolute -bottom-8 -right-8 w-32 h-32 bg-error/10 rounded-full blur-2xl group-hover:bg-error/20 transition-all" />
       </Link>
     </div>
   );
@@ -100,21 +99,20 @@ interface StatCardProps {
   value: number;
   icon: React.ReactNode;
   color: 'success' | 'error' | 'neutral';
-  emoji: string;
   isVisible?: boolean;
 }
 
-export function StatCard({ title, value, icon, color, emoji, isVisible = true }: StatCardProps) {
+export function StatCard({
+  title,
+  value,
+  icon,
+  color,
+  isVisible = true,
+}: StatCardProps) {
   const colorClasses = {
-    success: 'from-success/20 via-success/10 to-success/5 border-success/30',
-    error: 'from-error/20 via-error/10 to-error/5 border-error/30',
-    neutral: 'from-info/20 via-info/10 to-info/5 border-info/30',
-  };
-
-  const iconColors = {
-    success: 'text-success',
-    error: 'text-error',
-    neutral: 'text-info',
+    success: 'bg-success/10 text-success border-success/30',
+    error: 'bg-error/10 text-error border-error/30',
+    neutral: 'bg-info/10 text-info border-info/30',
   };
 
   const formatMoney = (amount: number) => {
@@ -122,68 +120,26 @@ export function StatCard({ title, value, icon, color, emoji, isVisible = true }:
     return new Intl.NumberFormat('es-MX', {
       style: 'currency',
       currency: 'MXN',
+      maximumFractionDigits: 0,
     }).format(amount);
   };
 
   return (
-    <div className={`relative overflow-hidden rounded-2xl bg-gradient-to-br ${colorClasses[color]} border p-6`}>
-      <div className="absolute top-4 right-4 text-3xl">{emoji}</div>
-      <div className="relative z-10">
-        <div className="flex items-center gap-3 mb-3">
-          <div className={`p-2 rounded-xl bg-base-100/50 ${iconColors[color]}`}>
+    <div className={`card border ${colorClasses[color]}`}>
+      <div className="card-body p-5">
+        <div className="flex items-center gap-3">
+          <div
+            className={`p-2 rounded-xl ${color === 'success' ? 'bg-success/20' : color === 'error' ? 'bg-error/20' : 'bg-info/20'}`}
+          >
             {icon}
           </div>
-          <span className="text-sm font-medium text-base-content/70">{title}</span>
+          <span className="text-sm text-base-content/70">{title}</span>
         </div>
-        <p className="text-3xl font-bold text-base-content">
+        <p className="text-2xl font-bold text-base-content mt-3">
           {formatMoney(value)}
         </p>
       </div>
     </div>
-  );
-}
-
-export function AmountVisibilityToggle() {
-  const [isVisible, setIsVisible] = useState(true);
-
-  // Load preference from localStorage on mount
-  useEffect(() => {
-    const saved = localStorage.getItem('dashboardStatsVisible');
-    if (saved !== null) {
-      setIsVisible(saved === 'true');
-    }
-  }, []);
-
-  // Save preference when changed and dispatch event for other components
-  const toggleVisibility = () => {
-    const newValue = !isVisible;
-    setIsVisible(newValue);
-    localStorage.setItem('dashboardStatsVisible', newValue.toString());
-    // Dispatch custom event to notify other components
-    window.dispatchEvent(new StorageEvent('storage', {
-      key: 'dashboardStatsVisible',
-      newValue: newValue.toString(),
-    }));
-  };
-
-  return (
-    <button
-      onClick={toggleVisibility}
-      className="btn btn-sm btn-ghost gap-2"
-      title={isVisible ? 'Ocultar montos' : 'Mostrar montos'}
-    >
-      {isVisible ? (
-        <>
-          <EyeOff className="w-4 h-4" />
-          <span className="hidden sm:inline">Ocultar montos</span>
-        </>
-      ) : (
-        <>
-          <Eye className="w-4 h-4" />
-          <span className="hidden sm:inline">Mostrar montos</span>
-        </>
-      )}
-    </button>
   );
 }
 
@@ -192,13 +148,11 @@ export function useAmountVisibility() {
   const [isVisible, setIsVisible] = useState(true);
 
   useEffect(() => {
-    // Initial load
     const saved = localStorage.getItem('dashboardStatsVisible');
     if (saved !== null) {
       setIsVisible(saved === 'true');
     }
 
-    // Listen for changes from other components
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === 'dashboardStatsVisible') {
         setIsVisible(e.newValue === 'true');

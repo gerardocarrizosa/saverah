@@ -1,6 +1,6 @@
 import { createSupabaseServerClient } from '../supabase/server';
 import type { Income, Expense, BudgetLimit, BudgetSummary, CategorySummary } from '@/types/budget.types';
-import type { CreateIncomeInput, CreateExpenseInput, UpdateExpenseInput } from '../validations/budget.schemas';
+import type { CreateIncomeInput, CreateExpenseInput, UpdateExpenseInput, UpdateIncomeInput } from '../validations/budget.schemas';
 
 export async function getIncome(userId: string): Promise<Income[]> {
   const supabase = await createSupabaseServerClient();
@@ -29,6 +29,37 @@ export async function createIncome(userId: string, input: CreateIncomeInput): Pr
   if (error) throw error;
   if (!data) throw new Error('Failed to create income');
   return data;
+}
+
+export async function updateIncome(
+  userId: string,
+  id: string,
+  input: UpdateIncomeInput,
+): Promise<Income> {
+  const supabase = await createSupabaseServerClient();
+  const updateData: Record<string, unknown> = { ...input };
+  if (input.received_at) {
+    updateData.received_at = input.received_at.toISOString();
+  }
+
+  const { data, error } = await supabase
+    .from('income')
+    .update(updateData)
+    .eq('user_id', userId)
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (error) throw error;
+  if (!data) throw new Error('Income not found');
+  return data;
+}
+
+export async function deleteIncome(userId: string, id: string): Promise<void> {
+  const supabase = await createSupabaseServerClient();
+  const { error } = await supabase.from('income').delete().eq('user_id', userId).eq('id', id);
+
+  if (error) throw error;
 }
 
 export async function getExpenses(userId: string): Promise<Expense[]> {
