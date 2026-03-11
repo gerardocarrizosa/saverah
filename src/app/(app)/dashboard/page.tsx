@@ -88,7 +88,7 @@ export default async function DashboardPage() {
         - py-4 sm:py-6: Vertical breathing room
         - space-y-6: Consistent 24px spacing between major sections
       */}
-      <main className="max-w-4xl mx-auto p-4 sm:px-6 sm:py-6 space-y-6">
+      <main className="mx-auto p-4 space-y-6">
         {/* 
           Header Section
           - Simple greeting with clear hierarchy

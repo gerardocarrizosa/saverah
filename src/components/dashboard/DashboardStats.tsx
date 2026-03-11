@@ -5,11 +5,10 @@ import {
   Wallet,
   TrendingUp,
   TrendingDown,
-  Eye,
-  EyeOff,
   type LucideIcon,
 } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils/currency';
+import { VisibilityToggle } from '@/components/budget/VisibilityToggle';
 
 interface DashboardStatsProps {
   balance: number;
@@ -68,14 +67,17 @@ export function DashboardStats({
     if (saved !== null) {
       setIsVisible(saved === 'true');
     }
-  }, []);
 
-  // Save preference when changed
-  const toggleVisibility = () => {
-    const newValue = !isVisible;
-    setIsVisible(newValue);
-    localStorage.setItem('dashboardStatsVisible', newValue.toString());
-  };
+    // Listen for storage changes from other components
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'dashboardStatsVisible') {
+        setIsVisible(e.newValue === 'true');
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
 
   const formatMoney = (amount: number) => {
     if (!isVisible) return '****';
@@ -86,23 +88,7 @@ export function DashboardStats({
     <div>
       {/* Toggle Button */}
       <div className="flex justify-end">
-        <button
-          onClick={toggleVisibility}
-          className="btn btn-sm btn-ghost gap-2"
-          title={isVisible ? 'Ocultar montos' : 'Mostrar montos'}
-        >
-          {isVisible ? (
-            <>
-              <span className="inline">Ocultar montos</span>
-              <EyeOff className="w-5 h-5" />
-            </>
-          ) : (
-            <>
-              <span className="inline">Mostrar montos</span>
-              <Eye className="w-5 h-5" />
-            </>
-          )}
-        </button>
+        <VisibilityToggle />
       </div>
 
       {/* Stats Grid */}

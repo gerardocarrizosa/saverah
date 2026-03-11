@@ -12,6 +12,7 @@ import {
   TrendingUp,
   TrendingDown,
 } from 'lucide-react';
+import { VisibilityToggle } from '@/components/budget/VisibilityToggle';
 
 // Server action to refresh the page after setting a limit
 async function refreshPage() {
@@ -60,11 +61,14 @@ export default async function BudgetPage() {
   return (
     <div className="p-4 space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-4">
-        <div className="p-2 rounded-xl bg-primary/10">
-          <Wallet className="w-6 h-6" />
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <div className="p-2 rounded-xl bg-primary/10">
+            <Wallet className="w-6 h-6" />
+          </div>
+          <h1 className="text-xl font-bold text-base-content">Presupuesto</h1>
         </div>
-        <h1 className="text-xl font-bold text-base-content">Presupuesto</h1>
+        <VisibilityToggle />
       </div>
 
       {!hasTransactions ? (

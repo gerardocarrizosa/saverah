@@ -7,15 +7,15 @@ import { NextDueInfo } from '@/components/reminders/NextDueInfo';
 import { ReminderAnalytics } from '@/components/reminders/ReminderAnalytics';
 import { PaymentFormClient } from '@/components/reminders/PaymentFormClient';
 import { PaymentHistoryClient } from '@/components/reminders/PaymentHistoryClient';
-import { 
-  ArrowLeft, 
+import {
+  ArrowLeft,
   Pause,
   Play,
   Trash2,
   CreditCard,
   Receipt,
   Plus,
-  Edit3
+  Edit3,
 } from 'lucide-react';
 
 interface ReminderDetailPageProps {
@@ -28,41 +28,49 @@ interface ReminderDetailPageProps {
 async function toggleReminderStatus(id: string, isActive: boolean) {
   'use server';
   const supabase = await createSupabaseServerClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   if (!user) throw new Error('No autorizado');
-  
+
   const { error } = await supabase
     .from('reminders')
     .update({ is_active: isActive })
     .eq('id', id)
     .eq('user_id', user.id);
-  
+
   if (error) throw error;
 }
 
 async function deleteReminder(id: string) {
   'use server';
   const supabase = await createSupabaseServerClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   if (!user) throw new Error('No autorizado');
-  
+
   const { error } = await supabase
     .from('reminders')
     .delete()
     .eq('id', id)
     .eq('user_id', user.id);
-  
+
   if (error) throw error;
-  
+
   redirect('/reminders');
 }
 
-export default async function ReminderDetailPage({ params }: ReminderDetailPageProps) {
+export default async function ReminderDetailPage({
+  params,
+}: ReminderDetailPageProps) {
   const { id } = await params;
   const supabase = await createSupabaseServerClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   if (!user) {
     redirect('/login');
@@ -79,19 +87,16 @@ export default async function ReminderDetailPage({ params }: ReminderDetailPageP
   }
 
   return (
-    <div className="space-y-6">
+    <div className="p-4 space-y-6">
       {/* Breadcrumb & Actions */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-2">
-          <Link 
-            href="/reminders" 
-            className="btn btn-ghost btn-sm gap-2"
-          >
+          <Link href="/reminders" className="btn btn-ghost btn-sm gap-2">
             <ArrowLeft className="w-4 h-4" />
             Volver a recordatorios
           </Link>
         </div>
-        
+
         <div className="flex items-center gap-2">
           <Link
             href={`/reminders/${reminder.id}/edit`}
@@ -100,12 +105,14 @@ export default async function ReminderDetailPage({ params }: ReminderDetailPageP
             <Edit3 className="w-4 h-4" />
             Editar
           </Link>
-          
-          <form action={async () => {
-            'use server';
-            await toggleReminderStatus(reminder.id, !reminder.is_active);
-          }}>
-            <button 
+
+          <form
+            action={async () => {
+              'use server';
+              await toggleReminderStatus(reminder.id, !reminder.is_active);
+            }}
+          >
+            <button
               type="submit"
               className={`btn btn-sm gap-2 ${reminder.is_active ? 'btn-ghost' : 'btn-success'}`}
             >
@@ -122,12 +129,14 @@ export default async function ReminderDetailPage({ params }: ReminderDetailPageP
               )}
             </button>
           </form>
-          
-          <form action={async () => {
-            'use server';
-            await deleteReminder(reminder.id);
-          }}>
-            <button 
+
+          <form
+            action={async () => {
+              'use server';
+              await deleteReminder(reminder.id);
+            }}
+          >
+            <button
               type="submit"
               className="btn btn-sm btn-ghost text-error gap-2"
             >
@@ -174,7 +183,9 @@ export default async function ReminderDetailPage({ params }: ReminderDetailPageP
               </div>
               <h2 className="text-xl font-bold">Registrar pago</h2>
             </div>
-            <Suspense fallback={<div className="loading loading-spinner"></div>}>
+            <Suspense
+              fallback={<div className="loading loading-spinner"></div>}
+            >
               <PaymentFormClient reminderId={reminder.id} />
             </Suspense>
           </div>
@@ -192,9 +203,11 @@ export default async function ReminderDetailPage({ params }: ReminderDetailPageP
                 {analytics.payment_count} registros
               </span>
             </div>
-            <Suspense fallback={<div className="loading loading-spinner"></div>}>
-              <PaymentHistoryClient 
-                reminderId={reminder.id} 
+            <Suspense
+              fallback={<div className="loading loading-spinner"></div>}
+            >
+              <PaymentHistoryClient
+                reminderId={reminder.id}
                 initialPayments={analytics.payment_history}
               />
             </Suspense>
