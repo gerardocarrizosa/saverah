@@ -37,4 +37,17 @@ export const RECURRENCE_TYPES = [
 
 export const APP_NAME = 'Saverah';
 
+export const DEFAULT_CURRENCY_REGION = 'es-MX';
+
 export const DEFAULT_CURRENCY = 'MXN';
+
+export const categoryEmojis: Record<string, string> = {
+  'Tarjeta de Crédito': '💳',
+  Servicios: '⚡',
+  Suscripción: '📱',
+  Alquiler: '🏠',
+  Préstamo: '📊',
+  Seguro: '🛡️',
+  Impuestos: '📄',
+  Otros: '📦',
+};

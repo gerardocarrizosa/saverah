@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { createIncomeSchema } from '@/lib/validations/budget.schemas';
 import { useBudget } from '@/hooks/useBudget';
 import { INCOME_TYPES, DEFAULT_CURRENCY } from '@/config/constants';
+import type { Income } from '@/types/budget.types';
 import {
   Briefcase,
   Calendar,
@@ -16,10 +17,14 @@ import {
   ArrowLeft,
   Loader2,
   Plus,
+  Pencil,
+  X,
 } from 'lucide-react';
 
 interface IncomeFormProps {
   onSuccess?: () => void;
+  onCancel?: () => void;
+  editIncome?: Income | null;
 }
 
 interface IncomeFormValues {
@@ -38,26 +43,49 @@ const initialValues: IncomeFormValues = {
   notes: '',
 };
 
-export function IncomeForm({ onSuccess }: IncomeFormProps) {
-  const { addIncome } = useBudget();
+export function IncomeForm({ onSuccess, onCancel, editIncome }: IncomeFormProps) {
+  const { addIncome, updateIncome } = useBudget();
   const [error, setError] = useState<string | null>(null);
+
+  const isEditing = !!editIncome;
+
+  const formInitialValues = isEditing
+    ? {
+        source: editIncome.source,
+        type: editIncome.type,
+        amount: editIncome.amount,
+        received_at: editIncome.received_at,
+        notes: editIncome.notes || '',
+      }
+    : initialValues;
 
   return (
     <Formik
-      initialValues={initialValues}
+      key={isEditing ? editIncome.id : 'new'}
+      initialValues={formInitialValues}
       validationSchema={createIncomeSchema}
       onSubmit={async (values, { setSubmitting, resetForm }) => {
         setError(null);
         try {
-          await addIncome({
-            source: values.source,
-            type: values.type,
-            amount: values.amount,
-            received_at: values.received_at,
-            notes: values.notes || undefined,
-          });
+          if (isEditing && editIncome) {
+            await updateIncome(editIncome.id, {
+              source: values.source,
+              type: values.type,
+              amount: values.amount,
+              received_at: values.received_at,
+              notes: values.notes || undefined,
+            });
+          } else {
+            await addIncome({
+              source: values.source,
+              type: values.type,
+              amount: values.amount,
+              received_at: values.received_at,
+              notes: values.notes || undefined,
+            });
+            resetForm();
+          }
 
-          resetForm();
           if (onSuccess) {
             onSuccess();
           }
@@ -65,6 +93,8 @@ export function IncomeForm({ onSuccess }: IncomeFormProps) {
           setError(
             err instanceof Error
               ? err.message
+              : isEditing
+              ? 'Error al actualizar el ingreso'
               : 'Error al registrar el ingreso'
           );
         } finally {
@@ -200,27 +230,60 @@ export function IncomeForm({ onSuccess }: IncomeFormProps) {
           </div>
 
           <div className="flex flex-col sm:flex-row gap-3 pt-4">
-            <Link href="/budget" className="btn btn-ghost flex-1">
-              <ArrowLeft className="w-4 h-4" />
-              Volver
-            </Link>
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="btn btn-primary flex-1"
-            >
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  Guardando...
-                </>
-              ) : (
-                <>
-                  <Plus className="w-4 h-4" />
-                  Registrar ingreso
-                </>
-              )}
-            </button>
+            {isEditing ? (
+              <>
+                <button
+                  type="button"
+                  onClick={onCancel}
+                  disabled={isSubmitting}
+                  className="btn btn-ghost flex-1"
+                >
+                  <X className="w-4 h-4" />
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="btn btn-primary flex-1"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Actualizando...
+                    </>
+                  ) : (
+                    <>
+                      <Pencil className="w-4 h-4" />
+                      Actualizar ingreso
+                    </>
+                  )}
+                </button>
+              </>
+            ) : (
+              <>
+                <Link href="/budget" className="btn btn-ghost flex-1">
+                  <ArrowLeft className="w-4 h-4" />
+                  Volver
+                </Link>
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="btn btn-primary flex-1"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Guardando...
+                    </>
+                  ) : (
+                    <>
+                      <Plus className="w-4 h-4" />
+                      Registrar ingreso
+                    </>
+                  )}
+                </button>
+              </>
+            )}
           </div>
         </Form>
       )}

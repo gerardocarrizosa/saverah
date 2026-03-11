@@ -37,7 +37,7 @@ export function DashboardSection({
       try {
         const response = await api.get('/dashboard/settings');
         const settings = response.data.data;
-        
+
         // Map section ID to setting key
         const sectionKeyMap: Record<string, string> = {
           'quick-stats': 'quick_stats_expanded',
@@ -47,10 +47,10 @@ export function DashboardSection({
           'recent-activity': 'recent_activity_expanded',
           'savings-goals': 'savings_goals_expanded',
           'budget-streak': 'budget_streak_expanded',
-          'achievements': 'achievements_expanded',
+          achievements: 'achievements_expanded',
           'credit-cards': 'credit_cards_expanded',
         };
-        
+
         const key = sectionKeyMap[sectionId];
         if (key && settings[key] !== undefined) {
           setIsExpanded(settings[key]);
@@ -67,11 +67,11 @@ export function DashboardSection({
 
   const toggle = useCallback(async () => {
     const newState = !isExpanded;
-    
+
     // Optimistic update
     setIsExpanded(newState);
     setIsLoading(true);
-    
+
     try {
       // Map section ID to setting key
       const sectionKeyMap: Record<string, string> = {
@@ -82,10 +82,10 @@ export function DashboardSection({
         'recent-activity': 'recent_activity_expanded',
         'savings-goals': 'savings_goals_expanded',
         'budget-streak': 'budget_streak_expanded',
-        'achievements': 'achievements_expanded',
+        achievements: 'achievements_expanded',
         'credit-cards': 'credit_cards_expanded',
       };
-      
+
       const key = sectionKeyMap[sectionId];
       if (key) {
         await api.patch('/dashboard/settings', {
@@ -113,7 +113,8 @@ export function DashboardSection({
   }
 
   return (
-    <div className="card bg-base-100 shadow-xl">
+    // <div className="card bg-base-100 shadow-xl border">
+    <div className="card bg-base-100 shadow border border-base-300 rounded-xl">
       <div className="card-body p-0">
         {/* Header */}
         <div
@@ -131,7 +132,7 @@ export function DashboardSection({
               )}
             </div>
           </div>
-          
+
           <div className="flex items-center gap-2">
             {action && (
               <a

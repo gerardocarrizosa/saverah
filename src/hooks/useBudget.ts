@@ -58,6 +58,17 @@ export function useBudget(initialData?: { income?: Income[]; expenses?: Expense[
     setExpenses((prev) => prev.filter((e) => e.id !== id));
   };
 
+  const updateIncome = async (id: string, data: Partial<Income>) => {
+    const res = await api.patch<{ data: Income }>(`/budget/income/${id}`, data);
+    setIncome((prev) => prev.map((i) => (i.id === id ? res.data.data : i)));
+    return res.data.data;
+  };
+
+  const deleteIncome = async (id: string) => {
+    await api.delete(`/budget/income/${id}`);
+    setIncome((prev) => prev.filter((i) => i.id !== id));
+  };
+
   return {
     income,
     expenses,
@@ -69,5 +80,7 @@ export function useBudget(initialData?: { income?: Income[]; expenses?: Expense[
     addExpense,
     updateExpense,
     deleteExpense,
+    updateIncome,
+    deleteIncome,
   };
 }

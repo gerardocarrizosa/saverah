@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { Search, X } from 'lucide-react';
-import { REMINDER_CATEGORIES } from '@/config/constants';
+import { Search, X, SlidersHorizontal } from 'lucide-react';
+import { categoryEmojis, REMINDER_CATEGORIES } from '@/config/constants';
 
 interface CategoryFilterProps {
   selectedCategory: string | null;
@@ -13,26 +13,14 @@ interface CategoryFilterProps {
   isSearching: boolean;
 }
 
-const categoryEmojis: Record<string, string> = {
-  'Tarjeta de Crédito': '💳',
-  Servicios: '⚡',
-  Suscripción: '📱',
-  Alquiler: '🏠',
-  Préstamo: '📊',
-  Seguro: '🛡️',
-  Impuestos: '📄',
-  Otros: '📦',
-};
-
 export function CategoryFilter({
   selectedCategory,
   onCategoryChange,
   searchQuery,
   onSearchChange,
   onSearchSubmit,
-  isSearching,
 }: CategoryFilterProps) {
-  const [isFocused, setIsFocused] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,71 +32,103 @@ export function CategoryFilter({
     onSearchSubmit();
   };
 
+  const hasActiveFilters = searchQuery || selectedCategory;
+
   return (
-    <div className="space-y-4">
-      {/* Search Bar */}
-      <form onSubmit={handleSearchSubmit} className="relative">
-        <div
-          className={`flex items-center gap-2 input-group ${isFocused ? 'ring-2 ring-primary/50 rounded-lg' : ''}`}
+    <div className="space-y-3">
+      {/* Search Row - Compact and inline */}
+      <div className="flex items-center gap-2">
+        <form onSubmit={handleSearchSubmit} className="flex-1">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-base-content/40" />
+            <input
+              type="text"
+              placeholder="Buscar recordatorios..."
+              className="input input-bordered w-full pl-9 pr-8 rounded-lg"
+              value={searchQuery}
+              onChange={(e) => onSearchChange(e.target.value)}
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={clearSearch}
+                className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-base-200 rounded"
+              >
+                <X className="w-3 h-3 text-base-content/40" />
+              </button>
+            )}
+          </div>
+        </form>
+
+        <button
+          onClick={() => setShowFilters(!showFilters)}
+          className={`btn btn-sm btn-ghost gap-2 ${showFilters || hasActiveFilters ? 'btn-active' : ''}`}
         >
-          <span className="input-group-text bg-base-200">
-            <Search className="w-5 h-5 text-base-content/50" />
-          </span>
-          <input
-            type="text"
-            placeholder="Buscar recordatorios..."
-            className="input input-bordered w-full"
-            value={searchQuery}
-            onChange={(e) => onSearchChange(e.target.value)}
-            onFocus={() => setIsFocused(true)}
-            onBlur={() => setIsFocused(false)}
-          />
-          {searchQuery && (
+          <SlidersHorizontal className="w-5 h-5" />
+          <span className="hidden sm:inline">Filtros</span>
+          {hasActiveFilters && (
+            <span className="badge badge-sm badge-primary">!</span>
+          )}
+        </button>
+      </div>
+
+      {/* Category Pills - Collapsible */}
+      {showFilters && (
+        <div className="flex flex-wrap gap-1.5 pt-2 border-t border-base-200">
+          <button
+            onClick={() => onCategoryChange(null)}
+            className={`btn btn-xs gap-1.5 ${selectedCategory === null ? 'btn-primary' : 'btn-ghost bg-base-200/50'}`}
+          >
+            Todos
+          </button>
+
+          {REMINDER_CATEGORIES.map((category) => (
             <button
-              type="button"
-              onClick={clearSearch}
-              className="btn btn-ghost btn-sm"
+              key={category}
+              onClick={() =>
+                onCategoryChange(
+                  selectedCategory === category ? null : category,
+                )
+              }
+              className={`btn btn-xs gap-1.5 ${selectedCategory === category ? 'btn-primary' : 'btn-ghost bg-base-200/50'}`}
             >
-              <X className="w-4 h-4" />
+              <span className="text-xs">
+                {categoryEmojis[category] || '📦'}
+              </span>
+              <span>{category}</span>
             </button>
+          ))}
+        </div>
+      )}
+
+      {/* Active filter indicator - Subtle */}
+      {!showFilters && hasActiveFilters && (
+        <div className="flex items-center gap-2 text-xs text-base-content/60">
+          <span>Filtros activos:</span>
+          {searchQuery && (
+            <span className="badge badge-ghost badge-sm gap-1">
+              <Search className="w-3 h-3" />
+              &quot;{searchQuery}&quot;
+            </span>
+          )}
+          {selectedCategory && (
+            <span className="badge badge-ghost badge-sm gap-1">
+              {categoryEmojis[selectedCategory]}
+              {selectedCategory}
+            </span>
           )}
           <button
-            type="submit"
-            className="btn btn-primary"
-            disabled={isSearching}
+            onClick={() => {
+              onCategoryChange(null);
+              onSearchChange('');
+              onSearchSubmit();
+            }}
+            className="link link-hover text-error"
           >
-            {isSearching ? (
-              <span className="loading loading-spinner loading-sm"></span>
-            ) : (
-              'Buscar'
-            )}
+            Limpiar
           </button>
         </div>
-      </form>
-
-      {/* Category Chips */}
-      <div className="flex flex-wrap gap-2">
-        <button
-          onClick={() => onCategoryChange(null)}
-          className={`btn btn-sm gap-2 ${selectedCategory === null ? 'btn-primary' : 'btn-ghost'}`}
-        >
-          <span>🗂️</span>
-          Todos
-        </button>
-
-        {REMINDER_CATEGORIES.map((category) => (
-          <button
-            key={category}
-            onClick={() =>
-              onCategoryChange(selectedCategory === category ? null : category)
-            }
-            className={`btn btn-sm gap-2 ${selectedCategory === category ? 'btn-primary' : 'btn-ghost'}`}
-          >
-            <span>{categoryEmojis[category] || '📦'}</span>
-            <span className="hidden sm:inline">{category}</span>
-          </button>
-        ))}
-      </div>
+      )}
     </div>
   );
 }

@@ -11,9 +11,12 @@ import {
   FileText,
   Package,
   Scissors,
-  Eye,
   Calendar,
   Repeat,
+  AlertCircle,
+  Clock,
+  CheckCircle2,
+  PauseCircle,
 } from 'lucide-react';
 import type { Reminder } from '@/types/reminder.types';
 import { RECURRENCE_TYPES } from '@/config/constants';
@@ -23,31 +26,21 @@ interface ReminderCardProps {
 }
 
 const categoryIcons: Record<string, React.ReactNode> = {
-  'Tarjeta de Crédito': <CreditCard className="w-5 h-5" />,
-  Servicios: <Zap className="w-5 h-5" />,
-  Suscripción: <Tv className="w-5 h-5" />,
-  Alquiler: <Home className="w-5 h-5" />,
-  Préstamo: <Landmark className="w-5 h-5" />,
-  Seguro: <Shield className="w-5 h-5" />,
-  Impuestos: <FileText className="w-5 h-5" />,
-  Otros: <Package className="w-5 h-5" />,
-};
-
-const categoryEmojis: Record<string, string> = {
-  'Tarjeta de Crédito': '💳',
-  Servicios: '⚡',
-  Suscripción: '📱',
-  Alquiler: '🏠',
-  Préstamo: '📊',
-  Seguro: '🛡️',
-  Impuestos: '📄',
-  Otros: '📦',
+  'Tarjeta de Crédito': <CreditCard className="w-4 h-4" />,
+  Servicios: <Zap className="w-4 h-4" />,
+  Suscripción: <Tv className="w-4 h-4" />,
+  Alquiler: <Home className="w-4 h-4" />,
+  Préstamo: <Landmark className="w-4 h-4" />,
+  Seguro: <Shield className="w-4 h-4" />,
+  Impuestos: <FileText className="w-4 h-4" />,
+  Otros: <Package className="w-4 h-4" />,
 };
 
 function getUrgencyLevel(
   daysUntilDue: number,
   isOverdue: boolean,
-): 'urgent' | 'soon' | 'future' | 'overdue' {
+): 'urgent' | 'soon' | 'future' | 'overdue' | 'inactive' {
+  if (!isOverdue && daysUntilDue > 0) return 'inactive';
   if (isOverdue || daysUntilDue < 0) return 'overdue';
   if (daysUntilDue <= 3) return 'urgent';
   if (daysUntilDue <= 7) return 'soon';
@@ -57,9 +50,23 @@ function getUrgencyLevel(
 function getCountdownText(daysUntilDue: number, isOverdue: boolean): string {
   if (isOverdue || daysUntilDue < 0)
     return `Vencido hace ${Math.abs(daysUntilDue)} días`;
-  if (daysUntilDue === 0) return '¡Vence hoy!';
-  if (daysUntilDue === 1) return '¡Vence mañana!';
+  if (daysUntilDue === 0) return 'Vence hoy';
+  if (daysUntilDue === 1) return 'Vence mañana';
   return `En ${daysUntilDue} días`;
+}
+
+function getCountdownIcon(urgency: string) {
+  switch (urgency) {
+    case 'urgent':
+    case 'overdue':
+      return AlertCircle;
+    case 'soon':
+      return Clock;
+    case 'inactive':
+      return PauseCircle;
+    default:
+      return CheckCircle2;
+  }
 }
 
 export function ReminderCard({ reminder }: ReminderCardProps) {
@@ -68,39 +75,38 @@ export function ReminderCard({ reminder }: ReminderCardProps) {
     reminder.daysUntilDue,
     reminder.isOverdue,
   );
+  const CountdownIcon = getCountdownIcon(urgency);
 
   const urgencyStyles = {
     urgent: {
-      border: 'border-error/50',
+      border: 'border-error/40',
       bg: 'bg-error/5',
-      badge: 'badge-error',
-      countdown: 'text-error font-bold',
+      countdown: 'text-error',
       icon: 'text-error',
-      pulse: true,
     },
     soon: {
-      border: 'border-warning/50',
+      border: 'border-warning/40',
       bg: 'bg-warning/5',
-      badge: 'badge-warning',
-      countdown: 'text-warning font-semibold',
+      countdown: 'text-warning',
       icon: 'text-warning',
-      pulse: false,
     },
     future: {
-      border: 'border-success/50',
-      bg: 'bg-success/5',
-      badge: 'badge-success',
+      border: 'border-base-300',
+      bg: 'bg-base-100',
       countdown: 'text-success',
       icon: 'text-success',
-      pulse: false,
     },
     overdue: {
-      border: 'border-neutral/50',
+      border: 'border-neutral/40',
       bg: 'bg-neutral/5',
-      badge: 'badge-neutral',
       countdown: 'text-neutral',
       icon: 'text-neutral',
-      pulse: false,
+    },
+    inactive: {
+      border: 'border-base-300',
+      bg: 'bg-base-200/50',
+      countdown: 'text-base-content/50',
+      icon: 'text-base-content/50',
     },
   };
 
@@ -110,82 +116,71 @@ export function ReminderCard({ reminder }: ReminderCardProps) {
     reminder.recurrence;
 
   return (
-    <div
-      className={`card bg-base-100 border-2 ${style.border} ${style.bg} hover:shadow-lg transition-all duration-300`}
+    <Link
+      href={`/reminders/${reminder.id}`}
+      className={`block card border rounded-lg ${style.border} ${style.bg} hover:shadow-md transition-all duration-200`}
     >
       <div className="card-body p-4">
         <div className="flex items-start gap-4">
-          {/* Content */}
+          {/* Main Content */}
           <div className="flex-1 min-w-0">
-            <div className="flex items-start justify-between gap-2">
-              <div>
-                {/* Icon */}
-                <span className="text-2xl">
-                  {categoryEmojis[reminder.category] || '📦'}
-                </span>
-                <h3 className="font-semibold text-lg leading-tight">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <h3 className="font-semibold text-base leading-tight truncate">
                   {reminder.name}
                 </h3>
-                <div className="flex items-center gap-2 mt-1">
-                  <span className={`badge ${style.badge} badge-sm gap-1`}>
+
+                {/* Category & Recurrence Row */}
+                <div className="flex flex-wrap items-center gap-2 mt-1.5">
+                  <span className="badge badge-ghost badge-sm gap-1">
                     {categoryIcons[reminder.category] || (
                       <Package className="w-3 h-3" />
                     )}
                     {reminder.category}
                   </span>
-                  <span className="badge badge-ghost badge-sm gap-1">
+                  <span className="text-xs text-base-content/50 flex items-center gap-1">
                     <Repeat className="w-3 h-3" />
                     {recurrenceLabel}
                   </span>
                 </div>
+
+                {/* Credit Card Cutoff Info */}
+                {reminder.cutoff_day &&
+                  reminder.category === 'Tarjeta de Crédito' && (
+                    <div className="mt-2 flex items-center gap-1.5 text-xs text-primary">
+                      <Scissors className="w-3 h-3" />
+                      <span>Corte: día {reminder.cutoff_day}</span>
+                    </div>
+                  )}
+
+                {/* Notes */}
+                {reminder.notes && (
+                  <p className="text-xs text-base-content/60 mt-2 line-clamp-1">
+                    {reminder.notes}
+                  </p>
+                )}
               </div>
 
-              {/* Countdown Badge */}
-              <div
-                className={`text-right shrink-0 ${style.pulse ? 'animate-pulse' : ''}`}
-              >
-                <div className={`text-sm ${style.countdown}`}>
-                  {countdownText}
+              {/* Right Side - Countdown */}
+              <div className="text-right shrink-0">
+                {/* Countdown */}
+                <div
+                  className={`flex items-center gap-1 text-sm ${style.countdown}`}
+                >
+                  <CountdownIcon className="w-4 h-4" />
+                  <span className="font-medium">{countdownText}</span>
                 </div>
-                <div className="text-xs text-base-content/60 flex items-center gap-1 justify-end mt-1">
+
+                {/* Due Day */}
+                <div className="text-xs text-base-content/40 flex items-center gap-1 justify-end mt-1">
                   <Calendar className="w-3 h-3" />
                   Día {reminder.due_day}
                 </div>
               </div>
             </div>
-
-            {/* Cutoff info for credit cards */}
-            {reminder.cutoff_day &&
-              reminder.category === 'Tarjeta de Crédito' && (
-                <div className="mt-3 flex items-center gap-2 text-sm bg-primary/10 text-primary px-3 py-2 rounded-lg">
-                  <Scissors className="w-4 h-4" />
-                  <span>
-                    <strong>Corte:</strong> Día {reminder.cutoff_day} de cada
-                    mes
-                  </span>
-                </div>
-              )}
-
-            {/* Notes */}
-            {reminder.notes && (
-              <p className="text-sm text-base-content/70 mt-2 line-clamp-2">
-                {reminder.notes}
-              </p>
-            )}
           </div>
         </div>
-
-        {/* Actions */}
-        <div className="divider my-3"></div>
-
-        <Link
-          href={`/reminders/${reminder.id}`}
-          className="btn btn-sm btn-primary w-full gap-2"
-        >
-          <Eye className="w-4 h-4" />
-          Ver detalle
-        </Link>
       </div>
-    </div>
+    </Link>
   );
 }

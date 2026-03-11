@@ -1,12 +1,8 @@
 'use client';
 
-import { 
-  Calendar, 
-  Scissors,
-  AlertCircle
-} from 'lucide-react';
+import { Calendar, Scissors, AlertCircle } from 'lucide-react';
 import type { ReminderAnalytics } from '@/types/reminder.types';
-import { RECURRENCE_TYPES } from '@/config/constants';
+import { categoryEmojis, RECURRENCE_TYPES } from '@/config/constants';
 
 interface NextDueInfoProps {
   name: string;
@@ -17,29 +13,26 @@ interface NextDueInfoProps {
   analytics: ReminderAnalytics;
 }
 
-const categoryEmojis: Record<string, string> = {
-  'Tarjeta de Crédito': '💳',
-  'Servicios': '⚡',
-  'Suscripción': '📱',
-  'Alquiler': '🏠',
-  'Préstamo': '📊',
-  'Seguro': '🛡️',
-  'Impuestos': '📄',
-  'Otros': '📦',
-};
-
 const CREDIT_CARD_CATEGORY = 'Tarjeta de Crédito';
 
 // Calculate days between today and cutoff date
 function getDaysUntilCutoffFromToday(cutoffDay: number): number {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  
-  let nextCutoffDate = new Date(today.getFullYear(), today.getMonth(), cutoffDay);
+
+  let nextCutoffDate = new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    cutoffDay,
+  );
   if (nextCutoffDate < today) {
-    nextCutoffDate = new Date(today.getFullYear(), today.getMonth() + 1, cutoffDay);
+    nextCutoffDate = new Date(
+      today.getFullYear(),
+      today.getMonth() + 1,
+      cutoffDay,
+    );
   }
-  
+
   const diffTime = nextCutoffDate.getTime() - today.getTime();
   return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 }
@@ -48,19 +41,27 @@ function getDaysUntilCutoffFromToday(cutoffDay: number): number {
 function getDaysToPayFromCutoff(cutoffDay: number, dueDay: number): number {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  
+
   // Get the next occurrence of cutoff
   let cutoffDate = new Date(today.getFullYear(), today.getMonth(), cutoffDay);
   if (cutoffDate < today) {
     cutoffDate = new Date(today.getFullYear(), today.getMonth() + 1, cutoffDay);
   }
-  
+
   // Get the next occurrence of due date after cutoff
-  let dueDate = new Date(cutoffDate.getFullYear(), cutoffDate.getMonth(), dueDay);
+  let dueDate = new Date(
+    cutoffDate.getFullYear(),
+    cutoffDate.getMonth(),
+    dueDay,
+  );
   if (dueDate < cutoffDate) {
-    dueDate = new Date(cutoffDate.getFullYear(), cutoffDate.getMonth() + 1, dueDay);
+    dueDate = new Date(
+      cutoffDate.getFullYear(),
+      cutoffDate.getMonth() + 1,
+      dueDay,
+    );
   }
-  
+
   const diffTime = dueDate.getTime() - cutoffDate.getTime();
   return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 }
@@ -69,12 +70,12 @@ function getDaysToPayFromCutoff(cutoffDay: number, dueDay: number): number {
 function getDaysUntilDueFromToday(dueDay: number): number {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  
+
   let nextDueDate = new Date(today.getFullYear(), today.getMonth(), dueDay);
   if (nextDueDate < today) {
     nextDueDate = new Date(today.getFullYear(), today.getMonth() + 1, dueDay);
   }
-  
+
   const diffTime = nextDueDate.getTime() - today.getTime();
   return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 }
@@ -132,57 +133,73 @@ function getCountdownText(days: number): string {
   return `En ${days} días`;
 }
 
-export function NextDueInfo({ 
-  name, 
-  category, 
-  recurrence, 
-  dueDay, 
+export function NextDueInfo({
+  name,
+  category,
+  recurrence,
+  dueDay,
   cutoffDay,
-  analytics 
+  analytics,
 }: NextDueInfoProps) {
   const isCreditCard = category === CREDIT_CARD_CATEGORY;
-  const recurrenceLabel = RECURRENCE_TYPES.find(r => r.value === recurrence)?.label || recurrence;
-  
+  const recurrenceLabel =
+    RECURRENCE_TYPES.find((r) => r.value === recurrence)?.label || recurrence;
+
   // For credit cards with cutoff day
   if (isCreditCard && cutoffDay) {
     const daysUntilCutoff = getDaysUntilCutoffFromToday(cutoffDay);
     const daysToPayFromCutoff = getDaysToPayFromCutoff(cutoffDay, dueDay);
     const daysUntilDueFromToday = getDaysUntilDueFromToday(dueDay);
-    
+
     // Determine urgency based on the most urgent metric
     const mostUrgentDays = Math.min(
       daysUntilCutoff >= 0 ? daysUntilCutoff : Infinity,
-      daysUntilDueFromToday >= 0 ? daysUntilDueFromToday : Infinity
+      daysUntilDueFromToday >= 0 ? daysUntilDueFromToday : Infinity,
     );
-    const urgency = getUrgencyColor(mostUrgentDays === Infinity ? -1 : mostUrgentDays);
-    
+    const urgency = getUrgencyColor(
+      mostUrgentDays === Infinity ? -1 : mostUrgentDays,
+    );
+
     // Cutoff colors
     const cutoffUrgency = getUrgencyColor(daysUntilCutoff);
     // Payment window colors (always show as info/primary since it's the interest-free period)
-    const payWindowUrgency = daysUntilDueFromToday < 0 
-      ? getUrgencyColor(-1) // Overdue
-      : { 
-          color: 'primary', 
-          bgColor: 'bg-primary/10', 
-          textColor: 'text-primary',
-          borderColor: 'border-primary'
-        };
-    
+    const payWindowUrgency =
+      daysUntilDueFromToday < 0
+        ? getUrgencyColor(-1) // Overdue
+        : {
+            color: 'primary',
+            bgColor: 'bg-primary/10',
+            textColor: 'text-primary',
+            borderColor: 'border-primary',
+          };
+
     return (
-      <div className={`card border-2 ${urgency.borderColor} ${urgency.bgColor}`}>
+      <div
+        className={`card border-2 ${urgency.borderColor} ${urgency.bgColor}`}
+      >
         <div className="card-body">
           {/* Header */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className={`p-3 rounded-xl bg-base-100 ${urgency.textColor}`}>
-                <span className="text-3xl">{categoryEmojis[category] || '📦'}</span>
+              <div
+                className={`p-3 rounded-xl bg-base-100 ${urgency.textColor}`}
+              >
+                <span className="text-3xl">
+                  {categoryEmojis[category] || '📦'}
+                </span>
               </div>
               <div>
                 <h1 className="text-2xl font-bold">{name}</h1>
                 <div className="flex items-center gap-2 mt-1">
-                  <span className={`badge badge-${urgency.color} badge-sm gap-1`}>
+                  <span
+                    className={`badge badge-${urgency.color} badge-sm gap-1`}
+                  >
                     <AlertCircle className="w-3 h-3" />
-                    {daysUntilDueFromToday < 0 ? 'VENCIDO' : daysUntilDueFromToday <= 3 ? 'URGENTE' : 'A TIEMPO'}
+                    {daysUntilDueFromToday < 0
+                      ? 'VENCIDO'
+                      : daysUntilDueFromToday <= 3
+                        ? 'URGENTE'
+                        : 'A TIEMPO'}
                   </span>
                   <span className="badge badge-ghost badge-sm">
                     Día {dueDay} • {recurrenceLabel}
@@ -193,17 +210,23 @@ export function NextDueInfo({
           </div>
 
           <div className="divider"></div>
-          
+
           {/* Credit Card Specific Display - Two Metrics */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Days until Cutoff */}
-            <div className={`p-4 rounded-xl bg-base-100 border ${cutoffUrgency.borderColor}`}>
+            <div
+              className={`p-4 rounded-xl bg-base-100 border ${cutoffUrgency.borderColor}`}
+            >
               <div className="flex items-center gap-3">
-                <div className={`p-2 rounded-lg ${cutoffUrgency.bgColor} ${cutoffUrgency.textColor}`}>
+                <div
+                  className={`p-2 rounded-lg ${cutoffUrgency.bgColor} ${cutoffUrgency.textColor}`}
+                >
                   <Scissors className="w-6 h-6" />
                 </div>
                 <div>
-                  <p className={`text-2xl font-bold ${cutoffUrgency.textColor}`}>
+                  <p
+                    className={`text-2xl font-bold ${cutoffUrgency.textColor}`}
+                  >
                     {getCountdownText(daysUntilCutoff)}
                   </p>
                   <p className="text-sm text-base-content/60">
@@ -219,25 +242,29 @@ export function NextDueInfo({
             </div>
 
             {/* Days to Pay (from cutoff or from today if cutoff passed) */}
-            <div className={`p-4 rounded-xl bg-base-100 border ${payWindowUrgency.borderColor}`}>
+            <div
+              className={`p-4 rounded-xl bg-base-100 border ${payWindowUrgency.borderColor}`}
+            >
               <div className="flex items-center gap-3">
-                <div className={`p-2 rounded-lg ${payWindowUrgency.bgColor} ${payWindowUrgency.textColor}`}>
+                <div
+                  className={`p-2 rounded-lg ${payWindowUrgency.bgColor} ${payWindowUrgency.textColor}`}
+                >
                   <Calendar className="w-6 h-6" />
                 </div>
                 <div>
-                  <p className={`text-2xl font-bold ${payWindowUrgency.textColor}`}>
-                    {daysUntilCutoff >= 0 
+                  <p
+                    className={`text-2xl font-bold ${payWindowUrgency.textColor}`}
+                  >
+                    {daysUntilCutoff >= 0
                       ? `${daysToPayFromCutoff} días`
-                      : getCountdownText(daysUntilDueFromToday)
-                    }
+                      : getCountdownText(daysUntilDueFromToday)}
                   </p>
                   <p className="text-sm text-base-content/60">
-                    {daysUntilCutoff >= 0 
+                    {daysUntilCutoff >= 0
                       ? 'Días para pagar (sin intereses)'
-                      : daysUntilDueFromToday >= 0 
+                      : daysUntilDueFromToday >= 0
                         ? 'Días para pagar'
-                        : 'Pago vencido'
-                    }
+                        : 'Pago vencido'}
                   </p>
                   {dueDay && (
                     <p className="text-xs text-base-content/40 mt-1">
@@ -253,7 +280,9 @@ export function NextDueInfo({
           <div className="alert alert-sm bg-base-200 mt-4">
             <div className="flex-1">
               <p className="text-sm">
-                <strong>💡 Ciclo de tu tarjeta:</strong> El corte cierra el día {cutoffDay} y tienes {daysToPayFromCutoff} días para pagar sin intereses (hasta el día {dueDay}).
+                <strong>💡 Ciclo de tu tarjeta:</strong> El corte cierra el día{' '}
+                {cutoffDay} y tienes {daysToPayFromCutoff} días para pagar sin
+                intereses (hasta el día {dueDay}).
               </p>
             </div>
           </div>
@@ -261,10 +290,10 @@ export function NextDueInfo({
       </div>
     );
   }
-  
+
   // For non-credit cards, use the original display
   const urgency = getUrgencyColor(analytics.days_until_due);
-  
+
   return (
     <div className={`card border-2 ${urgency.borderColor} ${urgency.bgColor}`}>
       <div className="card-body">
@@ -272,14 +301,20 @@ export function NextDueInfo({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className={`p-3 rounded-xl bg-base-100 ${urgency.textColor}`}>
-              <span className="text-3xl">{categoryEmojis[category] || '📦'}</span>
+              <span className="text-3xl">
+                {categoryEmojis[category] || '📦'}
+              </span>
             </div>
             <div>
               <h1 className="text-2xl font-bold">{name}</h1>
               <div className="flex items-center gap-2 mt-1">
                 <span className={`badge badge-${urgency.color} badge-sm gap-1`}>
                   <AlertCircle className="w-3 h-3" />
-                  {analytics.days_until_due < 0 ? 'VENCIDO' : analytics.days_until_due <= 3 ? 'URGENTE' : 'A TIEMPO'}
+                  {analytics.days_until_due < 0
+                    ? 'VENCIDO'
+                    : analytics.days_until_due <= 3
+                      ? 'URGENTE'
+                      : 'A TIEMPO'}
                 </span>
                 <span className="badge badge-ghost badge-sm">
                   Día {dueDay} • {recurrenceLabel}
@@ -291,12 +326,16 @@ export function NextDueInfo({
 
         {/* Countdown */}
         <div className="divider"></div>
-        
+
         <div className="grid grid-cols-1 gap-4">
           {/* Due Date */}
-          <div className={`p-4 rounded-xl bg-base-100 border ${urgency.borderColor}`}>
+          <div
+            className={`p-4 rounded-xl bg-base-100 border ${urgency.borderColor}`}
+          >
             <div className="flex items-center gap-3">
-              <div className={`p-2 rounded-lg ${urgency.bgColor} ${urgency.textColor}`}>
+              <div
+                className={`p-2 rounded-lg ${urgency.bgColor} ${urgency.textColor}`}
+              >
                 <Calendar className="w-6 h-6" />
               </div>
               <div>

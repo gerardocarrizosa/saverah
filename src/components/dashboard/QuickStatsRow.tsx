@@ -1,16 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { 
-  Wallet, 
-  PiggyBank, 
-  CreditCard, 
-  Flame,
-  Target
-} from 'lucide-react';
+import { Wallet, PiggyBank, CreditCard, Flame, Target } from 'lucide-react';
 import api from '@/lib/axios';
 import type { BudgetSummary } from '@/types/budget.types';
 import type { SavingsGoal } from '@/types/dashboard.types';
+import { formatCurrency } from '@/lib/utils/currency';
 
 interface QuickStatsRowProps {
   budget: BudgetSummary;
@@ -26,18 +21,26 @@ export function QuickStatsRow({ budget }: QuickStatsRowProps) {
     const loadData = async () => {
       try {
         const [goalRes, streakRes, amountsRes] = await Promise.all([
-          api.get('/dashboard/savings-goal').catch(() => ({ data: { data: null } })),
-          api.get('/dashboard/streak').catch(() => ({ data: { data: { streak: 0 } } })),
-          api.get('/dashboard/estimated-amounts').catch(() => ({ data: { data: [] } })),
+          api
+            .get('/dashboard/savings-goal')
+            .catch(() => ({ data: { data: null } })),
+          api
+            .get('/dashboard/streak')
+            .catch(() => ({ data: { data: { streak: 0 } } })),
+          api
+            .get('/dashboard/estimated-amounts')
+            .catch(() => ({ data: { data: [] } })),
         ]);
 
         setSavingsGoal(goalRes.data.data);
         setStreak(streakRes.data.data.streak);
-        
+
         // Calculate total due from estimated amounts
         const amounts = amountsRes.data.data || [];
-        const total = amounts.reduce((sum: number, a: { estimated_amount: number }) => 
-          sum + (a.estimated_amount || 0), 0
+        const total = amounts.reduce(
+          (sum: number, a: { estimated_amount: number }) =>
+            sum + (a.estimated_amount || 0),
+          0,
         );
         setTotalDue(total);
       } catch (error) {
@@ -53,15 +56,23 @@ export function QuickStatsRow({ budget }: QuickStatsRowProps) {
   // Calculate daily budget (remaining budget / remaining days)
   const calculateDailyBudget = (): number => {
     const today = new Date();
-    const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+    const lastDayOfMonth = new Date(
+      today.getFullYear(),
+      today.getMonth() + 1,
+      0,
+    );
     const remainingDays = lastDayOfMonth.getDate() - today.getDate() + 1;
-    
+
     if (remainingDays <= 0) return 0;
     return budget.balance / remainingDays;
   };
 
   // Calculate savings progress
-  const calculateSavingsProgress = (): { percentage: number; remaining: number; target: number } | null => {
+  const calculateSavingsProgress = (): {
+    percentage: number;
+    remaining: number;
+    target: number;
+  } | null => {
     if (!savingsGoal) return null;
 
     if (savingsGoal.goal_type === 'fixed' && savingsGoal.target_amount) {
@@ -73,8 +84,12 @@ export function QuickStatsRow({ budget }: QuickStatsRowProps) {
       };
     }
 
-    if (savingsGoal.goal_type === 'percentage' && savingsGoal.target_percentage) {
-      const target = (budget.total_income * savingsGoal.target_percentage) / 100;
+    if (
+      savingsGoal.goal_type === 'percentage' &&
+      savingsGoal.target_percentage
+    ) {
+      const target =
+        (budget.total_income * savingsGoal.target_percentage) / 100;
       const saved = Math.max(0, budget.balance);
       return {
         percentage: Math.min(100, (saved / target) * 100),
@@ -94,7 +109,7 @@ export function QuickStatsRow({ budget }: QuickStatsRowProps) {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {[1, 2, 3, 4].map((i) => (
           <div key={i} className="card bg-base-100 shadow-xl animate-pulse">
-            <div className="card-body p-4">
+            <div className="card-body p-2">
               <div className="h-16 bg-base-300 rounded"></div>
             </div>
           </div>
@@ -106,8 +121,8 @@ export function QuickStatsRow({ budget }: QuickStatsRowProps) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       {/* Daily Budget */}
-      <div className="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow">
-        <div className="card-body p-4">
+      <div className="card bg-base-100">
+        <div className="card-body p-2">
           <div className="flex items-center gap-3">
             <div className="p-3 rounded-full bg-info/10">
               <Wallet className="w-6 h-6 text-info" />
@@ -115,11 +130,7 @@ export function QuickStatsRow({ budget }: QuickStatsRowProps) {
             <div>
               <p className="text-sm text-base-content/60">Puedes gastar hoy</p>
               <p className="text-2xl font-bold text-info">
-                {new Intl.NumberFormat('es-MX', {
-                  style: 'currency',
-                  currency: 'MXN',
-                  maximumFractionDigits: 0,
-                }).format(dailyBudget)}
+                {formatCurrency(dailyBudget, 0)}
               </p>
             </div>
           </div>
@@ -127,8 +138,8 @@ export function QuickStatsRow({ budget }: QuickStatsRowProps) {
       </div>
 
       {/* Savings Goal Progress */}
-      <div className="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow">
-        <div className="card-body p-4">
+      <div className="card bg-base-100">
+        <div className="card-body p-2">
           <div className="flex items-center gap-3">
             <div className="p-3 rounded-full bg-success/10">
               {savingsGoal ? (
@@ -149,12 +160,14 @@ export function QuickStatsRow({ budget }: QuickStatsRowProps) {
                   <div className="w-full bg-base-300 rounded-full h-1.5">
                     <div
                       className="bg-success h-1.5 rounded-full transition-all"
-                      style={{ width: `${Math.min(savingsProgress.percentage, 100)}%` }}
+                      style={{
+                        width: `${Math.min(savingsProgress.percentage, 100)}%`,
+                      }}
                     />
                   </div>
                 </div>
               ) : (
-                <button className="btn btn-sm btn-success mt-1">
+                <button className="btn btn-sm btn-success mt-1 rounded">
                   <Target className="w-4 h-4 mr-1" />
                   Crear meta
                 </button>
@@ -165,8 +178,8 @@ export function QuickStatsRow({ budget }: QuickStatsRowProps) {
       </div>
 
       {/* Total Due This Month */}
-      <div className="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow">
-        <div className="card-body p-4">
+      <div className="card bg-base-100">
+        <div className="card-body p-2">
           <div className="flex items-center gap-3">
             <div className="p-3 rounded-full bg-warning/10">
               <CreditCard className="w-6 h-6 text-warning" />
@@ -174,23 +187,17 @@ export function QuickStatsRow({ budget }: QuickStatsRowProps) {
             <div>
               <p className="text-sm text-base-content/60">Total vencimientos</p>
               <p className="text-2xl font-bold text-warning">
-                {new Intl.NumberFormat('es-MX', {
-                  style: 'currency',
-                  currency: 'MXN',
-                  maximumFractionDigits: 0,
-                }).format(totalDue)}
+                {formatCurrency(totalDue, 0)}
               </p>
-              <p className="text-xs text-base-content/50">
-                Este mes estimado
-              </p>
+              <p className="text-xs text-base-content/50">Este mes estimado</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* Streak */}
-      <div className="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow">
-        <div className="card-body p-4">
+      <div className="card bg-base-100">
+        <div className="card-body p-2">
           <div className="flex items-center gap-3">
             <div className="p-3 rounded-full bg-error/10">
               <Flame className="w-6 h-6 text-error" />

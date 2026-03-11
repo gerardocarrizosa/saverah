@@ -1,38 +1,31 @@
 'use client';
 
 import Link from 'next/link';
-import { 
-  AlertCircle, 
-  Clock, 
+import {
+  AlertCircle,
+  Clock,
   Calendar,
   CreditCard,
-  ArrowRight
+  ArrowRight,
 } from 'lucide-react';
 import type { Reminder } from '@/types/reminder.types';
 import { getDaysUntilDue } from '@/lib/utils/dates';
+import { categoryEmojis } from '@/config/constants';
 
 interface UrgentAlertsProps {
   reminders: Reminder[];
   isLoading?: boolean;
 }
 
-const categoryEmojis: Record<string, string> = {
-  'Tarjeta de Crédito': '💳',
-  'Servicios': '⚡',
-  'Suscripción': '📱',
-  'Alquiler': '🏠',
-  'Préstamo': '📊',
-  'Seguro': '🛡️',
-  'Impuestos': '📄',
-  'Otros': '📦',
-};
-
 export function UrgentAlerts({ reminders, isLoading }: UrgentAlertsProps) {
   if (isLoading) {
     return (
       <div className="space-y-3">
         {[1, 2, 3].map((i) => (
-          <div key={i} className="flex items-center p-3 bg-base-200 rounded-lg animate-pulse">
+          <div
+            key={i}
+            className="flex items-center p-3 bg-base-200 rounded-lg animate-pulse"
+          >
             <div className="h-12 bg-base-300 rounded w-full"></div>
           </div>
         ))}
@@ -68,7 +61,8 @@ export function UrgentAlerts({ reminders, isLoading }: UrgentAlertsProps) {
         const isOverdue = reminder.daysUntilDue < 0;
         const isToday = reminder.daysUntilDue === 0;
         const isTomorrow = reminder.daysUntilDue === 1;
-        const isSoon = reminder.daysUntilDue === 2 || reminder.daysUntilDue === 3;
+        const isSoon =
+          reminder.daysUntilDue === 2 || reminder.daysUntilDue === 3;
 
         let urgencyClass = '';
         let badgeClass = '';
@@ -103,7 +97,9 @@ export function UrgentAlerts({ reminders, isLoading }: UrgentAlertsProps) {
             className={`flex items-center justify-between p-3 bg-base-200 rounded-lg ${urgencyClass} hover:bg-base-300/50 transition-colors`}
           >
             <div className="flex items-center gap-3">
-              <div className="text-2xl">{categoryEmojis[reminder.category] || '📦'}</div>
+              <div className="text-2xl">
+                {categoryEmojis[reminder.category] || '📦'}
+              </div>
               <div>
                 <p className="font-medium text-base-content">{reminder.name}</p>
                 <div className="flex items-center gap-2 mt-1">
@@ -145,10 +141,7 @@ export function UrgentAlerts({ reminders, isLoading }: UrgentAlertsProps) {
       })}
 
       <div className="flex justify-center mt-4">
-        <Link
-          href="/reminders"
-          className="btn btn-ghost btn-sm gap-1"
-        >
+        <Link href="/reminders" className="btn btn-ghost btn-sm gap-1">
           Ver todos los recordatorios
           <ArrowRight className="w-4 h-4" />
         </Link>
