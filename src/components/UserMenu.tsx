@@ -18,8 +18,8 @@ export default function UserMenu() {
 
   return (
     <div className="dropdown dropdown-end">
-      <button 
-        tabIndex={0} 
+      <button
+        tabIndex={0}
         className="btn btn-ghost btn-circle avatar"
         aria-label="Menú de usuario"
       >
@@ -27,7 +27,7 @@ export default function UserMenu() {
           <User className="w-6 h-6" />
         </div>
       </button>
-      
+
       <ul
         tabIndex={0}
         className="dropdown-content menu menu-sm bg-base-100 rounded-box z-[1] mt-3 w-56 p-2 shadow-xl border border-base-300"
@@ -38,9 +38,9 @@ export default function UserMenu() {
             <span>Mi Perfil</span>
           </Link>
         </li>
-        
+
         <li>
-          <button 
+          <button
             onClick={toggleTheme}
             className="flex items-center gap-2 w-full text-left"
           >
@@ -57,11 +57,11 @@ export default function UserMenu() {
             )}
           </button>
         </li>
-        
+
         <div className="divider my-1"></div>
-        
+
         <li>
-          <button 
+          <button
             onClick={handleLogout}
             className="flex items-center gap-2 text-error hover:text-error"
           >

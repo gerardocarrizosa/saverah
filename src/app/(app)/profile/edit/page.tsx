@@ -1,9 +1,9 @@
 import { redirect } from 'next/navigation';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { getCurrentUserProfile } from '@/lib/api/user';
-import { ProfilePageClient } from '@/components/user/ProfilePageClient';
+import { ProfileEditForm } from '@/components/user/ProfileEditForm';
 
-export default async function ProfilePage() {
+export default async function ProfileEditPage() {
   const supabase = await createSupabaseServerClient();
   
   // Check authentication
@@ -20,5 +20,5 @@ export default async function ProfilePage() {
     redirect('/login');
   }
   
-  return <ProfilePageClient user={userProfile} />;
+  return <ProfileEditForm user={userProfile} />;
 }

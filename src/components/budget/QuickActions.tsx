@@ -1,5 +1,3 @@
-'use client';
-
 import Link from 'next/link';
 import { TrendingUp, TrendingDown, ArrowRight, Plus } from 'lucide-react';
 import { useState, useEffect } from 'react';
@@ -29,7 +27,7 @@ export function QuickActionsPanel({
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
       {/* Income Card */}
       <Link
-        href="/budget/income"
+        href="/budget/income/new"
         className="group card bg-base-100 border border-base-300 hover:border-success/40 transition-all rounded-xl"
       >
         <div className="card-body p-5">
@@ -61,7 +59,7 @@ export function QuickActionsPanel({
 
       {/* Expenses Card */}
       <Link
-        href="/budget/expenses"
+        href="/budget/expenses/new"
         className="group card bg-base-100 border border-base-300 hover:border-error/40 transition-all rounded-xl"
       >
         <div className="card-body p-5">

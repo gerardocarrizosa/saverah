@@ -1,119 +1,79 @@
-'use client';
-
-import { useState } from 'react';
-import { useBudget } from '@/hooks/useBudget';
-import { ExpenseForm } from '@/components/budget/ExpenseForm';
-import { ExpenseList } from '@/components/budget/ExpenseList';
-import { Receipt, TrendingDown, Loader2 } from 'lucide-react';
+import { createSupabaseServerClient } from '@/lib/supabase/server';
+import { getExpenses } from '@/lib/api/budget';
+import { ExpensesPageClient } from '@/components/budget/ExpensesPageClient';
+import { redirect } from 'next/navigation';
 import type { Expense } from '@/types/budget.types';
 
-export default function ExpensesPage() {
-  const { expenses, loading, error, refresh, deleteExpense } = useBudget();
-  const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
-  const [deletingId, setDeletingId] = useState<string | null>(null);
+interface ExpenseInsights {
+  total: number;
+  count: number;
+  topCategories: [string, number][];
+  recentSpending: number;
+  trend: number;
+}
 
-  const handleSuccess = () => {
-    refresh();
-    setEditingExpense(null);
-  };
+function calculateInsights(expenses: Expense[]): ExpenseInsights {
+  const total = expenses.reduce((sum, item) => sum + item.amount, 0);
 
-  const handleEdit = (expense: Expense) => {
-    setEditingExpense(expense);
-    // Scroll to form on mobile
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const handleCancelEdit = () => {
-    setEditingExpense(null);
-  };
-
-  const handleDelete = async (id: string) => {
-    setDeletingId(id);
-    try {
-      await deleteExpense(id);
-      await refresh();
-    } catch {
-      // Error is handled in the hook
-    } finally {
-      setDeletingId(null);
-    }
-  };
-
-  const totalExpenses = expenses.reduce((sum, item) => sum + item.amount, 0);
-
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-            <Receipt className="w-6 h-6" />
-            Gastos
-          </h1>
-          <p className="text-gray-600 mt-1">
-            Registra y gestiona tus gastos por categoría
-          </p>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="space-y-4">
-          <div className="card bg-base-100 shadow-sm border border-base-300">
-            <div className="card-body">
-              <h2 className="card-title text-lg flex items-center gap-2">
-                <TrendingDown className="w-5 h-5 text-error" />
-                {editingExpense ? 'Editar gasto' : 'Registrar nuevo gasto'}
-              </h2>
-              <div className="divider my-2"></div>
-              <ExpenseForm
-                onSuccess={handleSuccess}
-                onCancel={editingExpense ? handleCancelEdit : undefined}
-                editExpense={editingExpense}
-              />
-            </div>
-          </div>
-        </div>
-
-        <div className="space-y-4">
-          <div className="stats shadow w-full">
-            <div className="stat bg-error/10">
-              <div className="stat-title">Total de gastos</div>
-              <div className="stat-value text-error">
-                {new Intl.NumberFormat('es-MX', {
-                  style: 'currency',
-                  currency: 'MXN',
-                }).format(totalExpenses)}
-              </div>
-              <div className="stat-desc">
-                {expenses.length} {expenses.length === 1 ? 'registro' : 'registros'}
-              </div>
-            </div>
-          </div>
-
-          <div className="card bg-base-100 shadow-sm border border-base-300">
-            <div className="card-body">
-              <h2 className="card-title text-lg">Historial de gastos</h2>
-              <div className="divider my-2"></div>
-              
-              {loading ? (
-                <div className="flex items-center justify-center py-12">
-                  <Loader2 className="w-8 h-8 animate-spin text-primary" />
-                </div>
-              ) : error ? (
-                <div className="alert alert-error">
-                  <span>{error}</span>
-                </div>
-              ) : (
-                <ExpenseList
-                  expenses={expenses}
-                  onEdit={handleEdit}
-                  onDelete={handleDelete}
-                  deletingId={deletingId}
-                />
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+  // Group by category
+  const byCategory = expenses.reduce(
+    (acc, expense) => {
+      acc[expense.category] = (acc[expense.category] || 0) + expense.amount;
+      return acc;
+    },
+    {} as Record<string, number>,
   );
+
+  // Sort categories by amount
+  const sortedCategories = Object.entries(byCategory)
+    .sort(([, a], [, b]) => b - a)
+    .slice(0, 4); // Top 4 categories
+
+  // Calculate recent trend (last 7 days vs previous 7 days)
+  const now = new Date();
+  const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+  const fourteenDaysAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
+
+  const recentSpending = expenses
+    .filter((e) => new Date(e.spent_at) >= sevenDaysAgo)
+    .reduce((sum, e) => sum + e.amount, 0);
+
+  const previousSpending = expenses
+    .filter((e) => {
+      const date = new Date(e.spent_at);
+      return date >= fourteenDaysAgo && date < sevenDaysAgo;
+    })
+    .reduce((sum, e) => sum + e.amount, 0);
+
+  const trend =
+    previousSpending > 0
+      ? ((recentSpending - previousSpending) / previousSpending) * 100
+      : 0;
+
+  return {
+    total,
+    count: expenses.length,
+    topCategories: sortedCategories,
+    recentSpending,
+    trend,
+  };
+}
+
+export default async function ExpensesPage() {
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect('/login');
+  }
+
+  // Direct DB call for SSR - no HTTP round-trip
+  const expenses = await getExpenses(user.id);
+
+  // Calculate insights server-side
+  const insights = calculateInsights(expenses);
+
+  return <ExpensesPageClient initialExpenses={expenses} insights={insights} />;
 }

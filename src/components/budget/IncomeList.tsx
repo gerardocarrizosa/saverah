@@ -1,19 +1,13 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { DEFAULT_CURRENCY } from '@/config/constants';
 import type { Income } from '@/types/budget.types';
-import {
-  Calendar,
-  Wallet,
-  Pencil,
-  Trash2,
-  Loader2,
-} from 'lucide-react';
+import { Calendar, Wallet, Pencil, Trash2 } from 'lucide-react';
 
 interface IncomeListProps {
   income: Income[];
-  onEdit: (income: Income) => void;
   onDelete: (id: string) => void;
   deletingId?: string | null;
 }
@@ -53,7 +47,7 @@ function getTypeLabel(type: string): string {
   return typeMap[type] || type;
 }
 
-export function IncomeList({ income, onEdit, onDelete, deletingId }: IncomeListProps) {
+export function IncomeList({ income, onDelete, deletingId }: IncomeListProps) {
   const [confirmingId, setConfirmingId] = useState<string | null>(null);
 
   const handleDeleteClick = (id: string) => {
@@ -68,13 +62,15 @@ export function IncomeList({ income, onEdit, onDelete, deletingId }: IncomeListP
 
   if (income.length === 0) {
     return (
-      <div className="text-center py-12 bg-base-200 rounded-lg">
-        <Wallet className="w-12 h-12 mx-auto mb-4 text-base-content/50" />
-        <p className="text-base-content/70">
-          No hay ingresos registrados aún
-        </p>
-        <p className="text-sm text-base-content/50 mt-1">
-          Agrega tu primer ingreso usando el formulario
+      <div className="text-center py-12">
+        <div className="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-base-200 mb-4">
+          <Wallet className="w-7 h-7 text-base-content/40" />
+        </div>
+        <h3 className="text-lg font-medium text-base-content mb-2">
+          No hay ingresos registrados
+        </h3>
+        <p className="text-sm text-base-content/60">
+          Agrega tu primer ingreso para comenzar
         </p>
       </div>
     );
@@ -85,20 +81,20 @@ export function IncomeList({ income, onEdit, onDelete, deletingId }: IncomeListP
       {income.map((item) => (
         <div
           key={item.id}
-          className="card bg-base-100 shadow-sm border border-base-300"
+          className="card bg-base-100 border border-base-300 shadow-sm rounded-lg"
         >
           <div className="card-body p-4">
             <div className="flex items-start justify-between">
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1">
-                  <h3 className="font-semibold text-base">
-                    {item.source}
-                  </h3>
-                  <span className={`badge ${getTypeBadgeColor(item.type)} badge-sm`}>
+                  <h3 className="font-semibold text-base">{item.source}</h3>
+                  <span
+                    className={`badge ${getTypeBadgeColor(item.type)} badge-sm rounded`}
+                  >
                     {getTypeLabel(item.type)}
                   </span>
                 </div>
-                
+
                 <div className="flex items-center gap-4 text-sm text-base-content/70">
                   <span className="flex items-center gap-1">
                     <Calendar className="w-3 h-3" />
@@ -120,26 +116,29 @@ export function IncomeList({ income, onEdit, onDelete, deletingId }: IncomeListP
               </div>
             </div>
 
-            <div className="flex items-center justify-end gap-2 pt-3 border-t border-base-200 mt-3">
-              <button
-                onClick={() => onEdit(item)}
-                className="btn btn-ghost btn-xs"
-                disabled={deletingId === item.id}
+            <div className="divider my-3"></div>
+
+            <div className="flex gap-2">
+              <Link
+                href={`/budget/income/${item.id}/edit`}
+                className="btn btn-sm btn-ghost flex-1 gap-2"
               >
-                <Pencil className="w-3 h-3" />
+                <Pencil className="w-4 h-4" />
                 Editar
-              </button>
+              </Link>
               <button
                 onClick={() => handleDeleteClick(item.id)}
-                className={`btn btn-xs ${
-                  confirmingId === item.id ? 'btn-error' : 'btn-ghost'
+                className={`btn btn-sm flex-1 gap-2 ${
+                  confirmingId === item.id
+                    ? 'btn-error'
+                    : 'btn-ghost text-error hover:bg-error/10'
                 }`}
-                disabled={deletingId === item.id && deletingId !== item.id}
+                disabled={deletingId === item.id}
               >
                 {deletingId === item.id ? (
-                  <Loader2 className="w-3 h-3 animate-spin" />
+                  <span className="loading loading-spinner loading-xs" />
                 ) : (
-                  <Trash2 className="w-3 h-3" />
+                  <Trash2 className="w-4 h-4" />
                 )}
                 {confirmingId === item.id ? 'Confirmar' : 'Eliminar'}
               </button>

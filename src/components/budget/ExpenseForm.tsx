@@ -103,11 +103,11 @@ export function ExpenseForm({ onSuccess, onCancel, editExpense }: ExpenseFormPro
       }}
     >
       {({ isSubmitting, values }) => (
-        <Form className="space-y-5">
+        <Form className="space-y-4">
           {error && (
-            <div className="alert alert-error">
-              <AlertCircle className="w-5 h-5" />
-              <span>{error}</span>
+            <div className="alert alert-error alert-sm">
+              <AlertCircle className="w-4 h-4" />
+              <span className="text-sm">{error}</span>
             </div>
           )}
 
@@ -159,7 +159,7 @@ export function ExpenseForm({ onSuccess, onCancel, editExpense }: ExpenseFormPro
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-4">
             <div className="form-control">
               <label className="label">
                 <span className="label-text flex items-center gap-2">
@@ -187,7 +187,7 @@ export function ExpenseForm({ onSuccess, onCancel, editExpense }: ExpenseFormPro
               <label className="label">
                 <span className="label-text flex items-center gap-2">
                   <Calendar className="w-4 h-4" />
-                  Fecha del gasto
+                  Fecha
                 </span>
               </label>
               <Field
@@ -214,30 +214,30 @@ export function ExpenseForm({ onSuccess, onCancel, editExpense }: ExpenseFormPro
             <Field
               name="notes"
               as="textarea"
-              className="textarea textarea-bordered w-full h-24"
+              className="textarea textarea-bordered w-full h-24 resize-none"
               placeholder="Notas adicionales sobre este gasto..."
               disabled={isSubmitting}
             />
-            <ErrorMessage
-              name="notes"
-              component="div"
-              className="text-error text-sm mt-1"
-            />
-            <label className="label">
+            <div className="label">
+              <ErrorMessage
+                name="notes"
+                component="span"
+                className="label-text-alt text-error"
+              />
               <span className="label-text-alt">
-                {values.notes?.length || 0}/500 caracteres
+                {values.notes?.length || 0}/500
               </span>
-            </label>
+            </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-3 pt-4">
+          <div className="flex gap-3 pt-2">
             {isEditing ? (
               <>
                 <button
                   type="button"
                   onClick={onCancel}
                   disabled={isSubmitting}
-                  className="btn btn-ghost flex-1"
+                  className="btn btn-ghost flex-1 gap-2"
                 >
                   <X className="w-4 h-4" />
                   Cancelar
@@ -245,7 +245,7 @@ export function ExpenseForm({ onSuccess, onCancel, editExpense }: ExpenseFormPro
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="btn btn-primary flex-1"
+                  className="btn btn-primary flex-1 gap-2"
                 >
                   {isSubmitting ? (
                     <>
@@ -255,21 +255,24 @@ export function ExpenseForm({ onSuccess, onCancel, editExpense }: ExpenseFormPro
                   ) : (
                     <>
                       <Pencil className="w-4 h-4" />
-                      Actualizar gasto
+                      Actualizar
                     </>
                   )}
                 </button>
               </>
             ) : (
               <>
-                <Link href="/budget" className="btn btn-ghost flex-1">
+                <Link 
+                  href="/budget" 
+                  className="btn btn-ghost flex-1 gap-2"
+                >
                   <ArrowLeft className="w-4 h-4" />
                   Volver
                 </Link>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="btn btn-primary flex-1"
+                  className="btn btn-primary flex-1 gap-2"
                 >
                   {isSubmitting ? (
                     <>
@@ -279,7 +282,7 @@ export function ExpenseForm({ onSuccess, onCancel, editExpense }: ExpenseFormPro
                   ) : (
                     <>
                       <Plus className="w-4 h-4" />
-                      Registrar gasto
+                      Registrar
                     </>
                   )}
                 </button>
