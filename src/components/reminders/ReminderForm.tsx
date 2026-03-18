@@ -9,10 +9,7 @@ import {
   type CreateReminderInput,
 } from '@/lib/validations/reminder.schemas';
 import { useReminders } from '@/hooks/useReminders';
-import {
-  REMINDER_CATEGORIES,
-  RECURRENCE_TYPES,
-} from '@/config/constants';
+import { REMINDER_CATEGORIES, RECURRENCE_TYPES } from '@/config/constants';
 import {
   FileText,
   Calendar,
@@ -62,7 +59,10 @@ export function ReminderForm({ onSuccess }: ReminderFormProps) {
           };
 
           // Only include cutoff_day for credit cards
-          if (values.category === CREDIT_CARD_CATEGORY && values.cutoff_day !== undefined) {
+          if (
+            values.category === CREDIT_CARD_CATEGORY &&
+            values.cutoff_day !== undefined
+          ) {
             reminderData.cutoff_day = values.cutoff_day;
           }
 
@@ -78,7 +78,7 @@ export function ReminderForm({ onSuccess }: ReminderFormProps) {
           setError(
             err instanceof Error
               ? err.message
-              : 'Error al crear el recordatorio'
+              : 'Error al crear el recordatorio',
           );
         } finally {
           setSubmitting(false);
@@ -138,9 +138,7 @@ export function ReminderForm({ onSuccess }: ReminderFormProps) {
                 className="text-error text-sm mt-1"
               />
               <label className="label">
-                <span className="label-text-alt">
-                  Día del mes (1-31)
-                </span>
+                <span className="label-text-alt">Día del mes (1-31)</span>
               </label>
             </div>
 
@@ -263,15 +261,18 @@ export function ReminderForm({ onSuccess }: ReminderFormProps) {
             </label>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-3 pt-4">
-            <Link href="/reminders" className="btn btn-ghost flex-1">
+          <div className="flex flex-col sm:flex-row gap-3 pt-6 border-t border-base-200">
+            <Link
+              href="/reminders"
+              className="btn btn-ghost flex-1 order-2 sm:order-1"
+            >
               <ArrowLeft className="w-4 h-4" />
               Cancelar
             </Link>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="btn btn-primary flex-1"
+              className="btn btn-primary p-2 rounded flex-1 order-1 sm:order-2"
             >
               {isSubmitting ? (
                 <>

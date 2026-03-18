@@ -1,6 +1,9 @@
 import { createSupabaseServerClient } from '@/lib/supabase/server';
-import { getReminders } from '@/lib/api/reminders';
-import { getDaysUntilDue, isOverdue } from '@/lib/utils/dates';
+import {
+  getRemindersWithPaymentStatus,
+  searchRemindersWithPaymentStatus,
+  type ReminderWithStatus,
+} from '@/lib/api/remindersWithPayments';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { Suspense } from 'react';
@@ -14,18 +17,12 @@ import {
   CheckCircle2,
   PauseCircle,
   Search,
+  CircleCheck,
 } from 'lucide-react';
 
-import type { Reminder } from '@/types/reminder.types';
-
 // Type for reminder with calculated fields
-type ReminderWithDays = Reminder & {
-  daysUntilDue: number;
-  isOverdue: boolean;
-};
-
 // Server action to search reminders
-async function searchReminders(query: string, category: string | null) {
+async function searchRemindersAction(query: string, category: string | null) {
   'use server';
   const supabase = await createSupabaseServerClient();
   const {
@@ -34,20 +31,7 @@ async function searchReminders(query: string, category: string | null) {
 
   if (!user) throw new Error('No autorizado');
 
-  let dbQuery = supabase.from('reminders').select('*').eq('user_id', user.id);
-
-  if (query) {
-    dbQuery = dbQuery.ilike('name', `%${query}%`);
-  }
-
-  if (category) {
-    dbQuery = dbQuery.eq('category', category);
-  }
-
-  const { data, error } = await dbQuery.order('due_day', { ascending: true });
-
-  if (error) throw error;
-  return data || [];
+  return await searchRemindersWithPaymentStatus(user.id, query, category);
 }
 
 interface RemindersPageProps {
@@ -80,7 +64,7 @@ function StatBadge({
   count: number;
   label: string;
   icon: React.ElementType;
-  variant: 'urgent' | 'warning' | 'success' | 'neutral' | 'default';
+  variant: 'urgent' | 'warning' | 'success' | 'neutral' | 'default' | 'paid';
 }) {
   const variants = {
     urgent: 'bg-error/10 text-error border-error/20',
@@ -88,6 +72,7 @@ function StatBadge({
     success: 'bg-success/10 text-success border-success/20',
     neutral: 'bg-neutral/10 text-neutral border-neutral/20',
     default: 'bg-base-200 text-base-content border-base-300',
+    paid: 'bg-info/10 text-info border-info/20',
   };
 
   return (
@@ -115,37 +100,39 @@ export default async function RemindersPage({
     redirect('/login');
   }
 
-  // Fetch reminders (with search if query exists)
-  let reminders: ReminderWithDays[];
+  // Fetch reminders with payment status
+  let reminders: ReminderWithStatus[];
 
   if (searchQuery || selectedCategory) {
-    const rawReminders = await searchReminders(searchQuery, selectedCategory);
-    reminders = rawReminders.map((r) => ({
-      ...r,
-      daysUntilDue: getDaysUntilDue(r.due_day, r.recurrence),
-      isOverdue: isOverdue(getDaysUntilDue(r.due_day, r.recurrence)),
-    }));
+    reminders = await searchRemindersAction(searchQuery, selectedCategory);
   } else {
-    const rawReminders = await getReminders(user.id);
-    reminders = rawReminders.map((r) => ({
-      ...r,
-      daysUntilDue: getDaysUntilDue(r.due_day, r.recurrence),
-      isOverdue: isOverdue(getDaysUntilDue(r.due_day, r.recurrence)),
-    }));
+    reminders = await getRemindersWithPaymentStatus(user.id);
   }
 
-  // Calculate stats
+  // Calculate stats - excluding paid reminders from upcoming/critical counts
   const total = reminders.length;
-  const active = reminders.filter((r) => r.is_active).length;
-  const inactive = reminders.filter((r) => !r.is_active).length;
+  const paidCount = reminders.filter((r) => r.isPaidForCurrentCycle).length;
+  const activeUnpaidCount = reminders.filter(
+    (r) => r.is_active && !r.isPaidForCurrentCycle,
+  ).length;
+  const inactiveCount = reminders.filter((r) => !r.is_active).length;
+
+  // Upcoming and critical only count unpaid, active reminders
   const upcoming = reminders.filter(
-    (r) => r.is_active && r.daysUntilDue > 0 && r.daysUntilDue <= 7,
+    (r) =>
+      r.is_active &&
+      !r.isPaidForCurrentCycle &&
+      r.daysUntilDue > 0 &&
+      r.daysUntilDue <= 7,
   ).length;
   const critical = reminders.filter(
-    (r) => r.is_active && (r.isOverdue || r.daysUntilDue <= 3),
+    (r) =>
+      r.is_active &&
+      !r.isPaidForCurrentCycle &&
+      (r.isOverdue || r.daysUntilDue <= 3),
   ).length;
 
-  // Check if there are urgent items that need attention
+  // Check if there are urgent items that need attention (not paid)
   const hasUrgentItems = critical > 0;
 
   return (
@@ -158,6 +145,12 @@ export default async function RemindersPage({
           </div>
           <h1 className="text-xl font-bold text-base-content">Recordatorios</h1>
         </div>
+        <Link
+          href="/reminders/new"
+          className="btn btn-primary gap-2 self-start lg:self-auto shrink-0 rounded"
+        >
+          <Plus className="w-5 h-5" />
+        </Link>
       </div>
 
       <div className="flex justify-between">
@@ -181,14 +174,22 @@ export default async function RemindersPage({
               />
             ) : null}
             <StatBadge
-              count={active}
+              count={activeUnpaidCount}
               label="activos"
               icon={CheckCircle2}
               variant={hasUrgentItems ? 'default' : 'success'}
             />
-            {inactive > 0 && (
+            {paidCount > 0 && (
               <StatBadge
-                count={inactive}
+                count={paidCount}
+                label="pagados"
+                icon={CircleCheck}
+                variant="paid"
+              />
+            )}
+            {inactiveCount > 0 && (
+              <StatBadge
+                count={inactiveCount}
                 label="pausados"
                 icon={PauseCircle}
                 variant="neutral"
@@ -196,14 +197,6 @@ export default async function RemindersPage({
             )}
           </div>
         )}
-        <Link
-          href="/reminders/new"
-          className="btn btn-primary gap-2 self-start lg:self-auto shrink-0 rounded"
-        >
-          <Plus className="w-5 h-5" />
-          <span className="hidden sm:inline">Nuevo recordatorio</span>
-          <span className="sm:hidden">Nuevo</span>
-        </Link>
       </div>
 
       {/* Urgency Alert Banner - Only when needed */}

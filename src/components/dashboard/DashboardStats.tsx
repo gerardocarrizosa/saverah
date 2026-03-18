@@ -8,7 +8,6 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils/currency';
-import { VisibilityToggle } from '@/components/budget/VisibilityToggle';
 
 interface DashboardStatsProps {
   balance: number;
@@ -86,11 +85,6 @@ export function DashboardStats({
 
   return (
     <div>
-      {/* Toggle Button */}
-      <div className="flex justify-end">
-        <VisibilityToggle />
-      </div>
-
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <StatCard

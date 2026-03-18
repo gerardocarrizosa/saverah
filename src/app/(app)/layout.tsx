@@ -46,8 +46,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         </div>
       </nav>
 
-      {/* <main className="max-w-7xl mx-auto px-4 py-4 pb-24 sm:px-6 lg:px-8 lg:pb-8"> */}
-      <main className="max-w-7xl mx-auto pb-14 lg:pb-0">{children}</main>
+      <main className="max-w-7xl mx-auto pb-18 lg:pb-0">{children}</main>
 
       {/* Bottom Navigation - Mobile/Tablet Only */}
       <div className="fixed bottom-0 left-0 right-0 lg:hidden btm-nav btm-nav-sm bg-base-300 border-t border-base-300 z-40">

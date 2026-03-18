@@ -2,13 +2,25 @@
 
 import { ReminderCard } from './ReminderCard';
 import type { Reminder } from '@/types/reminder.types';
-import { AlertCircle, Clock, Calendar, CheckCircle2, PauseCircle } from 'lucide-react';
+import {
+  AlertCircle,
+  Clock,
+  Calendar,
+  CheckCircle2,
+  PauseCircle,
+  CircleCheck,
+} from 'lucide-react';
 
 interface ReminderListProps {
-  reminders: (Reminder & { daysUntilDue: number; isOverdue: boolean })[];
+  reminders: (Reminder & {
+    daysUntilDue: number;
+    isOverdue: boolean;
+    isPaidForCurrentCycle?: boolean;
+  })[];
 }
 
 interface GroupedReminders {
+  paid: (Reminder & { daysUntilDue: number; isOverdue: boolean })[];
   urgent: (Reminder & { daysUntilDue: number; isOverdue: boolean })[];
   soon: (Reminder & { daysUntilDue: number; isOverdue: boolean })[];
   future: (Reminder & { daysUntilDue: number; isOverdue: boolean })[];
@@ -16,41 +28,53 @@ interface GroupedReminders {
   inactive: (Reminder & { daysUntilDue: number; isOverdue: boolean })[];
 }
 
-function groupReminders(reminders: (Reminder & { daysUntilDue: number; isOverdue: boolean })[]): GroupedReminders {
-  return reminders.reduce((acc, reminder) => {
-    if (!reminder.is_active) {
-      acc.inactive.push(reminder);
-    } else if (reminder.isOverdue || reminder.daysUntilDue < 0) {
-      acc.overdue.push(reminder);
-    } else if (reminder.daysUntilDue <= 3) {
-      acc.urgent.push(reminder);
-    } else if (reminder.daysUntilDue <= 7) {
-      acc.soon.push(reminder);
-    } else {
-      acc.future.push(reminder);
-    }
-    return acc;
-  }, {
-    urgent: [],
-    soon: [],
-    future: [],
-    overdue: [],
-    inactive: [],
-  } as GroupedReminders);
+function groupReminders(
+  reminders: (Reminder & {
+    daysUntilDue: number;
+    isOverdue: boolean;
+    isPaidForCurrentCycle?: boolean;
+  })[],
+): GroupedReminders {
+  return reminders.reduce(
+    (acc, reminder) => {
+      if (!reminder.is_active) {
+        acc.inactive.push(reminder);
+      } else if (reminder.isPaidForCurrentCycle) {
+        acc.paid.push(reminder);
+      } else if (reminder.isOverdue || reminder.daysUntilDue < 0) {
+        acc.overdue.push(reminder);
+      } else if (reminder.daysUntilDue <= 3) {
+        acc.urgent.push(reminder);
+      } else if (reminder.daysUntilDue <= 7) {
+        acc.soon.push(reminder);
+      } else {
+        acc.future.push(reminder);
+      }
+      return acc;
+    },
+    {
+      paid: [],
+      urgent: [],
+      soon: [],
+      future: [],
+      overdue: [],
+      inactive: [],
+    } as GroupedReminders,
+  );
 }
 
-function SectionHeader({ 
-  icon: Icon, 
-  title, 
-  subtitle, 
-  count, 
-  variant 
-}: { 
+function SectionHeader({
+  icon: Icon,
+  title,
+  subtitle,
+  count,
+  variant,
+}: {
   icon: React.ElementType;
   title: string;
   subtitle: string;
   count: number;
-  variant: 'urgent' | 'warning' | 'success' | 'neutral' | 'muted';
+  variant: 'urgent' | 'warning' | 'success' | 'neutral' | 'muted' | 'paid';
 }) {
   const variants = {
     urgent: {
@@ -83,12 +107,20 @@ function SectionHeader({
       iconColor: 'text-base-content/50',
       badge: 'badge-ghost',
     },
+    paid: {
+      container: 'border-info/30',
+      iconBg: 'bg-info/10',
+      iconColor: 'text-info',
+      badge: 'badge-info',
+    },
   };
 
   const style = variants[variant];
 
   return (
-    <div className={`flex items-center gap-3 pb-3 mb-3 border-b ${style.container}`}>
+    <div
+      className={`flex items-center gap-3 pb-3 mb-3 border-b ${style.container}`}
+    >
       <div className={`p-1.5 rounded-md ${style.iconBg}`}>
         <Icon className={`w-4 h-4 ${style.iconColor}`} />
       </div>
@@ -105,8 +137,12 @@ function SectionHeader({
 
 export function ReminderList({ reminders }: ReminderListProps) {
   const grouped = groupReminders(reminders);
-  const hasActiveReminders = grouped.urgent.length > 0 || grouped.soon.length > 0 || 
-                              grouped.future.length > 0 || grouped.overdue.length > 0;
+  const hasActiveReminders =
+    grouped.urgent.length > 0 ||
+    grouped.soon.length > 0 ||
+    grouped.future.length > 0 ||
+    grouped.overdue.length > 0 ||
+    grouped.paid.length > 0;
 
   if (reminders.length === 0) {
     return (
@@ -116,7 +152,8 @@ export function ReminderList({ reminders }: ReminderListProps) {
         </div>
         <h3 className="text-lg font-medium mb-2">No tienes recordatorios</h3>
         <p className="text-sm text-base-content/60 max-w-sm mx-auto">
-          Comienza agregando tus pagos recurrentes, tarjetas de crédito, servicios y suscripciones.
+          Comienza agregando tus pagos recurrentes, tarjetas de crédito,
+          servicios y suscripciones.
         </p>
       </div>
     );
@@ -196,6 +233,24 @@ export function ReminderList({ reminders }: ReminderListProps) {
         </section>
       )}
 
+      {/* Paid Section - New section for paid reminders */}
+      {grouped.paid.length > 0 && (
+        <section>
+          <SectionHeader
+            icon={CircleCheck}
+            title="Pagados"
+            subtitle="Pagado este periodo"
+            count={grouped.paid.length}
+            variant="paid"
+          />
+          <div className="space-y-3">
+            {grouped.paid.map((reminder) => (
+              <ReminderCard key={reminder.id} reminder={reminder} />
+            ))}
+          </div>
+        </section>
+      )}
+
       {/* Inactive Section */}
       {grouped.inactive.length > 0 && (
         <section>
@@ -218,7 +273,10 @@ export function ReminderList({ reminders }: ReminderListProps) {
       {!hasActiveReminders && grouped.inactive.length > 0 && (
         <div className="alert alert-info bg-info/10 text-info border-info/20">
           <AlertCircle className="w-5 h-5" />
-          <span className="text-sm">Todos tus recordatorios están pausados. Actívalos para ver las alertas de vencimiento.</span>
+          <span className="text-sm">
+            Todos tus recordatorios están pausados. Actívalos para ver las
+            alertas de vencimiento.
+          </span>
         </div>
       )}
     </div>

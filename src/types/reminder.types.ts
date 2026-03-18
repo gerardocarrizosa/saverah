@@ -30,4 +30,5 @@ export type ReminderAnalytics = {
   is_overdue: boolean;
   days_until_cutoff?: number | null;
   is_cutoff_soon?: boolean;
+  is_paid_for_current_cycle: boolean;
 };

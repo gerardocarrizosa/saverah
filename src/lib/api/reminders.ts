@@ -1,6 +1,7 @@
 import { createSupabaseServerClient } from '../supabase/server';
 import type { Reminder, ReminderPayment, ReminderAnalytics } from '@/types/reminder.types';
 import type { CreateReminderInput, UpdateReminderInput } from '../validations/reminder.schemas';
+import { checkIfPaidForCurrentCycle } from '../utils/reminders';
 
 export async function getReminders(userId: string): Promise<Reminder[]> {
   const supabase = await createSupabaseServerClient();
@@ -134,6 +135,9 @@ export async function getReminderAnalytics(
     isCutoffSoonFlag = isCutoffSoon(daysUntilCutoff);
   }
 
+  // Check if paid for current cycle
+  const { isPaidForCurrentCycle } = checkIfPaidForCurrentCycle(reminder, payments);
+
   return {
     total_paid: totalPaid,
     payment_count: paymentCount,
@@ -144,5 +148,6 @@ export async function getReminderAnalytics(
     is_overdue: isOverdue,
     days_until_cutoff: daysUntilCutoff,
     is_cutoff_soon: isCutoffSoonFlag,
+    is_paid_for_current_cycle: isPaidForCurrentCycle,
   };
 }

@@ -31,6 +31,7 @@ import {
   PiggyBank,
   // CalendarDays,
 } from 'lucide-react';
+import { VisibilityToggle } from '@/components/budget/VisibilityToggle';
 
 /**
  * DASHBOARD DESIGN INTENT
@@ -95,7 +96,7 @@ export default async function DashboardPage() {
           - Mobile: Icon + Title stacked vertically feels more natural
           - Tablet+: Horizontal layout with proper spacing
         */}
-        <header className="flex items-start sm:items-center gap-3">
+        <header className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-4">
             <div className="p-2 rounded-xl bg-primary/10">
               <LayoutDashboard className="w-6 h-6" />
@@ -104,14 +105,7 @@ export default async function DashboardPage() {
               Panel de control
             </h1>
           </div>
-          {/* <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10">
-            <LayoutDashboard className="w-5 h-5" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <h1 className="text-lg sm:text-xl font-semibold text-base-content tracking-tight">
-              Panel de control
-            </h1>
-          </div> */}
+          <VisibilityToggle />
         </header>
 
         {/* 
