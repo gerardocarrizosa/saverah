@@ -12,8 +12,12 @@ import type { Reminder } from '@/types/reminder.types';
 import { getDaysUntilDue } from '@/lib/utils/dates';
 import { categoryEmojis } from '@/config/constants';
 
+interface ReminderWithStatus extends Reminder {
+  isPaidForCurrentCycle?: boolean;
+}
+
 interface UrgentAlertsProps {
-  reminders: Reminder[];
+  reminders: ReminderWithStatus[];
   isLoading?: boolean;
 }
 
@@ -33,9 +37,9 @@ export function UrgentAlerts({ reminders, isLoading }: UrgentAlertsProps) {
     );
   }
 
-  // Filter and sort urgent reminders
+  // Filter and sort urgent reminders (excluding already paid)
   const urgentReminders = reminders
-    .filter((r) => r.is_active)
+    .filter((r) => r.is_active && !r.isPaidForCurrentCycle)
     .map((r) => ({
       ...r,
       daysUntilDue: getDaysUntilDue(r.due_day, r.recurrence),

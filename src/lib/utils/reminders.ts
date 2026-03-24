@@ -23,40 +23,43 @@ export function checkIfPaidForCurrentCycle(
     (a, b) => new Date(b.paid_at).getTime() - new Date(a.paid_at).getTime()
   );
   const lastPayment = sortedPayments[0];
-  const lastPaidAt = new Date(lastPayment.paid_at);
-  lastPaidAt.setHours(0, 0, 0, 0);
+  
+  // Extract UTC date components to preserve the actual calendar date
+  // regardless of timezone differences
+  const lastPaidAtUtc = new Date(lastPayment.paid_at);
+  const lastPaidAt = new Date(
+    lastPaidAtUtc.getUTCFullYear(),
+    lastPaidAtUtc.getUTCMonth(),
+    lastPaidAtUtc.getUTCDate()
+  );
 
   let isPaidForCurrentCycle = false;
 
   switch (reminder.recurrence) {
     case 'monthly': {
-      // For monthly reminders: check if there's a payment between last due date and next due date
-      // If daysUntilDue > 0, the payment covers this cycle if it was paid after the last due date
-      // or during the current month before the due date
+      // For monthly reminders: check if paid after the previous due date
       const currentDueDate = new Date(today.getFullYear(), today.getMonth(), reminder.due_day);
       const lastDueDate = new Date(currentDueDate);
       lastDueDate.setMonth(lastDueDate.getMonth() - 1);
 
-      // If today is before due date, check if paid after last due date
-      // If today is after due date, check if paid after current due date
-      const checkDate = today < currentDueDate ? lastDueDate : currentDueDate;
-      isPaidForCurrentCycle = lastPaidAt >= checkDate;
+      // Payment made anytime after the previous due date counts as paid for current cycle
+      isPaidForCurrentCycle = lastPaidAt >= lastDueDate;
       break;
     }
 
     case 'yearly': {
-      // For yearly reminders: check if paid in current year
+      // For yearly reminders: check if paid after the previous due date
       const currentYearDueDate = new Date(today.getFullYear(), 0, reminder.due_day);
       const lastYearDueDate = new Date(currentYearDueDate);
       lastYearDueDate.setFullYear(lastYearDueDate.getFullYear() - 1);
 
-      const checkDate = today < currentYearDueDate ? lastYearDueDate : currentYearDueDate;
-      isPaidForCurrentCycle = lastPaidAt >= checkDate;
+      // Payment made anytime after the previous due date counts as paid for current cycle
+      isPaidForCurrentCycle = lastPaidAt >= lastYearDueDate;
       break;
     }
 
     case 'weekly': {
-      // For weekly reminders: check if paid within the current week
+      // For weekly reminders: check if paid after the previous due date
       // Get the start of the current week (Sunday)
       const currentWeekStart = new Date(today);
       currentWeekStart.setDate(today.getDate() - today.getDay());
@@ -69,8 +72,8 @@ export function checkIfPaidForCurrentCycle(
       const lastWeekDueDate = new Date(currentWeekDueDate);
       lastWeekDueDate.setDate(lastWeekDueDate.getDate() - 7);
 
-      const checkDate = today < currentWeekDueDate ? lastWeekDueDate : currentWeekDueDate;
-      isPaidForCurrentCycle = lastPaidAt >= checkDate;
+      // Payment made anytime after the previous due date counts as paid for current cycle
+      isPaidForCurrentCycle = lastPaidAt >= lastWeekDueDate;
       break;
     }
   }

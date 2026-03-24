@@ -1,14 +1,10 @@
 import { createSupabaseServerClient } from '@/lib/supabase/server';
-import { getReminders } from '@/lib/api/reminders';
+import { getRemindersWithPaymentStatus } from '@/lib/api/remindersWithPayments';
 import { getBudgetSummary } from '@/lib/api/budget';
+import { getRecentActivity } from '@/lib/api/recentActivity';
 import {
   ArrowRight,
   Activity,
-  // Optional components - to be enabled via user settings (future feature):
-  // Target,
-  // Flame,
-  // Trophy,
-  // CreditCard,
 } from 'lucide-react';
 import { redirect } from 'next/navigation';
 import { Suspense } from 'react';
@@ -18,18 +14,11 @@ import { QuickStatsRow } from '@/components/dashboard/QuickStatsRow';
 import { UrgentAlerts } from '@/components/dashboard/UrgentAlerts';
 import { BudgetAlerts } from '@/components/dashboard/BudgetAlerts';
 import { RecentActivity } from '@/components/dashboard/RecentActivity';
-// Optional components - to be enabled via user settings (future feature):
-// import { MonthlyOverview } from '@/components/dashboard/MonthlyOverview';
-// import { SavingsGoals } from '@/components/dashboard/SavingsGoals';
-// import { BudgetStreak } from '@/components/dashboard/BudgetStreak';
-// import { Achievements } from '@/components/dashboard/Achievements';
-// import { CreditCardsQuickView } from '@/components/dashboard/CreditCardsQuickView';
 import {
   LayoutDashboard,
   Zap,
   AlertTriangle,
   PiggyBank,
-  // CalendarDays,
 } from 'lucide-react';
 import { VisibilityToggle } from '@/components/budget/VisibilityToggle';
 
@@ -59,15 +48,19 @@ export default async function DashboardPage() {
     redirect('/login');
   }
 
-  const [reminders, budget] = await Promise.all([
-    getReminders(user.id),
+  const [reminders, budget, recentActivity] = await Promise.all([
+    getRemindersWithPaymentStatus(user.id),
     getBudgetSummary(user.id),
+    getRecentActivity(user.id, 5),
   ]);
 
   const activeReminders = reminders.filter((r) => r.is_active);
 
-  // Calculate urgent count (sync version for server component)
+  // Calculate urgent count (excluding already paid reminders)
   const urgentCount = activeReminders.filter((r) => {
+    // Skip if already paid for current cycle
+    if (r.isPaidForCurrentCycle) return false;
+    
     // Simple calculation: due_day close to today
     const today = new Date().getDate();
     const diff = Math.abs(r.due_day - today);
@@ -200,15 +193,15 @@ export default async function DashboardPage() {
               icon: <ArrowRight className="w-4 h-4" />,
             }}
           >
-            <Suspense
-              fallback={
-                <div className="flex items-center justify-center py-8">
-                  <div className="loading loading-spinner loading-md" />
-                </div>
-              }
-            >
-              <RecentActivity />
-            </Suspense>
+          <Suspense
+            fallback={
+              <div className="flex items-center justify-center py-8">
+                <div className="loading loading-spinner loading-md" />
+              </div>
+            }
+          >
+            <RecentActivity initialData={recentActivity} />
+          </Suspense>
           </DashboardSection>
         </div>
 

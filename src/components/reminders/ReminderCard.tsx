@@ -18,11 +18,12 @@ import {
   CheckCircle2,
   PauseCircle,
 } from 'lucide-react';
+import { CircleCheck } from 'lucide-react';
 import type { Reminder } from '@/types/reminder.types';
 import { RECURRENCE_TYPES } from '@/config/constants';
 
 interface ReminderCardProps {
-  reminder: Reminder & { daysUntilDue: number; isOverdue: boolean };
+  reminder: Reminder & { daysUntilDue: number; isOverdue: boolean; isPaidForCurrentCycle?: boolean };
 }
 
 const categoryIcons: Record<string, React.ReactNode> = {
@@ -39,7 +40,9 @@ const categoryIcons: Record<string, React.ReactNode> = {
 function getUrgencyLevel(
   daysUntilDue: number,
   isOverdue: boolean,
-): 'urgent' | 'soon' | 'future' | 'overdue' | 'inactive' {
+  isPaidForCurrentCycle?: boolean,
+): 'urgent' | 'soon' | 'future' | 'overdue' | 'inactive' | 'paid' {
+  if (isPaidForCurrentCycle) return 'paid';
   if (!isOverdue && daysUntilDue > 0) return 'inactive';
   if (isOverdue || daysUntilDue < 0) return 'overdue';
   if (daysUntilDue <= 3) return 'urgent';
@@ -47,7 +50,8 @@ function getUrgencyLevel(
   return 'future';
 }
 
-function getCountdownText(daysUntilDue: number, isOverdue: boolean): string {
+function getCountdownText(daysUntilDue: number, isOverdue: boolean, isPaidForCurrentCycle?: boolean): string {
+  if (isPaidForCurrentCycle) return 'Pagado';
   if (isOverdue || daysUntilDue < 0)
     return `Vencido hace ${Math.abs(daysUntilDue)} días`;
   if (daysUntilDue === 0) return 'Vence hoy';
@@ -57,6 +61,8 @@ function getCountdownText(daysUntilDue: number, isOverdue: boolean): string {
 
 function getCountdownIcon(urgency: string) {
   switch (urgency) {
+    case 'paid':
+      return CircleCheck;
     case 'urgent':
     case 'overdue':
       return AlertCircle;
@@ -70,14 +76,21 @@ function getCountdownIcon(urgency: string) {
 }
 
 export function ReminderCard({ reminder }: ReminderCardProps) {
-  const urgency = getUrgencyLevel(reminder.daysUntilDue, reminder.isOverdue);
+  const urgency = getUrgencyLevel(reminder.daysUntilDue, reminder.isOverdue, reminder.isPaidForCurrentCycle);
   const countdownText = getCountdownText(
     reminder.daysUntilDue,
     reminder.isOverdue,
+    reminder.isPaidForCurrentCycle,
   );
   const CountdownIcon = getCountdownIcon(urgency);
 
   const urgencyStyles = {
+    paid: {
+      border: 'border-success/40',
+      bg: 'bg-success/5',
+      countdown: 'text-success',
+      icon: 'text-success',
+    },
     urgent: {
       border: 'border-error/40',
       bg: 'bg-error/5',

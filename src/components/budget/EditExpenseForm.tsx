@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
-import { createExpenseSchema } from '@/lib/validations/budget.schemas';
+import { updateExpenseSchema } from '@/lib/validations/budget.schemas';
 import { useBudget } from '@/hooks/useBudget';
 import { EXPENSE_CATEGORIES, DEFAULT_CURRENCY } from '@/config/constants';
 import type { Expense } from '@/types/budget.types';
@@ -68,7 +68,7 @@ export function EditExpenseForm({ expense }: EditExpenseFormProps) {
         <div className="card-body p-6">
           <Formik
             initialValues={initialValues}
-            validationSchema={createExpenseSchema}
+            validationSchema={updateExpenseSchema}
             onSubmit={async (values, { setSubmitting }) => {
               setError(null);
               try {
