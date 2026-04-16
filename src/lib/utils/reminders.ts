@@ -42,8 +42,8 @@ export function checkIfPaidForCurrentCycle(
       const lastDueDate = new Date(currentDueDate);
       lastDueDate.setMonth(lastDueDate.getMonth() - 1);
 
-      // Payment made anytime after the previous due date counts as paid for current cycle
-      isPaidForCurrentCycle = lastPaidAt >= lastDueDate;
+      // Payment made anytime strictly after the previous due date counts as paid for current cycle
+      isPaidForCurrentCycle = lastPaidAt > lastDueDate;
       break;
     }
 
@@ -53,8 +53,8 @@ export function checkIfPaidForCurrentCycle(
       const lastYearDueDate = new Date(currentYearDueDate);
       lastYearDueDate.setFullYear(lastYearDueDate.getFullYear() - 1);
 
-      // Payment made anytime after the previous due date counts as paid for current cycle
-      isPaidForCurrentCycle = lastPaidAt >= lastYearDueDate;
+      // Payment made anytime strictly after the previous due date counts as paid for current cycle
+      isPaidForCurrentCycle = lastPaidAt > lastYearDueDate;
       break;
     }
 
@@ -72,8 +72,8 @@ export function checkIfPaidForCurrentCycle(
       const lastWeekDueDate = new Date(currentWeekDueDate);
       lastWeekDueDate.setDate(lastWeekDueDate.getDate() - 7);
 
-      // Payment made anytime after the previous due date counts as paid for current cycle
-      isPaidForCurrentCycle = lastPaidAt >= lastWeekDueDate;
+      // Payment made anytime strictly after the previous due date counts as paid for current cycle
+      isPaidForCurrentCycle = lastPaidAt > lastWeekDueDate;
       break;
     }
   }
