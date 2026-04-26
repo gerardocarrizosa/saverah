@@ -58,7 +58,7 @@ export const DEFAULT_CURRENCY_REGION = 'es-MX';
 
 export const DEFAULT_CURRENCY = 'MXN';
 
-export const categoryEmojis: Record<string, string> = {
+export const CATEGORY_EMOJIS: Record<string, string> = {
   'Tarjeta de Crédito': '💳',
   Servicios: '⚡',
   Suscripción: '📱',
