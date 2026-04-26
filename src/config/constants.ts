@@ -12,6 +12,23 @@ export const EXPENSE_CATEGORIES = [
   'Otros',
 ] as const;
 
+export const ESSENTIAL_CATEGORIES = [
+  'Vivienda',
+  'Alimentación',
+  'Transporte',
+  'Servicios',
+  'Salud',
+  'Educación',
+] as const;
+
+export const DISCRETIONARY_CATEGORIES = [
+  'Entretenimiento',
+  'Ropa',
+  'Tecnología',
+  'Ahorro',
+  'Otros',
+] as const;
+
 export const REMINDER_CATEGORIES = [
   'Tarjeta de Crédito',
   'Servicios',
