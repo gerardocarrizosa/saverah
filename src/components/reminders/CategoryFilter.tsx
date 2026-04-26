@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Search, X, SlidersHorizontal } from 'lucide-react';
-import { categoryEmojis, REMINDER_CATEGORIES } from '@/config/constants';
+import { CATEGORY_EMOJIS, REMINDER_CATEGORIES } from '@/config/constants';
 
 interface CategoryFilterProps {
   selectedCategory: string | null;
@@ -93,7 +93,7 @@ export function CategoryFilter({
               className={`btn btn-xs gap-1.5 ${selectedCategory === category ? 'btn-primary' : 'btn-ghost bg-base-200/50'}`}
             >
               <span className="text-xs">
-                {categoryEmojis[category] || '📦'}
+                {CATEGORY_EMOJIS[category] || '📦'}
               </span>
               <span>{category}</span>
             </button>
@@ -113,7 +113,7 @@ export function CategoryFilter({
           )}
           {selectedCategory && (
             <span className="badge badge-ghost badge-sm gap-1">
-              {categoryEmojis[selectedCategory]}
+              {CATEGORY_EMOJIS[selectedCategory]}
               {selectedCategory}
             </span>
           )}
