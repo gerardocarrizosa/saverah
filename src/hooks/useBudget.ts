@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import api from '@/lib/axios';
-import type { Income, Expense, BudgetSummary } from '@/types/budget.types';
+import type { Income, Expense, BudgetSummary, BudgetLimit } from '@/types/budget.types';
 
 export function useBudget(initialData?: { income?: Income[]; expenses?: Expense[]; summary?: BudgetSummary }) {
   const [income, setIncome] = useState<Income[]>(initialData?.income || []);
@@ -69,6 +69,11 @@ export function useBudget(initialData?: { income?: Income[]; expenses?: Expense[
     setIncome((prev) => prev.filter((i) => i.id !== id));
   };
 
+  const setBudgetLimit = async (category: string, monthly_limit: number) => {
+    const res = await api.post<{ data: BudgetLimit }>('/budget/limits', { category, monthly_limit });
+    return res.data.data;
+  };
+
   return {
     income,
     expenses,
@@ -82,5 +87,6 @@ export function useBudget(initialData?: { income?: Income[]; expenses?: Expense[
     deleteExpense,
     updateIncome,
     deleteIncome,
+    setBudgetLimit,
   };
 }

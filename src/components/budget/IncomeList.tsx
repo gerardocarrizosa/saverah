@@ -2,29 +2,15 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { DEFAULT_CURRENCY } from '@/config/constants';
 import type { Income } from '@/types/budget.types';
 import { Calendar, Wallet, Pencil, Trash2 } from 'lucide-react';
+import { formatDate } from '@/lib/utils/dates';
+import { formatCurrency } from '@/lib/utils/currency';
 
 interface IncomeListProps {
   income: Income[];
   onDelete: (id: string) => void;
   deletingId?: string | null;
-}
-
-function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat('es-MX', {
-    style: 'currency',
-    currency: DEFAULT_CURRENCY,
-  }).format(amount);
-}
-
-function formatDate(dateString: string): string {
-  return new Date(dateString).toLocaleDateString('es-MX', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-  });
 }
 
 function getTypeBadgeColor(type: string): string {

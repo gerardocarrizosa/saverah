@@ -1,5 +1,6 @@
 export const EXPENSE_CATEGORIES = [
   'Vivienda',
+  'Despensa',
   'Alimentación',
   'Transporte',
   'Servicios',
@@ -13,8 +14,8 @@ export const EXPENSE_CATEGORIES = [
 ] as const;
 
 export const ESSENTIAL_CATEGORIES = [
+  'Despensa',
   'Vivienda',
-  'Alimentación',
   'Transporte',
   'Servicios',
   'Salud',
@@ -22,6 +23,7 @@ export const ESSENTIAL_CATEGORIES = [
 ] as const;
 
 export const DISCRETIONARY_CATEGORIES = [
+  'Alimentación',
   'Entretenimiento',
   'Ropa',
   'Tecnología',

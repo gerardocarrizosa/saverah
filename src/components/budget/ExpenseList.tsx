@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { DEFAULT_CURRENCY } from '@/config/constants';
 import type { Expense } from '@/types/budget.types';
 import {
   Calendar,
@@ -12,28 +11,13 @@ import {
   Trash2,
   AlertCircle,
 } from 'lucide-react';
+import { formatDate } from '@/lib/utils/dates';
+import { formatCurrency } from '@/lib/utils/currency';
 
 interface ExpenseListProps {
   expenses: Expense[];
   onDelete: (id: string) => void;
   deletingId: string | null;
-}
-
-function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat('es-MX', {
-    style: 'currency',
-    currency: DEFAULT_CURRENCY,
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(amount);
-}
-
-function formatDate(dateString: string): string {
-  return new Date(dateString).toLocaleDateString('es-MX', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-  });
 }
 
 function getCategoryBadgeColor(category: string): string {
