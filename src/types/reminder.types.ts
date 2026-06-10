@@ -2,6 +2,7 @@ export type Reminder = {
   id: string;
   user_id: string;
   name: string;
+  amount: number;
   due_day: number;
   cutoff_day?: number | null;
   recurrence: 'monthly' | 'yearly' | 'weekly';

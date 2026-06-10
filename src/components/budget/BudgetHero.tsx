@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { TrendingUp, TrendingDown, Eye, EyeOff } from 'lucide-react';
+import { TrendingUp, Eye, EyeOff } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils/currency';
 
 interface BudgetHeroProps {

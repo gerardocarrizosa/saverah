@@ -2,24 +2,12 @@
 
 import { useState } from 'react';
 import {
-  Home,
-  Utensils,
-  Car,
-  Zap,
-  Heart,
-  GraduationCap,
-  Gamepad2,
-  Shirt,
-  Laptop,
-  PiggyBank,
-  MoreHorizontal,
   CheckCircle2,
   AlertCircle,
   AlertTriangle,
   Target,
   Loader2,
   X,
-  CirclePlus,
   CircleCheck,
 } from 'lucide-react';
 import type { CategorySummary } from '@/types/budget.types';
@@ -30,21 +18,6 @@ import { useRouter } from 'next/navigation';
 interface CategoryGridProps {
   categories: CategorySummary[];
 }
-
-const categoryIcons: Record<string, React.ReactNode> = {
-  Vivienda: <Home className="w-5 h-5" />,
-  Alimentación: <Utensils className="w-5 h-5" />,
-  Despensa: <Utensils className="w-5 h-5" />,
-  Transporte: <Car className="w-5 h-5" />,
-  Servicios: <Zap className="w-5 h-5" />,
-  Salud: <Heart className="w-5 h-5" />,
-  Educación: <GraduationCap className="w-5 h-5" />,
-  Entretenimiento: <Gamepad2 className="w-5 h-5" />,
-  Ropa: <Shirt className="w-5 h-5" />,
-  Tecnología: <Laptop className="w-5 h-5" />,
-  Ahorro: <PiggyBank className="w-5 h-5" />,
-  Otros: <MoreHorizontal className="w-5 h-5" />,
-};
 
 function BudgetLimitForm({
   currentLimit,

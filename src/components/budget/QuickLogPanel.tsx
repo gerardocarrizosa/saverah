@@ -1,11 +1,5 @@
 import Link from 'next/link';
-import {
-  TrendingUp,
-  TrendingDown,
-  ArrowRight,
-  Plus,
-  Receipt,
-} from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 
 export function QuickLogPanel() {
   return (

@@ -67,6 +67,14 @@
   --noise: 0;
 }
 
+.kinetic-gradient {
+  background: linear-gradient(45deg, #7dffa2 0%, #05e777 100%);
+}
+
+.action-gradient {
+  background: linear-gradient(45deg, #afc6ff 0%, #528dff 100%);
+}
+
 /* @plugin 'daisyui' {
   themes:
     black --default,
