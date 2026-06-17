@@ -1,0 +1,444 @@
+<!doctype html>
+
+<html class="dark" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Manrope:wght@700;800&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              'on-secondary-fixed-variant': '#005226',
+              'on-tertiary-container': '#570a0b',
+              'on-error': '#690005',
+              'primary-fixed': '#d9e2ff',
+              tertiary: '#ffb4ac',
+              'on-secondary': '#003918',
+              'on-tertiary': '#611211',
+              'surface-container-high': '#2a2a2a',
+              'inverse-primary': '#0059c7',
+              'on-primary': '#002d6d',
+              'on-surface': '#e5e2e1',
+              'tertiary-fixed': '#ffdad6',
+              'secondary-container': '#05e777',
+              'on-tertiary-fixed-variant': '#7f2924',
+              'surface-container-highest': '#353534',
+              primary: '#afc6ff',
+              'inverse-surface': '#e5e2e1',
+              'primary-fixed-dim': '#afc6ff',
+              surface: '#131313',
+              'on-surface-variant': '#c1c6d7',
+              'surface-container-lowest': '#0e0e0e',
+              'on-primary-container': '#00275f',
+              'surface-bright': '#393939',
+              'error-container': '#93000a',
+              'surface-dim': '#131313',
+              'on-tertiary-fixed': '#410003',
+              'primary-container': '#528dff',
+              'surface-container-low': '#1c1b1b',
+              'inverse-on-surface': '#313030',
+              error: '#ffb4ab',
+              'on-secondary-fixed': '#00210b',
+              'secondary-fixed-dim': '#00e475',
+              'tertiary-fixed-dim': '#ffb4ac',
+              'on-primary-fixed': '#001944',
+              'secondary-fixed': '#62ff96',
+              background: '#131313',
+              'surface-variant': '#353534',
+              'on-secondary-container': '#00622e',
+              'surface-container': '#201f1f',
+              'on-primary-fixed-variant': '#004299',
+              'surface-tint': '#afc6ff',
+              'outline-variant': '#414755',
+              outline: '#8b90a0',
+              'tertiary-container': '#de7067',
+              'on-error-container': '#ffdad6',
+              secondary: '#7dffa2',
+            },
+            fontFamily: {
+              headline: ['Manrope'],
+              body: ['Inter'],
+              label: ['Inter'],
+            },
+            borderRadius: {
+              DEFAULT: '0.25rem',
+              lg: '0.5rem',
+              xl: '0.75rem',
+              full: '9999px',
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      .material-symbols-outlined {
+        font-variation-settings:
+          'FILL' 0,
+          'wght' 400,
+          'GRAD' 0,
+          'opsz' 24;
+      }
+      body {
+        background-color: #131313;
+        color: #e5e2e1;
+        font-family: 'Inter', sans-serif;
+      }
+      .glass-card {
+        background: rgba(57, 57, 57, 0.6);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+      }
+      .kinetic-gradient {
+        background: linear-gradient(45deg, #7dffa2 0%, #05e777 100%);
+      }
+      .action-gradient {
+        background: linear-gradient(45deg, #afc6ff 0%, #528dff 100%);
+      }
+    </style>
+    <style>
+      body {
+        min-height: max(884px, 100dvh);
+      }
+    </style>
+  </head>
+  <body class="min-h-screen pb-32">
+    <main class="px-6 pt-10 space-y-10 max-w-5xl mx-auto">
+      <!-- Hero Section: Total Balance -->
+      <section class="space-y-2">
+        <p
+          class="font-label text-on-surface-variant text-[0.6875rem] uppercase tracking-widest font-medium ml-1"
+        >
+          Current Net Worth
+        </p>
+        <h1
+          class="font-headline text-[3.5rem] font-extrabold leading-none tracking-tight text-on-surface"
+        >
+          $142,850<span class="text-secondary">.00</span>
+        </h1>
+        <div class="flex items-center gap-2 mt-4">
+          <span
+            class="px-3 py-1 rounded-full bg-secondary/10 text-secondary font-label text-[0.6875rem] font-bold flex items-center gap-1"
+          >
+            <span class="material-symbols-outlined text-[14px]"
+              >trending_up</span
+            >
+            +12.4% THIS MONTH
+          </span>
+        </div>
+      </section>
+      <!-- Bento Grid Layout -->
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+        <!-- Budget Overview Card (Spans 7 cols on desktop) -->
+        <div
+          class="md:col-span-7 bg-surface-container rounded-xl p-8 flex flex-col justify-between min-h-[320px]"
+        >
+          <div class="flex justify-between items-start">
+            <div>
+              <h2 class="font-headline text-xl text-on-surface">
+                Budget Overview
+              </h2>
+              <p class="font-body text-sm text-on-surface-variant mt-1">
+                Monthly spending threshold
+              </p>
+            </div>
+            <div class="text-right">
+              <span class="font-headline text-2xl text-on-surface">70%</span>
+              <p
+                class="font-label text-[10px] uppercase text-on-surface-variant tracking-widest"
+              >
+                Spent
+              </p>
+            </div>
+          </div>
+          <!-- Custom Visual Progress Indicator -->
+          <div class="relative h-24 flex items-end gap-1 mt-8">
+            <!-- Bars -->
+            <div
+              class="flex-1 bg-surface-container-high rounded-t-lg h-[40%]"
+            ></div>
+            <div
+              class="flex-1 bg-surface-container-high rounded-t-lg h-[60%]"
+            ></div>
+            <div class="flex-1 kinetic-gradient rounded-t-lg h-[85%]"></div>
+            <div class="flex-1 kinetic-gradient rounded-t-lg h-[70%]"></div>
+            <div class="flex-1 kinetic-gradient rounded-t-lg h-[90%]"></div>
+            <div
+              class="flex-1 bg-surface-container-high rounded-t-lg h-[50%]"
+            ></div>
+            <div
+              class="flex-1 bg-surface-container-high rounded-t-lg h-[30%]"
+            ></div>
+            <div
+              class="flex-1 bg-surface-container-high rounded-t-lg h-[45%]"
+            ></div>
+          </div>
+          <div
+            class="flex justify-between items-center mt-6 pt-6 border-t border-outline-variant/10"
+          >
+            <div>
+              <p
+                class="font-label text-[10px] uppercase text-on-surface-variant"
+              >
+                Remaining
+              </p>
+              <p class="font-headline text-lg text-primary">$1,240.00</p>
+            </div>
+            <button
+              class="font-label text-sm text-primary hover:underline transition-all"
+            >
+              Adjust Plan
+            </button>
+          </div>
+        </div>
+        <!-- Reminders Card (Spans 5 cols on desktop) -->
+        <div
+          class="md:col-span-5 bg-surface-container-high rounded-xl p-8 flex flex-col"
+        >
+          <div class="flex items-center justify-between mb-8">
+            <h2 class="font-headline text-xl text-on-surface">Reminders</h2>
+            <span
+              class="material-symbols-outlined text-secondary"
+              style="font-variation-settings: 'FILL' 1"
+              >notifications_active</span
+            >
+          </div>
+          <div class="space-y-6">
+            <div class="flex items-center gap-4">
+              <div
+                class="w-12 h-12 rounded-xl bg-surface-container flex items-center justify-center text-primary"
+              >
+                <span class="material-symbols-outlined">apartment</span>
+              </div>
+              <div class="flex-1">
+                <p class="font-body text-sm font-semibold text-on-surface">
+                  Mortgage Payment
+                </p>
+                <p class="font-label text-[10px] text-on-surface-variant">
+                  DUE IN 2 DAYS
+                </p>
+              </div>
+              <p class="font-headline text-sm text-on-surface">$2,400</p>
+            </div>
+            <div class="flex items-center gap-4">
+              <div
+                class="w-12 h-12 rounded-xl bg-surface-container flex items-center justify-center text-tertiary"
+              >
+                <span class="material-symbols-outlined">bolt</span>
+              </div>
+              <div class="flex-1">
+                <p class="font-body text-sm font-semibold text-on-surface">
+                  Utility Bill
+                </p>
+                <p class="font-label text-[10px] text-on-surface-variant">
+                  DUE IN 5 DAYS
+                </p>
+              </div>
+              <p class="font-headline text-sm text-on-surface">$185</p>
+            </div>
+            <div class="flex items-center gap-4">
+              <div
+                class="w-12 h-12 rounded-xl bg-surface-container flex items-center justify-center text-secondary"
+              >
+                <span class="material-symbols-outlined">subscriptions</span>
+              </div>
+              <div class="flex-1">
+                <p class="font-body text-sm font-semibold text-on-surface">
+                  Cloud Storage
+                </p>
+                <p class="font-label text-[10px] text-on-surface-variant">
+                  DUE IN 7 DAYS
+                </p>
+              </div>
+              <p class="font-headline text-sm text-on-surface">$12</p>
+            </div>
+          </div>
+          <div class="mt-auto pt-8">
+            <div
+              class="bg-surface-container-lowest rounded-lg p-4 flex items-center justify-between"
+            >
+              <span class="font-body text-xs text-on-surface-variant"
+                >3 Upcoming Reminders</span
+              >
+              <span
+                class="material-symbols-outlined text-sm text-on-surface-variant"
+                >arrow_forward_ios</span
+              >
+            </div>
+          </div>
+        </div>
+        <!-- Wide Quick Action Section -->
+        <div
+          class="md:col-span-12 relative overflow-hidden rounded-xl bg-surface-container flex flex-col md:flex-row items-center justify-between p-10 group"
+        >
+          <div
+            class="relative z-10 max-w-md text-center md:text-left mb-8 md:mb-0"
+          >
+            <h3 class="font-headline text-2xl text-on-surface mb-2">
+              Architect Your Future
+            </h3>
+            <p
+              class="font-body text-sm text-on-surface-variant leading-relaxed"
+            >
+              Instantly capture a new expense or set a strategic reminder to
+              maintain your financial precision.
+            </p>
+          </div>
+          <div class="relative z-10 flex gap-4">
+            <button
+              class="action-gradient text-on-primary-container font-headline text-sm px-8 py-4 rounded-full flex items-center gap-2 hover:scale-105 transition-transform shadow-xl"
+            >
+              <span class="material-symbols-outlined text-[20px]"
+                >add_circle</span
+              >
+              Add Expense
+            </button>
+            <button
+              class="bg-surface-container-highest text-on-surface font-headline text-sm px-8 py-4 rounded-full flex items-center gap-2 hover:bg-surface-bright transition-colors"
+            >
+              <span class="material-symbols-outlined text-[20px]"
+                >alarm_add</span
+              >
+              New Reminder
+            </button>
+          </div>
+          <!-- Abstract Decor -->
+          <div
+            class="absolute -right-10 -bottom-10 w-64 h-64 bg-primary/5 rounded-full blur-3xl group-hover:bg-primary/10 transition-colors"
+          ></div>
+        </div>
+      </div>
+      <!-- Recent Activity Asymmetric Layout -->
+      <section class="mt-16 pb-12">
+        <div class="flex items-end justify-between mb-8 px-2">
+          <div>
+            <h2 class="font-headline text-2xl text-on-surface">
+              Wealth Stream
+            </h2>
+            <p class="font-body text-sm text-on-surface-variant">
+              Real-time ledger updates
+            </p>
+          </div>
+          <button
+            class="font-label text-[10px] uppercase tracking-widest text-primary border-b border-primary pb-1"
+          >
+            View Full Ledger
+          </button>
+        </div>
+        <div class="space-y-4">
+          <div
+            class="bg-surface-container-low p-6 rounded-xl flex items-center justify-between hover:bg-surface-container transition-colors cursor-pointer"
+          >
+            <div class="flex items-center gap-6">
+              <p class="font-label text-[10px] text-on-surface-variant w-16">
+                14:20 PM
+              </p>
+              <div>
+                <p class="font-body text-sm font-semibold text-on-surface">
+                  Apple Store Soho
+                </p>
+                <p
+                  class="font-label text-[10px] text-on-surface-variant uppercase"
+                >
+                  Tech &amp; Lifestyle
+                </p>
+              </div>
+            </div>
+            <div class="text-right">
+              <p class="font-headline text-sm text-on-surface">-$1,299.00</p>
+              <p class="font-label text-[10px] text-error">Pending Approval</p>
+            </div>
+          </div>
+          <div
+            class="bg-surface-container-low p-6 rounded-xl flex items-center justify-between hover:bg-surface-container transition-colors cursor-pointer"
+          >
+            <div class="flex items-center gap-6">
+              <p class="font-label text-[10px] text-on-surface-variant w-16">
+                09:15 AM
+              </p>
+              <div>
+                <p class="font-body text-sm font-semibold text-on-surface">
+                  Dividend Payout: NVDA
+                </p>
+                <p
+                  class="font-label text-[10px] text-on-surface-variant uppercase"
+                >
+                  Investments
+                </p>
+              </div>
+            </div>
+            <div class="text-right">
+              <p class="font-headline text-sm text-secondary">+$420.50</p>
+              <p class="font-label text-[10px] text-secondary">Cleared</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+    <!-- Updated BottomNavBar with Profile -->
+    <nav
+      class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-6 pb-8 pt-4 bg-[#131313]/70 backdrop-blur-xl rounded-t-[24px] shadow-[0_-4px_40px_0_rgba(0,0,0,0.06)]"
+    >
+      <!-- Home (Active) -->
+      <a
+        class="flex flex-col items-center justify-center relative text-[#7dffa2] after:content-[''] after:absolute after:-bottom-1 after:w-1 after:h-1 after:bg-[#05e777] after:rounded-full active:scale-95 transition-transform"
+        href="#"
+      >
+        <span
+          class="material-symbols-outlined"
+          style="font-variation-settings: 'FILL' 1"
+          >home_app_logo</span
+        >
+        <span
+          class="font-['Manrope'] text-[10px] tracking-wider uppercase font-bold mt-1"
+          >Home</span
+        >
+      </a>
+      <!-- Reminders -->
+      <a
+        class="flex flex-col items-center justify-center text-[#e5e2e1]/50 hover:text-[#7dffa2] transition-colors duration-300 active:scale-95 transition-transform"
+        href="#"
+      >
+        <span class="material-symbols-outlined">notifications_active</span>
+        <span
+          class="font-['Manrope'] text-[10px] tracking-wider uppercase font-bold mt-1"
+          >Reminders</span
+        >
+      </a>
+      <!-- Budget -->
+      <a
+        class="flex flex-col items-center justify-center text-[#e5e2e1]/50 hover:text-[#7dffa2] transition-colors duration-300 active:scale-95 transition-transform"
+        href="#"
+      >
+        <span class="material-symbols-outlined">account_balance_wallet</span>
+        <span
+          class="font-['Manrope'] text-[10px] tracking-wider uppercase font-bold mt-1"
+          >Budget</span
+        >
+      </a>
+      <!-- Profile -->
+      <a
+        class="flex flex-col items-center justify-center text-[#e5e2e1]/50 hover:text-[#7dffa2] transition-colors duration-300 active:scale-95 transition-transform"
+        href="#"
+      >
+        <span class="material-symbols-outlined">person</span>
+        <span
+          class="font-['Manrope'] text-[10px] tracking-wider uppercase font-bold mt-1"
+          >Profile</span
+        >
+      </a>
+    </nav>
+  </body>
+</html>

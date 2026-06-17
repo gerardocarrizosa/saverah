@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 import type { Reminder } from '@/types/reminder.types';
 import { getDaysUntilDue } from '@/lib/utils/dates';
-import { categoryEmojis } from '@/config/constants';
+import { CATEGORY_EMOJIS } from '@/config/constants';
 
 interface ReminderWithStatus extends Reminder {
   isPaidForCurrentCycle?: boolean;
@@ -102,7 +102,7 @@ export function UrgentAlerts({ reminders, isLoading }: UrgentAlertsProps) {
           >
             <div className="flex items-center gap-3">
               <div className="text-2xl">
-                {categoryEmojis[reminder.category] || '📦'}
+                {CATEGORY_EMOJIS[reminder.category] || '📦'}
               </div>
               <div>
                 <p className="font-medium text-base-content">{reminder.name}</p>

@@ -1,10 +1,29 @@
 export const EXPENSE_CATEGORIES = [
   'Vivienda',
+  'Despensa',
   'Alimentación',
   'Transporte',
   'Servicios',
   'Salud',
   'Educación',
+  'Entretenimiento',
+  'Ropa',
+  'Tecnología',
+  'Ahorro',
+  'Otros',
+] as const;
+
+export const ESSENTIAL_CATEGORIES = [
+  'Despensa',
+  'Vivienda',
+  'Transporte',
+  'Servicios',
+  'Salud',
+  'Educación',
+] as const;
+
+export const DISCRETIONARY_CATEGORIES = [
+  'Alimentación',
   'Entretenimiento',
   'Ropa',
   'Tecnología',
@@ -41,7 +60,7 @@ export const DEFAULT_CURRENCY_REGION = 'es-MX';
 
 export const DEFAULT_CURRENCY = 'MXN';
 
-export const categoryEmojis: Record<string, string> = {
+export const CATEGORY_EMOJIS: Record<string, string> = {
   'Tarjeta de Crédito': '💳',
   Servicios: '⚡',
   Suscripción: '📱',

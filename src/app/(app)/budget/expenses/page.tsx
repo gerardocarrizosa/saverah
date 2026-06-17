@@ -75,5 +75,9 @@ export default async function ExpensesPage() {
   // Calculate insights server-side
   const insights = calculateInsights(expenses);
 
-  return <ExpensesPageClient initialExpenses={expenses} insights={insights} />;
+  return (
+    <main className="space-y-10">
+      <ExpensesPageClient initialExpenses={expenses} insights={insights} />
+    </main>
+  );
 }

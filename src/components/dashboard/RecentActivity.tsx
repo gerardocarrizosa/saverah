@@ -9,34 +9,16 @@ import {
 } from 'lucide-react';
 import type { ActivityItem } from '@/types/dashboard.types';
 import { formatCurrency } from '@/lib/utils/currency';
+import { formatDate } from '@/lib/utils/dates';
 
 interface RecentActivityProps {
   initialData?: ActivityItem[];
 }
 
-function formatActivityDate(dateString: string): string {
-  const date = new Date(dateString);
-  const today = new Date();
-  const yesterday = new Date(today);
-  yesterday.setDate(yesterday.getDate() - 1);
-
-  if (date.toDateString() === today.toDateString()) {
-    return `Hoy, ${date.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}`;
-  }
-
-  if (date.toDateString() === yesterday.toDateString()) {
-    return `Ayer, ${date.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}`;
-  }
-
-  return date.toLocaleDateString('es-MX', {
-    day: 'numeric',
-    month: 'short',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
-}
-
-function formatActivityAmount(amount: number, type: ActivityItem['type']): string {
+function formatActivityAmount(
+  amount: number,
+  type: ActivityItem['type'],
+): string {
   const formatted = formatCurrency(amount, 0);
   if (type === 'income') return `+${formatted}`;
   if (type === 'expense' || type === 'payment') return `-${formatted}`;
@@ -96,7 +78,8 @@ export function RecentActivity({ initialData = [] }: RecentActivityProps) {
               <p className="font-medium text-sm">{activity.description}</p>
               <p className="text-xs text-base-content/60 flex items-center gap-1">
                 <Calendar className="w-3 h-3" />
-                {formatActivityDate(activity.date)}
+                {/* {formatActivityDate(activity.date)} */}
+                {formatDate(activity.date)}
                 {activity.category &&
                   activity.category !== 'Ingreso' &&
                   activity.category !== 'Pago de recordatorio' && (

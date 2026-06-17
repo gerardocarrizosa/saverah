@@ -42,9 +42,8 @@ export default async function IncomePage() {
   const insights = calculateInsights(income);
 
   return (
-    <IncomePageClient
-      initialIncome={income}
-      insights={insights}
-    />
+    <main className="space-y-10">
+      <IncomePageClient initialIncome={income} insights={insights} />
+    </main>
   );
 }

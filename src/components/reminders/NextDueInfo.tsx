@@ -2,7 +2,7 @@
 
 import { Calendar, Scissors, CheckCircle2 } from 'lucide-react';
 import type { ReminderAnalytics } from '@/types/reminder.types';
-// import { categoryEmojis, RECURRENCE_TYPES } from '@/config/constants';
+// import { CATEGORY_EMOJIS, RECURRENCE_TYPES } from '@/config/constants';
 
 interface NextDueInfoProps {
   name: string;

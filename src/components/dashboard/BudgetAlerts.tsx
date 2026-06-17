@@ -12,7 +12,7 @@ interface BudgetAlertsProps {
   categories: CategorySummary[];
 }
 
-const categoryEmojis: Record<string, string> = {
+const CATEGORY_EMOJIS: Record<string, string> = {
   'Vivienda': '🏠',
   'Alimentación': '🍽️',
   'Transporte': '🚗',
@@ -74,7 +74,7 @@ export function BudgetAlerts({ categories }: BudgetAlertsProps) {
           <div key={category.category} className="space-y-2">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <span className="text-lg">{categoryEmojis[category.category] || '📦'}</span>
+                <span className="text-lg">{CATEGORY_EMOJIS[category.category] || '📦'}</span>
                 <span className="font-medium">{category.category}</span>
               </div>
               <div className="flex items-center gap-2">
