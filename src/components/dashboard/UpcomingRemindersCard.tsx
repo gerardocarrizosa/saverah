@@ -1,14 +1,7 @@
-import Link from 'next/link';
-import {
-  Bell,
-  Home,
-  Zap,
-  Receipt,
-  ArrowRight,
-} from 'lucide-react';
-import type { Reminder } from '@/types/reminder.types';
-import { getDaysUntilDue } from '@/lib/utils/dates';
-
+import Link from "next/link";
+import { Bell, Home, Zap, Receipt, ArrowRight } from "lucide-react";
+import type { Reminder } from "@/types/reminder.types";
+import { getDaysUntilDue } from "@/lib/utils/dates";
 
 interface ReminderWithStatus extends Reminder {
   isPaidForCurrentCycle?: boolean;
@@ -19,7 +12,7 @@ interface UpcomingRemindersCardProps {
 }
 
 const categoryIcons: Record<string, React.ReactNode> = {
-  'Tarjeta de Crédito': <Zap className="w-5 h-5" />,
+  "Tarjeta de Crédito": <Zap className="w-5 h-5" />,
   Servicios: <Zap className="w-5 h-5" />,
   Suscripción: <Receipt className="w-5 h-5" />,
   Alquiler: <Home className="w-5 h-5" />,
@@ -30,14 +23,14 @@ const categoryIcons: Record<string, React.ReactNode> = {
 };
 
 const categoryColors: Record<string, string> = {
-  'Tarjeta de Crédito': 'text-primary',
-  Servicios: 'text-accent',
-  Suscripción: 'text-secondary',
-  Alquiler: 'text-primary',
-  Préstamo: 'text-accent',
-  Seguro: 'text-secondary',
-  Impuestos: 'text-primary',
-  Otros: 'text-base-content',
+  "Tarjeta de Crédito": "text-primary",
+  Servicios: "text-accent",
+  Suscripción: "text-secondary",
+  Alquiler: "text-primary",
+  Préstamo: "text-accent",
+  Seguro: "text-secondary",
+  Impuestos: "text-primary",
+  Otros: "text-base-content",
 };
 
 export function UpcomingRemindersCard({
@@ -58,9 +51,9 @@ export function UpcomingRemindersCard({
   ).length;
 
   return (
-    <div className="bg-base-300 rounded-xl p-8 flex flex-col">
+    <div className="bg-base-300 rounded-xl p-6 flex flex-col">
       <div className="flex items-center justify-between mb-8">
-        <h2 className="font-[family-name:var(--font-headline)] text-xl text-base-content">
+        <h2 className="font-(family-name:--font-headline) text-xl text-base-content">
           Recordatorios
         </h2>
         <Bell
@@ -81,7 +74,7 @@ export function UpcomingRemindersCard({
           upcoming.map((reminder) => {
             const isOverdue = reminder.daysUntilDue < 0;
             const colorClass =
-              categoryColors[reminder.category] || 'text-base-content';
+              categoryColors[reminder.category] || "text-base-content";
 
             return (
               <div key={reminder.id} className="flex items-center gap-4">
@@ -93,18 +86,17 @@ export function UpcomingRemindersCard({
                   </span>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-[family-name:var(--font-body)] text-sm font-semibold text-base-content truncate">
+                  <p className="font-(family-name:--font-body) text-sm font-semibold text-base-content truncate">
                     {reminder.name}
                   </p>
-                  <p className="font-[family-name:var(--font-body)] text-[10px] text-base-content/60 uppercase tracking-wider">
+                  <p className="font-(family-name:--font-body) text-[10px] text-base-content/60 uppercase tracking-wider">
                     {isOverdue
                       ? `VENCIDO HACE ${Math.abs(reminder.daysUntilDue)} DÍAS`
                       : reminder.daysUntilDue === 0
-                        ? 'VENCE HOY'
+                        ? "VENCE HOY"
                         : `VENCE EN ${reminder.daysUntilDue} DÍAS`}
                   </p>
                 </div>
-
               </div>
             );
           })
@@ -116,7 +108,7 @@ export function UpcomingRemindersCard({
           href="/reminders"
           className="bg-base-100 rounded-lg p-4 flex items-center justify-between hover:bg-base-200 transition-colors"
         >
-          <span className="font-[family-name:var(--font-body)] text-xs text-base-content/60">
+          <span className="font-(family-name:--font-body) text-xs text-base-content/60">
             {upcomingCount} Recordatorios próximos
           </span>
           <ArrowRight className="w-4 h-4 text-base-content/60" />

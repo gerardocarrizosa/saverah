@@ -1,5 +1,5 @@
-import Link from 'next/link';
-import { formatCurrency } from '@/lib/utils/currency';
+import Link from "next/link";
+import { formatCurrency } from "@/lib/utils/currency";
 
 interface BudgetOverviewCardProps {
   totalIncome: number;
@@ -71,7 +71,7 @@ export function BudgetOverviewCard({
           href="/budget"
           className="font-[family-name:var(--font-body)] text-sm text-primary hover:underline transition-all"
         >
-          Ajustar plan
+          Ir a presupuesto
         </Link>
       </div>
     </div>
