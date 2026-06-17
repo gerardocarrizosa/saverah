@@ -3,16 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabaseBrowser } from "@/lib/supabase/client";
-import {
-  User,
-  Mail,
-  Calendar,
-  LogOut,
-  Sun,
-  Moon,
-  Settings2,
-  Pencil,
-} from "lucide-react";
+import { User, Mail, Calendar, LogOut, Sun, Moon, Pencil } from "lucide-react";
 import { useTheme } from "@/components/ThemeProvider";
 import type { UserProfile } from "@/types/user.types";
 
