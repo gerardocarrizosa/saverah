@@ -1,17 +1,17 @@
-import Link from 'next/link';
-import { ArrowRight } from 'lucide-react';
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 
 export function QuickLogPanel() {
   return (
     <div className="space-y-6">
-      <h2 className="font-[family-name:var(--font-headline)] text-2xl font-bold tracking-tight px-2">
+      <h2 className="font-(family-name:--font-headline) text-2xl font-bold tracking-tight px-2">
         Acciones rápidas
       </h2>
-      <div className="space-y-4">
+      <div className="grid grid-cols-2 gap-4">
         {/* Add Income */}
         <Link
           href="/budget/income/new"
-          className="group flex bg-base-200 p-6 rounded-xl hover:bg-base-300 transition-colors"
+          className="group flex flex-col bg-base-200 p-6 rounded-xl hover:bg-base-300 transition-colors"
         >
           <div className="flex flex-col flex-1">
             <h3 className="font-semibold text-base-content mb-1">
@@ -30,7 +30,7 @@ export function QuickLogPanel() {
         {/* Add Expense */}
         <Link
           href="/budget/expenses/new"
-          className="group flex bg-base-200 p-6 rounded-xl hover:bg-base-300 transition-colors"
+          className="group flex flex-col bg-base-200 p-6 rounded-xl hover:bg-base-300 transition-colors"
         >
           <div className="flex flex-col flex-1">
             <h3 className="font-semibold text-base-content mb-1">

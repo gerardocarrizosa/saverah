@@ -41,217 +41,198 @@ export default function NewIncomePage() {
   const [error, setError] = useState<string | null>(null);
 
   return (
-    <div className="p-4 max-w-2xl mx-auto">
-      {/* Simple Header */}
-      <div className="mb-6">
-        <Link
-          href="/budget"
-          className="inline-flex items-center gap-2 text-sm text-base-content/60 hover:text-base-content mb-4"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Volver
-        </Link>
-        <div className="flex items-center gap-3">
-          <div className="p-2 rounded-xl bg-success/10">
-            <Plus className="w-5 h-5 text-success" />
-          </div>
-          <div>
-            <h1 className="text-xl font-bold text-base-content">
-              Nuevo ingreso
-            </h1>
-            <p className="text-sm text-base-content/60">
-              Registra un nuevo ingreso en tu presupuesto
-            </p>
-          </div>
-        </div>
-      </div>
+    <div className="space-y-10 max-w-2xl mx-auto">
+      <Link
+        href="/budget/income"
+        className="inline-flex items-center gap-2 text-sm text-base-content/60 hover:text-base-content transition-colors"
+      >
+        <ArrowLeft className="w-4 h-4" />
+        Volver a ingresos
+      </Link>
 
-      {/* Form Card */}
-      <div className="card bg-base-100 border border-base-300 shadow-sm rounded-lg">
-        <div className="card-body p-6">
-          <Formik
-            initialValues={initialValues}
-            validationSchema={createIncomeSchema}
-            onSubmit={async (values, { setSubmitting }) => {
-              setError(null);
-              try {
-                await addIncome({
-                  source: values.source,
-                  type: values.type,
-                  amount: values.amount,
-                  received_at: values.received_at,
-                  notes: values.notes || undefined,
-                });
-                router.push('/budget/income');
-              } catch (err: unknown) {
-                setError(
-                  err instanceof Error
-                    ? err.message
-                    : 'Error al registrar el ingreso',
-                );
-              } finally {
-                setSubmitting(false);
-              }
-            }}
-          >
-            {({ isSubmitting, values }) => (
-              <Form className="space-y-4">
-                {error && (
-                  <div className="alert alert-error alert-sm">
-                    <AlertCircle className="w-4 h-4" />
-                    <span className="text-sm">{error}</span>
-                  </div>
-                )}
+      <section className="space-y-2">
+        <span className="font-[family-name:var(--font-body)] text-success uppercase tracking-[0.2em] text-[0.6875rem] font-semibold">
+          Nuevo registro
+        </span>
+        <h1 className="font-[family-name:var(--font-headline)] text-4xl font-extrabold tracking-tight text-base-content">
+          Registrar ingreso
+        </h1>
+        <p className="font-[family-name:var(--font-body)] text-base-content/60 mt-2">
+          Agrega un nuevo ingreso a tu presupuesto.
+        </p>
+      </section>
 
-                <div className="form-control">
-                  <label className="label">
-                    <span className="label-text flex items-center gap-2">
-                      <Briefcase className="w-4 h-4" />
-                      Fuente de ingreso
-                    </span>
-                  </label>
-                  <Field
-                    name="source"
-                    type="text"
-                    className="input input-bordered w-full"
-                    placeholder="Ej: Salario, Freelance, Inversiones"
-                    disabled={isSubmitting}
-                  />
-                  <ErrorMessage
-                    name="source"
-                    component="div"
-                    className="text-error text-sm mt-1"
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="form-control">
-                    <label className="label">
-                      <span className="label-text flex items-center gap-2">
-                        <FileText className="w-4 h-4" />
-                        Tipo
-                      </span>
-                    </label>
-                    <Field
-                      name="type"
-                      as="select"
-                      className="select select-bordered w-full"
-                      disabled={isSubmitting}
-                    >
-                      {INCOME_TYPES.map((type) => (
-                        <option key={type.value} value={type.value}>
-                          {type.label}
-                        </option>
-                      ))}
-                    </Field>
-                    <ErrorMessage
-                      name="type"
-                      component="div"
-                      className="text-error text-sm mt-1"
-                    />
-                  </div>
-
-                  <div className="form-control">
-                    <label className="label">
-                      <span className="label-text flex items-center gap-2">
-                        <DollarSign className="w-4 h-4" />
-                        Monto ({DEFAULT_CURRENCY})
-                      </span>
-                    </label>
-                    <Field
-                      name="amount"
-                      type="number"
-                      min="0"
-                      step="0.01"
-                      className="input input-bordered w-full"
-                      placeholder="0.00"
-                      disabled={isSubmitting}
-                    />
-                    <ErrorMessage
-                      name="amount"
-                      component="div"
-                      className="text-error text-sm mt-1"
-                    />
-                  </div>
-                </div>
-
-                <div className="form-control">
-                  <label className="label">
-                    <span className="label-text flex items-center gap-2">
-                      <Calendar className="w-4 h-4" />
-                      Fecha de recepción
-                    </span>
-                  </label>
-                  <Field
-                    name="received_at"
-                    type="date"
-                    className="input input-bordered w-full"
-                    disabled={isSubmitting}
-                  />
-                  <ErrorMessage
-                    name="received_at"
-                    component="div"
-                    className="text-error text-sm mt-1"
-                  />
-                </div>
-
-                <div className="form-control">
-                  <label className="label">
-                    <span className="label-text flex items-center gap-2">
-                      <StickyNote className="w-4 h-4" />
-                      Notas (opcional)
-                    </span>
-                  </label>
-                  <Field
-                    name="notes"
-                    as="textarea"
-                    className="textarea textarea-bordered w-full h-24 resize-none"
-                    placeholder="Notas adicionales sobre este ingreso..."
-                    disabled={isSubmitting}
-                  />
-                  <div className="label">
-                    <ErrorMessage
-                      name="notes"
-                      component="span"
-                      className="label-text-alt text-error"
-                    />
-                    <span className="label-text-alt">
-                      {values.notes?.length || 0}/500
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex gap-3 pt-4">
-                  <Link
-                    href="/budget/income"
-                    className="btn btn-ghost flex-1 gap-2"
-                  >
-                    <ArrowLeft className="w-4 h-4" />
-                    Cancelar
-                  </Link>
-                  <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="btn btn-primary flex-1 gap-2 rounded"
-                  >
-                    {isSubmitting ? (
-                      <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        Guardando...
-                      </>
-                    ) : (
-                      <>
-                        <Plus className="w-4 h-4" />
-                        Registrar ingreso
-                      </>
-                    )}
-                  </button>
-                </div>
-              </Form>
+      <Formik
+        initialValues={initialValues}
+        validationSchema={createIncomeSchema}
+        onSubmit={async (values, { setSubmitting }) => {
+          setError(null);
+          try {
+            await addIncome({
+              source: values.source,
+              type: values.type,
+              amount: values.amount,
+              received_at: values.received_at,
+              notes: values.notes || undefined,
+            });
+            router.push('/budget/income');
+          } catch (err: unknown) {
+            setError(
+              err instanceof Error
+                ? err.message
+                : 'Error al registrar el ingreso',
+            );
+          } finally {
+            setSubmitting(false);
+          }
+        }}
+      >
+        {({ isSubmitting, values }) => (
+          <Form className="space-y-6">
+            {error && (
+              <div className="bg-error/10 text-error rounded-xl p-4 flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                <span className="text-sm">{error}</span>
+              </div>
             )}
-          </Formik>
-        </div>
-      </div>
+
+            <div className="space-y-2">
+              <label className="text-xs font-bold uppercase tracking-widest text-base-content/60 flex items-center gap-2">
+                <Briefcase className="w-4 h-4" />
+                Fuente de ingreso
+              </label>
+              <Field
+                name="source"
+                type="text"
+                className="w-full bg-base-200 rounded-xl border-none px-4 py-3 text-sm text-base-content placeholder:text-base-content/40 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+                placeholder="Ej: Salario, Freelance, Inversiones"
+                disabled={isSubmitting}
+              />
+              <ErrorMessage
+                name="source"
+                component="div"
+                className="text-error text-sm"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="text-xs font-bold uppercase tracking-widest text-base-content/60 flex items-center gap-2">
+                  <FileText className="w-4 h-4" />
+                  Tipo
+                </label>
+                <Field
+                  name="type"
+                  as="select"
+                  className="w-full bg-base-200 rounded-xl border-none px-4 py-3 text-sm text-base-content focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all appearance-none"
+                  disabled={isSubmitting}
+                >
+                  {INCOME_TYPES.map((type) => (
+                    <option key={type.value} value={type.value}>
+                      {type.label}
+                    </option>
+                  ))}
+                </Field>
+                <ErrorMessage
+                  name="type"
+                  component="div"
+                  className="text-error text-sm"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-xs font-bold uppercase tracking-widest text-base-content/60 flex items-center gap-2">
+                  <DollarSign className="w-4 h-4" />
+                  Monto ({DEFAULT_CURRENCY})
+                </label>
+                <Field
+                  name="amount"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  className="w-full bg-base-200 rounded-xl border-none px-4 py-3 text-sm text-base-content placeholder:text-base-content/40 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+                  placeholder="0.00"
+                  disabled={isSubmitting}
+                />
+                <ErrorMessage
+                  name="amount"
+                  component="div"
+                  className="text-error text-sm"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-xs font-bold uppercase tracking-widest text-base-content/60 flex items-center gap-2">
+                <Calendar className="w-4 h-4" />
+                Fecha de recepción
+              </label>
+              <Field
+                name="received_at"
+                type="date"
+                className="w-full bg-base-200 rounded-xl border-none px-4 py-3 text-sm text-base-content focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+                disabled={isSubmitting}
+              />
+              <ErrorMessage
+                name="received_at"
+                component="div"
+                className="text-error text-sm"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-xs font-bold uppercase tracking-widest text-base-content/60 flex items-center gap-2">
+                <StickyNote className="w-4 h-4" />
+                Notas (opcional)
+              </label>
+              <Field
+                name="notes"
+                as="textarea"
+                className="w-full bg-base-200 rounded-xl border-none px-4 py-3 text-sm text-base-content placeholder:text-base-content/40 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all resize-none h-24"
+                placeholder="Notas adicionales sobre este ingreso..."
+                disabled={isSubmitting}
+              />
+              <div className="flex justify-between">
+                <ErrorMessage
+                  name="notes"
+                  component="span"
+                  className="text-error text-sm"
+                />
+                <span className="text-xs text-base-content/40">
+                  {values.notes?.length || 0}/500
+                </span>
+              </div>
+            </div>
+
+            <div className="flex gap-3 pt-4">
+              <Link
+                href="/budget/income"
+                className="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3 bg-base-300 text-base-content rounded-full text-sm font-bold hover:bg-base-300/80 transition-colors"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                Cancelar
+              </Link>
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3 bg-success/10 text-success rounded-full text-sm font-bold hover:bg-success/20 transition-colors disabled:opacity-50"
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Guardando...
+                  </>
+                ) : (
+                  <>
+                    <Plus className="w-4 h-4" />
+                    Registrar ingreso
+                  </>
+                )}
+              </button>
+            </div>
+          </Form>
+        )}
+      </Formik>
     </div>
   );
 }

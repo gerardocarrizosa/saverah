@@ -103,46 +103,42 @@ export function ExpenseForm({ onSuccess, onCancel, editExpense }: ExpenseFormPro
       }}
     >
       {({ isSubmitting, values }) => (
-        <Form className="space-y-4">
+        <Form className="space-y-6">
           {error && (
-            <div className="alert alert-error alert-sm">
-              <AlertCircle className="w-4 h-4" />
+            <div className="bg-error/10 text-error rounded-xl p-4 flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 shrink-0" />
               <span className="text-sm">{error}</span>
             </div>
           )}
 
-          <div className="form-control">
-            <label className="label">
-              <span className="label-text flex items-center gap-2">
-                <FileText className="w-4 h-4" />
-                Descripción
-              </span>
+          <div className="space-y-2">
+            <label className="text-xs font-bold uppercase tracking-widest text-base-content/60 flex items-center gap-2">
+              <FileText className="w-4 h-4" />
+              Descripción
             </label>
             <Field
               name="description"
               type="text"
-              className="input input-bordered w-full"
+              className="w-full bg-base-200 rounded-xl border-none px-4 py-3 text-sm text-base-content placeholder:text-base-content/40 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
               placeholder="Ej: Compra en supermercado"
               disabled={isSubmitting}
             />
             <ErrorMessage
               name="description"
               component="div"
-              className="text-error text-sm mt-1"
+              className="text-error text-sm"
             />
           </div>
 
-          <div className="form-control">
-            <label className="label">
-              <span className="label-text flex items-center gap-2">
-                <Tag className="w-4 h-4" />
-                Categoría
-              </span>
+          <div className="space-y-2">
+            <label className="text-xs font-bold uppercase tracking-widest text-base-content/60 flex items-center gap-2">
+              <Tag className="w-4 h-4" />
+              Categoría
             </label>
             <Field
               name="category"
               as="select"
-              className="select select-bordered w-full"
+              className="w-full bg-base-200 rounded-xl border-none px-4 py-3 text-sm text-base-content focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all appearance-none"
               disabled={isSubmitting}
             >
               <option value="">Selecciona una categoría</option>
@@ -155,89 +151,83 @@ export function ExpenseForm({ onSuccess, onCancel, editExpense }: ExpenseFormPro
             <ErrorMessage
               name="category"
               component="div"
-              className="text-error text-sm mt-1"
+              className="text-error text-sm"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text flex items-center gap-2">
-                  <DollarSign className="w-4 h-4" />
-                  Monto ({DEFAULT_CURRENCY})
-                </span>
+            <div className="space-y-2">
+              <label className="text-xs font-bold uppercase tracking-widest text-base-content/60 flex items-center gap-2">
+                <DollarSign className="w-4 h-4" />
+                Monto ({DEFAULT_CURRENCY})
               </label>
               <Field
                 name="amount"
                 type="number"
                 min="0"
                 step="0.01"
-                className="input input-bordered w-full"
+                className="w-full bg-base-200 rounded-xl border-none px-4 py-3 text-sm text-base-content placeholder:text-base-content/40 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
                 placeholder="0.00"
                 disabled={isSubmitting}
               />
               <ErrorMessage
                 name="amount"
                 component="div"
-                className="text-error text-sm mt-1"
+                className="text-error text-sm"
               />
             </div>
 
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text flex items-center gap-2">
-                  <Calendar className="w-4 h-4" />
-                  Fecha
-                </span>
+            <div className="space-y-2">
+              <label className="text-xs font-bold uppercase tracking-widest text-base-content/60 flex items-center gap-2">
+                <Calendar className="w-4 h-4" />
+                Fecha
               </label>
               <Field
                 name="spent_at"
                 type="date"
-                className="input input-bordered w-full"
+                className="w-full bg-base-200 rounded-xl border-none px-4 py-3 text-sm text-base-content focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
                 disabled={isSubmitting}
               />
               <ErrorMessage
                 name="spent_at"
                 component="div"
-                className="text-error text-sm mt-1"
+                className="text-error text-sm"
               />
             </div>
           </div>
 
-          <div className="form-control">
-            <label className="label">
-              <span className="label-text flex items-center gap-2">
-                <StickyNote className="w-4 h-4" />
-                Notas (opcional)
-              </span>
+          <div className="space-y-2">
+            <label className="text-xs font-bold uppercase tracking-widest text-base-content/60 flex items-center gap-2">
+              <StickyNote className="w-4 h-4" />
+              Notas (opcional)
             </label>
             <Field
               name="notes"
               as="textarea"
-              className="textarea textarea-bordered w-full h-24 resize-none"
+              className="w-full bg-base-200 rounded-xl border-none px-4 py-3 text-sm text-base-content placeholder:text-base-content/40 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all resize-none h-24"
               placeholder="Notas adicionales sobre este gasto..."
               disabled={isSubmitting}
             />
-            <div className="label">
+            <div className="flex justify-between">
               <ErrorMessage
                 name="notes"
                 component="span"
-                className="label-text-alt text-error"
+                className="text-error text-sm"
               />
-              <span className="label-text-alt">
+              <span className="text-xs text-base-content/40">
                 {values.notes?.length || 0}/500
               </span>
             </div>
           </div>
 
-          <div className="flex gap-3 pt-2">
+          <div className="flex gap-3 pt-4">
             {isEditing ? (
               <>
                 <button
                   type="button"
                   onClick={onCancel}
                   disabled={isSubmitting}
-                  className="btn btn-ghost flex-1 gap-2"
+                  className="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3 bg-base-300 text-base-content rounded-full text-sm font-bold hover:bg-base-300/80 transition-colors"
                 >
                   <X className="w-4 h-4" />
                   Cancelar
@@ -245,7 +235,7 @@ export function ExpenseForm({ onSuccess, onCancel, editExpense }: ExpenseFormPro
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="btn btn-primary flex-1 gap-2"
+                  className="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary/10 text-primary rounded-full text-sm font-bold hover:bg-primary/20 transition-colors disabled:opacity-50"
                 >
                   {isSubmitting ? (
                     <>
@@ -262,9 +252,9 @@ export function ExpenseForm({ onSuccess, onCancel, editExpense }: ExpenseFormPro
               </>
             ) : (
               <>
-                <Link 
-                  href="/budget" 
-                  className="btn btn-ghost flex-1 gap-2"
+                <Link
+                  href="/budget"
+                  className="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3 bg-base-300 text-base-content rounded-full text-sm font-bold hover:bg-base-300/80 transition-colors"
                 >
                   <ArrowLeft className="w-4 h-4" />
                   Volver
@@ -272,7 +262,7 @@ export function ExpenseForm({ onSuccess, onCancel, editExpense }: ExpenseFormPro
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="btn btn-primary flex-1 gap-2"
+                  className="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3 bg-accent/10 text-accent rounded-full text-sm font-bold hover:bg-accent/20 transition-colors disabled:opacity-50"
                 >
                   {isSubmitting ? (
                     <>

@@ -32,5 +32,9 @@ export default async function EditExpensePage({ params }: EditExpensePageProps) 
     notFound();
   }
 
-  return <EditExpenseForm expense={expense} />;
+  return (
+    <main className="space-y-10">
+      <EditExpenseForm expense={expense} />
+    </main>
+  );
 }

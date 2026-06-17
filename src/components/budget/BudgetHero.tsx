@@ -1,8 +1,9 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { TrendingUp, Eye, EyeOff } from 'lucide-react';
-import { formatCurrency } from '@/lib/utils/currency';
+import { useState, useEffect } from "react";
+import { TrendingUp, Eye, EyeOff } from "lucide-react";
+import { formatCurrency } from "@/lib/utils/currency";
+import Link from "next/link";
 
 interface BudgetHeroProps {
   totalIncome: number;
@@ -22,42 +23,42 @@ export function BudgetHero({
   const [isVisible, setIsVisible] = useState(true);
 
   useEffect(() => {
-    const saved = localStorage.getItem('dashboardStatsVisible');
+    const saved = localStorage.getItem("dashboardStatsVisible");
     if (saved !== null) {
-      setIsVisible(saved === 'true');
+      setIsVisible(saved === "true");
     }
 
     const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'dashboardStatsVisible') {
-        setIsVisible(e.newValue === 'true');
+      if (e.key === "dashboardStatsVisible") {
+        setIsVisible(e.newValue === "true");
       }
     };
 
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
   }, []);
 
   const toggleVisibility = () => {
     const next = !isVisible;
     setIsVisible(next);
-    localStorage.setItem('dashboardStatsVisible', String(next));
+    localStorage.setItem("dashboardStatsVisible", String(next));
     window.dispatchEvent(
-      new StorageEvent('storage', {
-        key: 'dashboardStatsVisible',
+      new StorageEvent("storage", {
+        key: "dashboardStatsVisible",
         newValue: String(next),
       }),
     );
   };
 
   const formatMoney = (amount: number) => {
-    if (!isVisible) return '****';
+    if (!isVisible) return "****";
     return formatCurrency(amount, 0);
   };
 
   const balanceStr = formatMoney(balance);
-  const [balanceWhole, balanceCents] = balanceStr.includes('.')
-    ? balanceStr.split('.')
-    : [balanceStr, '00'];
+  const [balanceWhole, balanceCents] = balanceStr.includes(".")
+    ? balanceStr.split(".")
+    : [balanceStr, "00"];
 
   return (
     <section className="grid grid-cols-1 md:grid-cols-12 gap-8 items-end">
@@ -70,7 +71,7 @@ export function BudgetHero({
           <button
             onClick={toggleVisibility}
             className="text-base-content/40 hover:text-base-content transition-colors p-1 rounded-full"
-            aria-label={isVisible ? 'Ocultar montos' : 'Mostrar montos'}
+            aria-label={isVisible ? "Ocultar montos" : "Mostrar montos"}
           >
             {isVisible ? (
               <EyeOff className="w-4 h-4" />
@@ -79,55 +80,61 @@ export function BudgetHero({
             )}
           </button>
         </div>
-        <h1 className="font-[family-name:var(--font-headline)] font-bold text-5xl md:text-7xl tracking-tighter text-base-content leading-none mb-6">
+        <h1 className="font-(family-name:--font-headline) font-bold text-5xl md:text-7xl tracking-tighter text-base-content leading-none mb-6">
           {balanceWhole}
           <span className="text-base-content/40">.{balanceCents}</span>
         </h1>
         <div className="flex gap-4 items-center">
-          <span className="px-3 py-1 bg-secondary/10 text-secondary rounded-full font-[family-name:var(--font-body)] text-xs font-medium flex items-center gap-1">
+          <span className="px-3 py-1 bg-secondary/10 text-secondary rounded-full font-(family-name:--font-body) text-xs font-medium flex items-center gap-1">
             <TrendingUp className="w-3.5 h-3.5" />
-            {balance >= 0 ? 'Superávit' : 'Déficit'} este mes
+            {balance >= 0 ? "Superávit" : "Déficit"} este mes
           </span>
           <span className="text-xs text-base-content/50">
-            {incomeCount + expenseCount}{' '}
-            {incomeCount + expenseCount === 1 ? 'transacción' : 'transacciones'}
+            {incomeCount + expenseCount}{" "}
+            {incomeCount + expenseCount === 1 ? "transacción" : "transacciones"}
           </span>
         </div>
       </div>
 
       {/* Right: Income & Spent Cards */}
       <div className="md:col-span-5 grid grid-cols-2 gap-4">
-        <div className="bg-base-200 p-6 rounded-xl space-y-2">
+        <Link
+          href="/budget/income"
+          className="bg-base-200 p-6 rounded-xl space-y-2"
+        >
           <div className="flex items-center gap-2 mb-1">
             <div className="flex flex-1 justify-between">
-              <p className="font-[family-name:var(--font-body)] text-base-content/60 text-xs font-medium uppercase tracking-wider">
+              <p className="font-(family-name:--font-body) text-base-content/60 text-xs font-medium uppercase tracking-wider">
                 Ingresos
               </p>
               <p className="text-[10px] text-base-content/40">
-                {incomeCount} {incomeCount === 1 ? 'registro' : 'registros'}
+                {incomeCount} {incomeCount === 1 ? "registro" : "registros"}
               </p>
             </div>
           </div>
-          <p className="font-[family-name:var(--font-headline)] text-2xl font-bold text-secondary">
+          <p className="font-(family-name:--font-headline) text-2xl font-bold text-secondary">
             {formatMoney(totalIncome)}
           </p>
-        </div>
+        </Link>
 
-        <div className="bg-base-200 p-6 rounded-xl space-y-2">
+        <Link
+          href="/budget/expenses"
+          className="bg-base-200 p-6 rounded-xl space-y-2"
+        >
           <div className="flex items-center gap-2 mb-1">
             <div className="flex flex-1 justify-between">
-              <p className="font-[family-name:var(--font-body)] text-base-content/60 text-xs font-medium uppercase tracking-wider">
+              <p className="font-(family-name:--font-body) text-base-content/60 text-xs font-medium uppercase tracking-wider">
                 Gastos
               </p>
               <p className="text-[10px] text-base-content/40">
-                {expenseCount} {expenseCount === 1 ? 'registro' : 'registros'}
+                {expenseCount} {expenseCount === 1 ? "registro" : "registros"}
               </p>
             </div>
           </div>
-          <p className="font-[family-name:var(--font-headline)] text-2xl font-bold text-accent">
+          <p className="font-(family-name:--font-headline) text-2xl font-bold text-accent">
             {formatMoney(totalExpenses)}
           </p>
-        </div>
+        </Link>
       </div>
     </section>
   );

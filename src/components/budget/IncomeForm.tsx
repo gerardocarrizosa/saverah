@@ -103,47 +103,43 @@ export function IncomeForm({ onSuccess, onCancel, editIncome }: IncomeFormProps)
       }}
     >
       {({ isSubmitting, values }) => (
-        <Form className="space-y-5">
+        <Form className="space-y-6">
           {error && (
-            <div className="alert alert-error">
-              <AlertCircle className="w-5 h-5" />
-              <span>{error}</span>
+            <div className="bg-error/10 text-error rounded-xl p-4 flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 shrink-0" />
+              <span className="text-sm">{error}</span>
             </div>
           )}
 
-          <div className="form-control">
-            <label className="label">
-              <span className="label-text flex items-center gap-2">
-                <Briefcase className="w-4 h-4" />
-                Fuente de ingreso
-              </span>
+          <div className="space-y-2">
+            <label className="text-xs font-bold uppercase tracking-widest text-base-content/60 flex items-center gap-2">
+              <Briefcase className="w-4 h-4" />
+              Fuente de ingreso
             </label>
             <Field
               name="source"
               type="text"
-              className="input input-bordered w-full"
+              className="w-full bg-base-200 rounded-xl border-none px-4 py-3 text-sm text-base-content placeholder:text-base-content/40 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
               placeholder="Ej: Salario, Freelance, Inversiones"
               disabled={isSubmitting}
             />
             <ErrorMessage
               name="source"
               component="div"
-              className="text-error text-sm mt-1"
+              className="text-error text-sm"
             />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text flex items-center gap-2">
-                  <FileText className="w-4 h-4" />
-                  Tipo
-                </span>
+            <div className="space-y-2">
+              <label className="text-xs font-bold uppercase tracking-widest text-base-content/60 flex items-center gap-2">
+                <FileText className="w-4 h-4" />
+                Tipo
               </label>
               <Field
                 name="type"
                 as="select"
-                className="select select-bordered w-full"
+                className="w-full bg-base-200 rounded-xl border-none px-4 py-3 text-sm text-base-content focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all appearance-none"
                 disabled={isSubmitting}
               >
                 {INCOME_TYPES.map((type) => (
@@ -155,78 +151,72 @@ export function IncomeForm({ onSuccess, onCancel, editIncome }: IncomeFormProps)
               <ErrorMessage
                 name="type"
                 component="div"
-                className="text-error text-sm mt-1"
+                className="text-error text-sm"
               />
             </div>
 
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text flex items-center gap-2">
-                  <DollarSign className="w-4 h-4" />
-                  Monto ({DEFAULT_CURRENCY})
-                </span>
+            <div className="space-y-2">
+              <label className="text-xs font-bold uppercase tracking-widest text-base-content/60 flex items-center gap-2">
+                <DollarSign className="w-4 h-4" />
+                Monto ({DEFAULT_CURRENCY})
               </label>
               <Field
                 name="amount"
                 type="number"
                 min="0"
                 step="0.01"
-                className="input input-bordered w-full"
+                className="w-full bg-base-200 rounded-xl border-none px-4 py-3 text-sm text-base-content placeholder:text-base-content/40 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
                 placeholder="0.00"
                 disabled={isSubmitting}
               />
               <ErrorMessage
                 name="amount"
                 component="div"
-                className="text-error text-sm mt-1"
+                className="text-error text-sm"
               />
             </div>
           </div>
 
-          <div className="form-control">
-            <label className="label">
-              <span className="label-text flex items-center gap-2">
-                <Calendar className="w-4 h-4" />
-                Fecha de recepción
-              </span>
+          <div className="space-y-2">
+            <label className="text-xs font-bold uppercase tracking-widest text-base-content/60 flex items-center gap-2">
+              <Calendar className="w-4 h-4" />
+              Fecha de recepción
             </label>
             <Field
               name="received_at"
               type="date"
-              className="input input-bordered w-full"
+              className="w-full bg-base-200 rounded-xl border-none px-4 py-3 text-sm text-base-content focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
               disabled={isSubmitting}
             />
             <ErrorMessage
               name="received_at"
               component="div"
-              className="text-error text-sm mt-1"
+              className="text-error text-sm"
             />
           </div>
 
-          <div className="form-control">
-            <label className="label">
-              <span className="label-text flex items-center gap-2">
-                <StickyNote className="w-4 h-4" />
-                Notas (opcional)
-              </span>
+          <div className="space-y-2">
+            <label className="text-xs font-bold uppercase tracking-widest text-base-content/60 flex items-center gap-2">
+              <StickyNote className="w-4 h-4" />
+              Notas (opcional)
             </label>
             <Field
               name="notes"
               as="textarea"
-              className="textarea textarea-bordered w-full h-24"
+              className="w-full bg-base-200 rounded-xl border-none px-4 py-3 text-sm text-base-content placeholder:text-base-content/40 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all resize-none h-24"
               placeholder="Notas adicionales sobre este ingreso..."
               disabled={isSubmitting}
             />
-            <ErrorMessage
-              name="notes"
-              component="div"
-              className="text-error text-sm mt-1"
-            />
-            <label className="label">
-              <span className="label-text-alt">
-                {values.notes?.length || 0}/500 caracteres
+            <div className="flex justify-between">
+              <ErrorMessage
+                name="notes"
+                component="span"
+                className="text-error text-sm"
+              />
+              <span className="text-xs text-base-content/40">
+                {values.notes?.length || 0}/500
               </span>
-            </label>
+            </div>
           </div>
 
           <div className="flex flex-col sm:flex-row gap-3 pt-4">
@@ -236,7 +226,7 @@ export function IncomeForm({ onSuccess, onCancel, editIncome }: IncomeFormProps)
                   type="button"
                   onClick={onCancel}
                   disabled={isSubmitting}
-                  className="btn btn-ghost flex-1"
+                  className="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3 bg-base-300 text-base-content rounded-full text-sm font-bold hover:bg-base-300/80 transition-colors"
                 >
                   <X className="w-4 h-4" />
                   Cancelar
@@ -244,7 +234,7 @@ export function IncomeForm({ onSuccess, onCancel, editIncome }: IncomeFormProps)
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="btn btn-primary flex-1"
+                  className="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary/10 text-primary rounded-full text-sm font-bold hover:bg-primary/20 transition-colors disabled:opacity-50"
                 >
                   {isSubmitting ? (
                     <>
@@ -254,21 +244,24 @@ export function IncomeForm({ onSuccess, onCancel, editIncome }: IncomeFormProps)
                   ) : (
                     <>
                       <Pencil className="w-4 h-4" />
-                      Actualizar ingreso
+                      Actualizar
                     </>
                   )}
                 </button>
               </>
             ) : (
               <>
-                <Link href="/budget" className="btn btn-ghost flex-1">
+                <Link
+                  href="/budget"
+                  className="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3 bg-base-300 text-base-content rounded-full text-sm font-bold hover:bg-base-300/80 transition-colors"
+                >
                   <ArrowLeft className="w-4 h-4" />
                   Volver
                 </Link>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="btn btn-primary flex-1"
+                  className="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3 bg-success/10 text-success rounded-full text-sm font-bold hover:bg-success/20 transition-colors disabled:opacity-50"
                 >
                   {isSubmitting ? (
                     <>

@@ -1,15 +1,11 @@
-import { createSupabaseServerClient } from '@/lib/supabase/server';
-import { getBudgetSummary, getIncome, getExpenses } from '@/lib/api/budget';
-import { redirect } from 'next/navigation';
-import { BudgetHero } from '@/components/budget/BudgetHero';
-import { CategoryGrid } from '@/components/budget/CategoryGrid';
-import { QuickLogPanel } from '@/components/budget/QuickLogPanel';
-import { ActivityFeed } from '@/components/budget/ActivityFeed';
-import {
-  PieChart,
-  TrendingUp,
-  TrendingDown,
-} from 'lucide-react';
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getBudgetSummary, getIncome, getExpenses } from "@/lib/api/budget";
+import { redirect } from "next/navigation";
+import { BudgetHero } from "@/components/budget/BudgetHero";
+import { CategoryGrid } from "@/components/budget/CategoryGrid";
+import { QuickLogPanel } from "@/components/budget/QuickLogPanel";
+import { ActivityFeed } from "@/components/budget/ActivityFeed";
+import { PieChart, TrendingUp, TrendingDown } from "lucide-react";
 
 export default async function BudgetPage() {
   const supabase = await createSupabaseServerClient();
@@ -18,7 +14,7 @@ export default async function BudgetPage() {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect('/login');
+    redirect("/login");
   }
 
   // Fetch all budget data in parallel
@@ -85,15 +81,15 @@ export default async function BudgetPage() {
           {/* Bento Grid: Categories & Quick Actions */}
           <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="md:col-span-2">
-              <CategoryGrid categories={summary.categories} />
-            </div>
-            <div className="md:col-span-1">
               <QuickLogPanel />
+            </div>
+            <div className="md:col-span-2">
+              <CategoryGrid categories={summary.categories} />
             </div>
           </section>
 
           {/* Recent Transactions: Editorial Style */}
-          <ActivityFeed income={income} expenses={expenses} />
+          {/* <ActivityFeed income={income} expenses={expenses} /> */}
         </>
       )}
     </main>

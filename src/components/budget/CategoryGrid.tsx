@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
+import { useState } from "react";
 import {
   CheckCircle2,
   AlertCircle,
@@ -9,11 +9,11 @@ import {
   Loader2,
   X,
   CircleCheck,
-} from 'lucide-react';
-import type { CategorySummary } from '@/types/budget.types';
-import api from '@/lib/axios';
-import { formatCurrency } from '@/lib/utils/currency';
-import { useRouter } from 'next/navigation';
+} from "lucide-react";
+import type { CategorySummary } from "@/types/budget.types";
+import api from "@/lib/axios";
+import { formatCurrency } from "@/lib/utils/currency";
+import { useRouter } from "next/navigation";
 
 interface CategoryGridProps {
   categories: CategorySummary[];
@@ -30,7 +30,7 @@ function BudgetLimitForm({
   onCancel: () => void;
   categoryName: string;
 }) {
-  const [limit, setLimit] = useState(currentLimit?.toString() || '');
+  const [limit, setLimit] = useState(currentLimit?.toString() || "");
   const [saving, setSaving] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -106,31 +106,31 @@ function CategoryCard({
   onSetLimit: (category: string, limit: number) => void;
 }) {
   const percentage = category.percentage || 0;
-  const isExceeded = category.status === 'exceeded';
-  const isWarning = category.status === 'warning';
+  const isExceeded = category.status === "exceeded";
+  const isWarning = category.status === "warning";
 
-  let progressColor = 'bg-primary';
-  if (isExceeded) progressColor = 'bg-error';
-  else if (isWarning) progressColor = 'bg-secondary';
+  let progressColor = "bg-primary";
+  if (isExceeded) progressColor = "bg-error";
+  else if (isWarning) progressColor = "bg-secondary";
 
   const statusConfig = {
     exceeded: {
       icon: <AlertCircle className="w-4 h-4" />,
-      label: '¡Límite excedido!',
-      textColor: 'text-error',
-      bgColor: 'bg-error/10',
+      label: "¡Límite excedido!",
+      textColor: "text-error",
+      bgColor: "bg-error/10",
     },
     warning: {
       icon: <AlertTriangle className="w-4 h-4" />,
-      label: 'Cerca del límite',
-      textColor: 'text-secondary',
-      bgColor: 'bg-secondary/10',
+      label: "Cerca del límite",
+      textColor: "text-secondary",
+      bgColor: "bg-secondary/10",
     },
     ok: {
       icon: <CheckCircle2 className="w-4 h-4" />,
-      label: 'Dentro del presupuesto',
-      textColor: 'text-primary',
-      bgColor: 'bg-primary/10',
+      label: "Dentro del presupuesto",
+      textColor: "text-primary",
+      bgColor: "bg-primary/10",
     },
   };
 
@@ -171,7 +171,7 @@ function CategoryCard({
 
       <div className="space-y-2">
         <div className="flex justify-between text-sm font-medium">
-          <span className={isExceeded ? 'text-error' : 'text-base-content'}>
+          <span className={isExceeded ? "text-error" : "text-base-content"}>
             {formatCurrency(category.spent, 0)}
           </span>
           {category.limit ? (
@@ -232,7 +232,7 @@ export function CategoryGrid({ categories }: CategoryGridProps) {
   const handleSetLimit = async (category: string, limit: number) => {
     setSavingCategory(category);
     try {
-      await api.post('/budget/limits', { category, monthly_limit: limit });
+      await api.post("/budget/limits", { category, monthly_limit: limit });
       setEditingCategory(null);
       router.refresh();
     } catch {

@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { TrendingUp, TrendingDown, Calendar, Wallet } from 'lucide-react';
-import type { Income, Expense } from '@/types/budget.types';
-import { formatCurrency } from '@/lib/utils/currency';
-import { formatDate } from '@/lib/utils/dates';
+import Link from "next/link";
+import { TrendingUp, TrendingDown, Calendar, Wallet } from "lucide-react";
+import type { Income, Expense } from "@/types/budget.types";
+import { formatCurrency } from "@/lib/utils/currency";
+import { formatDate } from "@/lib/utils/dates";
 
 interface ActivityFeedProps {
   income: Income[];
@@ -32,20 +32,20 @@ interface ActivityFeedProps {
 // };
 
 type TransactionItem =
-  | { type: 'income'; data: Income }
-  | { type: 'expense'; data: Expense };
+  | { type: "income"; data: Income }
+  | { type: "expense"; data: Expense };
 
 export function ActivityFeed({ income, expenses }: ActivityFeedProps) {
   // Combine and sort by date descending
   const allItems: TransactionItem[] = [
-    ...income.map((i) => ({ type: 'income' as const, data: i })),
-    ...expenses.map((e) => ({ type: 'expense' as const, data: e })),
+    ...income.map((i) => ({ type: "income" as const, data: i })),
+    ...expenses.map((e) => ({ type: "expense" as const, data: e })),
   ].sort((a, b) => {
     const dateA = new Date(
-      a.type === 'income' ? a.data.received_at : a.data.spent_at,
+      a.type === "income" ? a.data.received_at : a.data.spent_at,
     );
     const dateB = new Date(
-      b.type === 'income' ? b.data.received_at : b.data.spent_at,
+      b.type === "income" ? b.data.received_at : b.data.spent_at,
     );
     return dateB.getTime() - dateA.getTime();
   });
@@ -104,7 +104,7 @@ export function ActivityFeed({ income, expenses }: ActivityFeedProps) {
       ) : (
         <div className="bg-base-200 rounded-2xl overflow-hidden">
           {recentItems.map((item) => {
-            if (item.type === 'income') {
+            if (item.type === "income") {
               const income = item.data;
               return (
                 <div

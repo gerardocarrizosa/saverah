@@ -32,5 +32,9 @@ export default async function EditIncomePage({ params }: EditIncomePageProps) {
     notFound();
   }
 
-  return <EditIncomeForm income={income} />;
+  return (
+    <main className="space-y-10">
+      <EditIncomeForm income={income} />
+    </main>
+  );
 }
