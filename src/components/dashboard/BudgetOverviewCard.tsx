@@ -1,5 +1,5 @@
-import Link from 'next/link';
-import { formatCurrency } from '@/lib/utils/currency';
+import Link from "next/link";
+import { formatCurrency } from "@/lib/utils/currency";
 
 interface BudgetOverviewCardProps {
   totalIncome: number;
@@ -18,21 +18,21 @@ export function BudgetOverviewCard({
       : 0;
 
   return (
-    <div className="bg-base-200 rounded-xl p-8 flex flex-col justify-between min-h-[320px]">
+    <div className="bg-base-200 rounded-xl p-8 flex flex-col justify-between min-h-80">
       <div className="flex justify-between items-start">
         <div>
-          <h2 className="font-[family-name:var(--font-headline)] text-xl text-base-content">
+          <h2 className="font-(family-name:--font-headline) text-xl text-base-content">
             Resumen de presupuesto
           </h2>
-          <p className="font-[family-name:var(--font-body)] text-sm text-base-content/60 mt-1">
+          <p className="font-(family-name:--font-body) text-sm text-base-content/60 mt-1">
             Umbral de gasto mensual
           </p>
         </div>
         <div className="text-right">
-          <span className="font-[family-name:var(--font-headline)] text-2xl text-base-content">
+          <span className="font-(family-name:--font-headline) text-2xl text-base-content">
             {percentage}%
           </span>
-          <p className="font-[family-name:var(--font-body)] text-[10px] uppercase text-base-content/60 tracking-widest">
+          <p className="font-(family-name:--font-body) text-[10px] uppercase text-base-content/60 tracking-widest">
             Gastado
           </p>
         </div>
@@ -60,18 +60,18 @@ export function BudgetOverviewCard({
 
       <div className="flex justify-between items-center mt-6 pt-6 border-t border-base-content/10">
         <div>
-          <p className="font-[family-name:var(--font-body)] text-[10px] uppercase text-base-content/60 tracking-widest">
+          <p className="font-(family-name:--font-body) text-[10px] uppercase text-base-content/60 tracking-widest">
             Restante
           </p>
-          <p className="font-[family-name:var(--font-headline)] text-lg text-primary">
+          <p className="font-(family-name:--font-headline) text-lg text-primary">
             {formatCurrency(balance, 0)}
           </p>
         </div>
         <Link
           href="/budget"
-          className="font-[family-name:var(--font-body)] text-sm text-primary hover:underline transition-all"
+          className="font-(family-name:--font-body) text-sm text-primary hover:underline transition-all"
         >
-          Ajustar plan
+          Ir a presupuesto
         </Link>
       </div>
     </div>

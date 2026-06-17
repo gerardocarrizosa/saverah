@@ -1,7 +1,7 @@
-import Link from 'next/link';
-import { LayoutDashboard, Bell, Wallet } from 'lucide-react';
-import UserMenu from '@/components/UserMenu';
-import { MobileNav } from '@/components/MobileNav';
+import Link from "next/link";
+import { LayoutDashboard, Bell, Wallet } from "lucide-react";
+import UserMenu from "@/components/UserMenu";
+import { MobileNav } from "@/components/MobileNav";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -11,7 +11,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <div className="flex items-center gap-3">
           <Link
             href="/dashboard"
-            className="text-xl font-extrabold text-base-content tracking-tighter font-[family-name:var(--font-headline)]"
+            className="text-xl font-extrabold text-base-content tracking-tighter font-(family-name:--font-headline)"
           >
             Saverah
           </Link>
@@ -45,7 +45,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         </div>
       </header>
 
-      <main className="pt-16 pb-32 px-4 sm:px-6 max-w-7xl mx-auto w-full lg:pb-0">
+      <main className="pt-16 pb-24 px-4 sm:px-6 max-w-7xl mx-auto w-full lg:pb-0">
         {children}
       </main>
 
