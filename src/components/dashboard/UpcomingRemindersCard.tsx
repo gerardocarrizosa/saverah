@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 import type { Reminder } from '@/types/reminder.types';
 import { getDaysUntilDue } from '@/lib/utils/dates';
-import { formatCurrency } from '@/lib/utils/currency';
+
 
 interface ReminderWithStatus extends Reminder {
   isPaidForCurrentCycle?: boolean;
@@ -104,9 +104,7 @@ export function UpcomingRemindersCard({
                         : `VENCE EN ${reminder.daysUntilDue} DÍAS`}
                   </p>
                 </div>
-                <p className="font-[family-name:var(--font-headline)] text-sm text-base-content shrink-0">
-                  {formatCurrency(reminder.amount, 0)}
-                </p>
+
               </div>
             );
           })
