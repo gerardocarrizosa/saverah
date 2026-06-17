@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { BudgetHero } from "@/components/budget/BudgetHero";
 import { CategoryGrid } from "@/components/budget/CategoryGrid";
 import { QuickLogPanel } from "@/components/budget/QuickLogPanel";
-import { ActivityFeed } from "@/components/budget/ActivityFeed";
+// import { ActivityFeed } from "@/components/budget/ActivityFeed";
 import { PieChart, TrendingUp, TrendingDown } from "lucide-react";
 
 export default async function BudgetPage() {
