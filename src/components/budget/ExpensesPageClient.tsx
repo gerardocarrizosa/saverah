@@ -14,6 +14,9 @@ import {
   ArrowUpRight,
   ArrowLeft,
   ArrowDownRight,
+  ChevronLeft,
+  ChevronRight,
+  CalendarDays,
 } from "lucide-react";
 
 interface ExpenseInsights {
@@ -27,22 +30,24 @@ interface ExpenseInsights {
 interface ExpensesPageClientProps {
   initialExpenses: Expense[];
   insights: ExpenseInsights;
+  selectedMonth: string;
 }
 
 export function ExpensesPageClient({
   initialExpenses,
   insights,
+  selectedMonth,
 }: ExpensesPageClientProps) {
   const { expenses, loading, error, refresh, deleteExpense } = useBudget({
     expenses: initialExpenses,
   });
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (id: string, scope: "single" | "series" = "single") => {
     setDeletingId(id);
     try {
-      await deleteExpense(id);
-      await refresh();
+      await deleteExpense(id, scope);
+      await refresh(selectedMonth);
     } catch {
       // Error is handled in the hook
     } finally {
@@ -54,6 +59,19 @@ export function ExpensesPageClient({
   const [totalWhole, totalCents] = totalStr.includes(".")
     ? totalStr.split(".")
     : [totalStr, "00"];
+  const [year, monthNumber] = selectedMonth.split("-").map(Number);
+  const monthDate = new Date(Date.UTC(year, monthNumber - 1, 1));
+  const previousMonthDate = new Date(Date.UTC(year, monthNumber - 2, 1));
+  const nextMonthDate = new Date(Date.UTC(year, monthNumber, 1));
+  const today = new Date();
+  const currentMonth = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}`;
+  const monthLabel = new Intl.DateTimeFormat("es-MX", {
+    month: "long",
+    year: "numeric",
+    timeZone: "UTC",
+  }).format(monthDate);
+  const toMonthParam = (date: Date) =>
+    `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, "0")}`;
 
   return (
     <div className="space-y-10">
@@ -77,7 +95,7 @@ export function ExpensesPageClient({
           </h1>
           <p className="font-(family-name:--font-body) text-base-content/60 mt-2 max-w-[80%]">
             Registra y monitorea tus gastos por categoría. {insights.count}{" "}
-            {insights.count === 1 ? "registro" : "registros"} en total.
+            {insights.count === 1 ? "cargo mensual" : "cargos mensuales"} en total.
           </p>
         </section>
 
@@ -90,6 +108,36 @@ export function ExpensesPageClient({
           <span className="sm:hidden">Nuevo</span>
         </Link>
       </div>
+
+      <nav className="flex flex-col gap-3 rounded-2xl bg-base-200 p-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-2 text-sm text-base-content/70">
+          <CalendarDays className="h-4 w-4 text-accent" />
+          <span className="font-bold capitalize">{monthLabel}</span>
+          <span className="text-base-content/40">cargos del mes</span>
+        </div>
+        <div className="grid grid-cols-3 gap-2 sm:flex">
+          <Link
+            href={`/budget/expenses?month=${toMonthParam(previousMonthDate)}`}
+            className="inline-flex items-center justify-center gap-1 rounded-full bg-base-300 px-3 py-2 text-xs font-bold text-base-content/60 transition-colors hover:text-base-content"
+          >
+            <ChevronLeft className="h-3.5 w-3.5" />
+            Anterior
+          </Link>
+          <Link
+            href={`/budget/expenses?month=${currentMonth}`}
+            className="inline-flex items-center justify-center rounded-full bg-accent/10 px-3 py-2 text-xs font-bold text-accent transition-colors hover:bg-accent/20"
+          >
+            Actual
+          </Link>
+          <Link
+            href={`/budget/expenses?month=${toMonthParam(nextMonthDate)}`}
+            className="inline-flex items-center justify-center gap-1 rounded-full bg-base-300 px-3 py-2 text-xs font-bold text-base-content/60 transition-colors hover:text-base-content"
+          >
+            Siguiente
+            <ChevronRight className="h-3.5 w-3.5" />
+          </Link>
+        </div>
+      </nav>
 
       {/* Stats Grid */}
       <section className="grid grid-cols-1 md:grid-cols-12 gap-6">
@@ -108,7 +156,7 @@ export function ExpensesPageClient({
             <span className="text-base-content/40">.{totalCents}</span>
           </h2>
           <p className="font-(family-name:--font-body) text-[10px] text-base-content/40 uppercase tracking-widest">
-            {insights.count} {insights.count === 1 ? "registro" : "registros"}
+            {insights.count} {insights.count === 1 ? "cargo" : "cargos"}
           </p>
         </div>
 

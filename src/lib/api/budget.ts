@@ -1,37 +1,54 @@
 import { createSupabaseServerClient } from '../supabase/server';
-import type { Income, Expense, BudgetLimit, BudgetSummary, CategorySummary } from '@/types/budget.types';
+import type { Income, Expense, BudgetLimit, BudgetSummary, CategorySummary, DeleteExpenseResult, DeleteExpenseScope } from '@/types/budget.types';
 import type { CreateIncomeInput, CreateExpenseInput, UpdateExpenseInput, UpdateIncomeInput } from '../validations/budget.schemas';
+import { generateInstallmentExpenseDrafts } from '@/lib/utils/installments';
 
-function getCurrentMonthRange(timezone = 'America/Hermosillo'): { start: string; end: string } {
-  const now = new Date();
-  
-  // Get current date in the specified timezone
-  const formatter = new Intl.DateTimeFormat('en-US', {
-    timeZone: timezone,
-    year: 'numeric',
-    month: 'numeric',
-    day: 'numeric',
-  });
-  
-  const parts = formatter.formatToParts(now);
-  const year = parseInt(parts.find(p => p.type === 'year')?.value || now.getFullYear().toString());
-  const month = parseInt(parts.find(p => p.type === 'month')?.value || (now.getMonth() + 1).toString());
-  
-  // Create start of month (day 1) in the target timezone
-  const startDate = new Date(Date.UTC(year, month - 1, 1, 0, 0, 0, 0));
-  
-  // Create end of month (last day) in the target timezone
-  const lastDayOfMonth = new Date(Date.UTC(year, month, 0, 23, 59, 59, 999));
-  
+const MONTH_FORMAT_ERROR = 'El mes debe tener formato YYYY-MM';
+
+export function getMonthRange(month?: string, timezone = 'America/Hermosillo'): { start: string; end: string; month: string } {
+  let year: number;
+  let monthNumber: number;
+
+  if (month) {
+    const match = /^(\d{4})-(\d{2})$/.exec(month);
+    if (!match) throw new Error(MONTH_FORMAT_ERROR);
+
+    year = Number(match[1]);
+    monthNumber = Number(match[2]);
+    if (monthNumber < 1 || monthNumber > 12) throw new Error(MONTH_FORMAT_ERROR);
+  } else {
+    const now = new Date();
+    const formatter = new Intl.DateTimeFormat('en-US', {
+      timeZone: timezone,
+      year: 'numeric',
+      month: 'numeric',
+    });
+    const parts = formatter.formatToParts(now);
+    year = Number(parts.find((p) => p.type === 'year')?.value || now.getFullYear());
+    monthNumber = Number(parts.find((p) => p.type === 'month')?.value || now.getMonth() + 1);
+  }
+
+  const startDate = new Date(Date.UTC(year, monthNumber - 1, 1, 0, 0, 0, 0));
+  const endDate = new Date(Date.UTC(year, monthNumber, 0, 23, 59, 59, 999));
+
   return {
-    start: startDate.toISOString(),
-    end: lastDayOfMonth.toISOString(),
+    start: startDate.toISOString().slice(0, 10),
+    end: endDate.toISOString().slice(0, 10),
+    month: `${year}-${String(monthNumber).padStart(2, '0')}`,
   };
 }
 
-export async function getIncome(userId: string): Promise<Income[]> {
+function toDate(input: string | Date): Date {
+  return input instanceof Date ? input : new Date(`${input}T00:00:00.000Z`);
+}
+
+export function isMonthFormatError(error: unknown): boolean {
+  return error instanceof Error && error.message === MONTH_FORMAT_ERROR;
+}
+
+export async function getIncome(userId: string, month?: string): Promise<Income[]> {
   const supabase = await createSupabaseServerClient();
-  const { start, end } = getCurrentMonthRange();
+  const { start, end } = getMonthRange(month);
   
   const { data, error } = await supabase
     .from('income')
@@ -93,9 +110,9 @@ export async function deleteIncome(userId: string, id: string): Promise<void> {
   if (error) throw error;
 }
 
-export async function getExpenses(userId: string): Promise<Expense[]> {
+export async function getExpenses(userId: string, month?: string): Promise<Expense[]> {
   const supabase = await createSupabaseServerClient();
-  const { start, end } = getCurrentMonthRange();
+  const { start, end } = getMonthRange(month);
   
   const { data, error } = await supabase
     .from('expenses')
@@ -109,14 +126,49 @@ export async function getExpenses(userId: string): Promise<Expense[]> {
   return data || [];
 }
 
-export async function createExpense(userId: string, input: CreateExpenseInput): Promise<Expense> {
+export async function createExpense(userId: string, input: CreateExpenseInput): Promise<Expense | Expense[]> {
   const supabase = await createSupabaseServerClient();
+  const installmentCount = input.is_installment ? input.installment_count : null;
+
+  if (installmentCount && installmentCount >= 2) {
+    const groupId = crypto.randomUUID();
+    const rows = generateInstallmentExpenseDrafts({
+      userId,
+      groupId,
+      description: input.description,
+      amount: input.amount,
+      category: input.category,
+      spentAt: toDate(input.spent_at),
+      notes: input.notes,
+      installmentCount,
+    });
+
+    const { data, error } = await supabase
+      .from('expenses')
+      .insert(rows)
+      .select()
+      .order('installment_number', { ascending: true });
+
+    if (error) throw error;
+    if (!data) throw new Error('Failed to create installment expense');
+    return data;
+  }
+
   const { data, error } = await supabase
     .from('expenses')
     .insert({
-      ...input,
       user_id: userId,
-      spent_at: input.spent_at.toISOString(),
+      description: input.description,
+      amount: input.amount,
+      category: input.category,
+      spent_at: toDate(input.spent_at).toISOString().slice(0, 10),
+      notes: input.notes || null,
+      installment_group_id: null,
+      installment_number: null,
+      installment_total: null,
+      installment_total_amount: null,
+      installment_start_date: null,
+      installment_end_date: null,
     })
     .select()
     .single();
@@ -133,8 +185,10 @@ export async function updateExpense(
 ): Promise<Expense> {
   const supabase = await createSupabaseServerClient();
   const updateData: Record<string, unknown> = { ...input };
+  delete updateData.is_installment;
+  delete updateData.installment_count;
   if (input.spent_at) {
-    updateData.spent_at = input.spent_at.toISOString();
+    updateData.spent_at = toDate(input.spent_at).toISOString().slice(0, 10);
   }
 
   const { data, error } = await supabase
@@ -150,11 +204,42 @@ export async function updateExpense(
   return data;
 }
 
-export async function deleteExpense(userId: string, id: string): Promise<void> {
+export async function deleteExpense(userId: string, id: string, scope: DeleteExpenseScope = 'single'): Promise<DeleteExpenseResult> {
   const supabase = await createSupabaseServerClient();
-  const { error } = await supabase.from('expenses').delete().eq('user_id', userId).eq('id', id);
+
+  if (scope === 'series') {
+    const { data: target, error: targetError } = await supabase
+      .from('expenses')
+      .select('installment_group_id')
+      .eq('user_id', userId)
+      .eq('id', id)
+      .single();
+
+    if (targetError) throw targetError;
+    if (!target?.installment_group_id) {
+      throw new Error('Expense installment series not found');
+    }
+
+    const { data, error } = await supabase
+      .from('expenses')
+      .delete()
+      .eq('user_id', userId)
+      .eq('installment_group_id', target.installment_group_id)
+      .select('id');
+
+    if (error) throw error;
+    return { success: true, deleted_count: data?.length ?? 0, scope };
+  }
+
+  const { data, error } = await supabase
+    .from('expenses')
+    .delete()
+    .eq('user_id', userId)
+    .eq('id', id)
+    .select('id');
 
   if (error) throw error;
+  return { success: true, deleted_count: data?.length ?? 0, scope };
 }
 
 export async function getBudgetLimits(userId: string): Promise<BudgetLimit[]> {
@@ -185,9 +270,9 @@ export async function setBudgetLimit(
   return data;
 }
 
-export async function getBudgetSummary(userId: string): Promise<BudgetSummary> {
+export async function getBudgetSummary(userId: string, month?: string): Promise<BudgetSummary> {
   const supabase = await createSupabaseServerClient();
-  const { start, end } = getCurrentMonthRange();
+  const { start, end } = getMonthRange(month);
   
   const [income, expenses, limits] = await Promise.all([
     supabase.from('income').select('amount').eq('user_id', userId).gte('received_at', start).lte('received_at', end),

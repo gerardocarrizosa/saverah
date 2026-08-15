@@ -152,6 +152,12 @@ export type Database = {
           created_at: string | null
           description: string
           id: string
+          installment_end_date: string | null
+          installment_group_id: string | null
+          installment_number: number | null
+          installment_start_date: string | null
+          installment_total: number | null
+          installment_total_amount: number | null
           notes: string | null
           spent_at: string
           user_id: string
@@ -162,6 +168,12 @@ export type Database = {
           created_at?: string | null
           description: string
           id?: string
+          installment_end_date?: string | null
+          installment_group_id?: string | null
+          installment_number?: number | null
+          installment_start_date?: string | null
+          installment_total?: number | null
+          installment_total_amount?: number | null
           notes?: string | null
           spent_at: string
           user_id: string
@@ -172,6 +184,12 @@ export type Database = {
           created_at?: string | null
           description?: string
           id?: string
+          installment_end_date?: string | null
+          installment_group_id?: string | null
+          installment_number?: number | null
+          installment_start_date?: string | null
+          installment_total?: number | null
+          installment_total_amount?: number | null
           notes?: string | null
           spent_at?: string
           user_id?: string

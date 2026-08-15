@@ -17,6 +17,7 @@ import {
   ArrowLeft,
   Loader2,
   Plus,
+  Repeat,
 } from 'lucide-react';
 
 interface ExpenseFormValues {
@@ -25,6 +26,8 @@ interface ExpenseFormValues {
   amount: number;
   spent_at: string;
   notes: string;
+  is_installment: boolean;
+  installment_count: number | '';
 }
 
 const initialValues: ExpenseFormValues = {
@@ -33,6 +36,8 @@ const initialValues: ExpenseFormValues = {
   amount: 0,
   spent_at: new Date().toISOString().split('T')[0],
   notes: '',
+  is_installment: false,
+  installment_count: '',
 };
 
 export default function NewExpensePage() {
@@ -68,13 +73,23 @@ export default function NewExpensePage() {
         onSubmit={async (values, { setSubmitting }) => {
           setError(null);
           try {
-            await addExpense({
+            const baseExpense = {
               description: values.description,
               category: values.category,
               amount: values.amount,
               spent_at: values.spent_at,
               notes: values.notes || undefined,
-            });
+            };
+
+            await addExpense(
+              values.is_installment
+                ? {
+                    ...baseExpense,
+                    is_installment: true,
+                    installment_count: Number(values.installment_count),
+                  }
+                : baseExpense,
+            );
             router.push('/budget/expenses');
           } catch (err: unknown) {
             setError(
@@ -87,7 +102,7 @@ export default function NewExpensePage() {
           }
         }}
       >
-        {({ isSubmitting, values }) => (
+        {({ isSubmitting, values, setFieldValue }) => (
           <Form className="space-y-6">
             {error && (
               <div className="bg-error/10 text-error rounded-xl p-4 flex items-center gap-2">
@@ -179,6 +194,68 @@ export default function NewExpensePage() {
                   className="text-error text-sm"
                 />
               </div>
+            </div>
+
+            <div className="space-y-3 rounded-2xl bg-base-200 p-4">
+              <label className="text-xs font-bold uppercase tracking-widest text-base-content/60 flex items-center gap-2">
+                <Repeat className="w-4 h-4" />
+                Tipo de pago
+              </label>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setFieldValue('is_installment', false);
+                    setFieldValue('installment_count', '');
+                  }}
+                  className={`rounded-xl px-4 py-3 text-sm font-bold transition-colors ${
+                    !values.is_installment
+                      ? 'bg-accent/10 text-accent'
+                      : 'bg-base-300 text-base-content/60 hover:text-base-content'
+                  }`}
+                >
+                  Pago único
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setFieldValue('is_installment', true);
+                    setFieldValue('installment_count', values.installment_count || 2);
+                  }}
+                  className={`rounded-xl px-4 py-3 text-sm font-bold transition-colors ${
+                    values.is_installment
+                      ? 'bg-accent/10 text-accent'
+                      : 'bg-base-300 text-base-content/60 hover:text-base-content'
+                  }`}
+                >
+                  En cuotas
+                </button>
+              </div>
+
+              {values.is_installment && (
+                <div className="space-y-2">
+                  <label className="text-xs font-bold uppercase tracking-widest text-base-content/60">
+                    Cantidad de cuotas
+                  </label>
+                  <Field
+                    name="installment_count"
+                    type="number"
+                    min="2"
+                    step="1"
+                    className="w-full bg-base-300 rounded-xl border-none px-4 py-3 text-sm text-base-content placeholder:text-base-content/40 focus:outline-none focus:ring-2 focus:ring-accent/20 transition-all"
+                    disabled={isSubmitting}
+                  />
+                  <ErrorMessage
+                    name="installment_count"
+                    component="div"
+                    className="text-error text-sm"
+                  />
+                  <p className="text-xs text-base-content/50 leading-relaxed">
+                    Cuando eliges cuotas, el monto es el total de la compra. Saverah
+                    registrará una cuota mensual desde la fecha seleccionada.
+                  </p>
+                </div>
+              )}
             </div>
 
             <div className="space-y-2">

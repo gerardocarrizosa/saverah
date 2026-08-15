@@ -11,6 +11,7 @@ interface BudgetHeroProps {
   balance: number;
   incomeCount: number;
   expenseCount: number;
+  monthLabel: string;
 }
 
 export function BudgetHero({
@@ -19,6 +20,7 @@ export function BudgetHero({
   balance,
   incomeCount,
   expenseCount,
+  monthLabel,
 }: BudgetHeroProps) {
   const [isVisible, setIsVisible] = useState(true);
 
@@ -68,6 +70,9 @@ export function BudgetHero({
           <p className="text-primary uppercase tracking-[0.2em] text-xs font-semibold">
             Rendimiento mensual
           </p>
+          <span className="rounded-full bg-base-200 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-base-content/50">
+            {monthLabel}
+          </span>
           <button
             onClick={toggleVisibility}
             className="text-base-content/40 hover:text-base-content transition-colors p-1 rounded-full"

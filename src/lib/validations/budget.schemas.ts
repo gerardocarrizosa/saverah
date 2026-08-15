@@ -24,6 +24,26 @@ export const createExpenseSchema = Yup.object({
   category: Yup.string().required('La categoría es requerida'),
   spent_at: Yup.date().required('La fecha es requerida'),
   notes: Yup.string().optional().max(500),
+  is_installment: Yup.boolean().optional().default(false),
+  installment_count: Yup.number()
+    .nullable()
+    .transform((value, originalValue) =>
+      originalValue === '' || originalValue === undefined ? null : value,
+    )
+    .integer('La cantidad de cuotas debe ser un número entero mayor o igual a 2')
+    .when('is_installment', {
+      is: true,
+      then: (schema) =>
+        schema
+          .required('La cantidad de cuotas debe ser un número entero mayor o igual a 2')
+          .min(2, 'La cantidad de cuotas debe ser un número entero mayor o igual a 2'),
+      otherwise: (schema) =>
+        schema.test(
+          'single-expense-installment-count',
+          'La cantidad de cuotas debe ser un número entero mayor o igual a 2',
+          (value) => value == null || value === 1,
+        ),
+    }),
 });
 
 export const updateExpenseSchema = createExpenseSchema.partial();

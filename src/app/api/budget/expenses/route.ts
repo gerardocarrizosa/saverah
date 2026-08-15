@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
-import { getExpenses, createExpense } from '@/lib/api/budget';
+import { getExpenses, createExpense, isMonthFormatError } from '@/lib/api/budget';
 import { createExpenseSchema } from '@/lib/validations/budget.schemas';
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
     const supabase = await createSupabaseServerClient();
     const {
@@ -15,9 +15,17 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const expenses = await getExpenses(user.id);
+    const month = req.nextUrl.searchParams.get('month') || undefined;
+    const expenses = await getExpenses(user.id, month);
     return NextResponse.json({ data: expenses });
   } catch (err) {
+    if (isMonthFormatError(err)) {
+      return NextResponse.json(
+        { error: 'El mes debe tener formato YYYY-MM' },
+        { status: 422 },
+      );
+    }
+
     console.error('[API Error]', err);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
@@ -41,6 +49,7 @@ export async function POST(req: NextRequest) {
       const validated = await createExpenseSchema.validate(body, {
         abortEarly: false,
       });
+
       const expense = await createExpense(user.id, validated);
       return NextResponse.json({ data: expense }, { status: 201 });
     } catch (validationError: unknown) {

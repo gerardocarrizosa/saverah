@@ -1,13 +1,31 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { getBudgetSummary, getIncome, getExpenses } from "@/lib/api/budget";
+import { getBudgetSummary, getIncome, getExpenses, getMonthRange, isMonthFormatError } from "@/lib/api/budget";
 import { redirect } from "next/navigation";
 import { BudgetHero } from "@/components/budget/BudgetHero";
 import { CategoryGrid } from "@/components/budget/CategoryGrid";
 import { QuickLogPanel } from "@/components/budget/QuickLogPanel";
 // import { ActivityFeed } from "@/components/budget/ActivityFeed";
 import { PieChart, TrendingUp, TrendingDown } from "lucide-react";
+import Link from "next/link";
 
-export default async function BudgetPage() {
+interface BudgetPageProps {
+  searchParams?: Promise<{ month?: string }>;
+}
+
+function getMonthLabel(month: string): string {
+  const [year, monthNumber] = month.split("-").map(Number);
+  return new Intl.DateTimeFormat("es-MX", {
+    month: "long",
+    year: "numeric",
+    timeZone: "UTC",
+  }).format(new Date(Date.UTC(year, monthNumber - 1, 1)));
+}
+
+export default async function BudgetPage({ searchParams }: BudgetPageProps) {
+  const resolvedSearchParams = await searchParams;
+  const selectedMonth = resolvedSearchParams?.month;
+  let monthContext = getMonthRange().month;
+
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },
@@ -18,11 +36,26 @@ export default async function BudgetPage() {
   }
 
   // Fetch all budget data in parallel
-  const [summary, income, expenses] = await Promise.all([
-    getBudgetSummary(user.id),
-    getIncome(user.id),
-    getExpenses(user.id),
-  ]);
+  let summary: Awaited<ReturnType<typeof getBudgetSummary>>;
+  let income: Awaited<ReturnType<typeof getIncome>>;
+  let expenses: Awaited<ReturnType<typeof getExpenses>>;
+
+  try {
+    monthContext = getMonthRange(selectedMonth).month;
+    [summary, income, expenses] = await Promise.all([
+      getBudgetSummary(user.id, selectedMonth),
+      getIncome(user.id, selectedMonth),
+      getExpenses(user.id, selectedMonth),
+    ]);
+  } catch (error) {
+    if (!isMonthFormatError(error)) throw error;
+    monthContext = getMonthRange().month;
+    [summary, income, expenses] = await Promise.all([
+      getBudgetSummary(user.id),
+      getIncome(user.id),
+      getExpenses(user.id),
+    ]);
+  }
 
   const totalIncome = summary.total_income;
   const totalExpenses = summary.total_expenses;
@@ -51,20 +84,20 @@ export default async function BudgetPage() {
             mantener el control de tus finanzas.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <a
+            <Link
               href="/budget/income/new"
               className="inline-flex items-center gap-2 px-6 py-3 bg-secondary/10 text-secondary rounded-full text-sm font-bold hover:bg-secondary/20 transition-colors"
             >
               <TrendingUp className="w-5 h-5" />
               Registrar ingreso
-            </a>
-            <a
+            </Link>
+            <Link
               href="/budget/expenses/new"
               className="inline-flex items-center gap-2 px-6 py-3 bg-accent/10 text-accent rounded-full text-sm font-bold hover:bg-accent/20 transition-colors"
             >
               <TrendingDown className="w-5 h-5" />
               Registrar gasto
-            </a>
+            </Link>
           </div>
         </div>
       ) : (
@@ -76,6 +109,7 @@ export default async function BudgetPage() {
             balance={balance}
             incomeCount={incomeCount}
             expenseCount={expenseCount}
+            monthLabel={getMonthLabel(monthContext)}
           />
 
           {/* Bento Grid: Categories & Quick Actions */}
