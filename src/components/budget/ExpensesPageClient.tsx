@@ -43,7 +43,10 @@ export function ExpensesPageClient({
   });
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  const handleDelete = async (id: string, scope: "single" | "series" = "single") => {
+  const handleDelete = async (
+    id: string,
+    scope: "single" | "series" = "single",
+  ) => {
     setDeletingId(id);
     try {
       await deleteExpense(id, scope);
@@ -91,11 +94,10 @@ export function ExpensesPageClient({
             Registro de movimientos
           </span>
           <h1 className="font-(family-name:--font-headline) text-4xl font-extrabold tracking-tight text-base-content">
-            Gastos
+            Gastos del mes
           </h1>
           <p className="font-(family-name:--font-body) text-base-content/60 mt-2 max-w-[80%]">
-            Registra y monitorea tus gastos por categoría. {insights.count}{" "}
-            {insights.count === 1 ? "cargo mensual" : "cargos mensuales"} en total.
+            {monthLabel}
           </p>
         </section>
 

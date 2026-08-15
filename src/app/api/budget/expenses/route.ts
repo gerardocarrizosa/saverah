@@ -1,7 +1,11 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { createSupabaseServerClient } from '@/lib/supabase/server';
-import { getExpenses, createExpense, isMonthFormatError } from '@/lib/api/budget';
-import { createExpenseSchema } from '@/lib/validations/budget.schemas';
+import { NextRequest, NextResponse } from "next/server";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+import {
+  getExpenses,
+  createExpense,
+  isMonthFormatError,
+} from "@/lib/api/budget";
+import { createExpenseSchema } from "@/lib/validations/budget.schemas";
 
 export async function GET(req: NextRequest) {
   try {
@@ -10,24 +14,27 @@ export async function GET(req: NextRequest) {
       data: { user },
       error,
     } = await supabase.auth.getUser();
-    
+
     if (error || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const month = req.nextUrl.searchParams.get('month') || undefined;
+    const month = req.nextUrl.searchParams.get("month") || undefined;
     const expenses = await getExpenses(user.id, month);
     return NextResponse.json({ data: expenses });
   } catch (err) {
     if (isMonthFormatError(err)) {
       return NextResponse.json(
-        { error: 'El mes debe tener formato YYYY-MM' },
+        { error: "El mes debe tener formato YYYY-MM" },
         { status: 422 },
       );
     }
 
-    console.error('[API Error]', err);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    console.error("[API Error]", err);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }
 
@@ -38,9 +45,9 @@ export async function POST(req: NextRequest) {
       data: { user },
       error,
     } = await supabase.auth.getUser();
-    
+
     if (error || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const body = await req.json();
@@ -53,14 +60,18 @@ export async function POST(req: NextRequest) {
       const expense = await createExpense(user.id, validated);
       return NextResponse.json({ data: expense }, { status: 201 });
     } catch (validationError: unknown) {
-      const errorMessage = validationError instanceof Error ? validationError.message : 'Validation error';
-      return NextResponse.json(
-        { error: errorMessage },
-        { status: 422 },
-      );
+      console.log("validationError =>", validationError);
+      const errorMessage =
+        validationError instanceof Error
+          ? validationError.message
+          : "Validation error";
+      return NextResponse.json({ error: errorMessage }, { status: 422 });
     }
   } catch (err) {
-    console.error('[API Error]', err);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    console.error("[API Error]", err);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }

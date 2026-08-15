@@ -8,7 +8,7 @@ import { ReminderAnalytics } from '@/components/reminders/ReminderAnalytics';
 import { PaymentFormClient } from '@/components/reminders/PaymentFormClient';
 import { PaymentHistoryClient } from '@/components/reminders/PaymentHistoryClient';
 import { ReminderActionsMenu } from '@/components/reminders/ReminderActionsMenu';
-import { toggleReminderStatus, deleteReminder } from './actions';
+import { deleteReminderFromForm, toggleReminderStatusFromForm } from './actions';
 import {
   ArrowLeft,
   CreditCard,
@@ -90,21 +90,20 @@ export default async function ReminderDetailPage({
         {/* Hidden forms for dropdown actions */}
         <form
           id="toggle-status-form"
-          action={async () => {
-            'use server';
-            await toggleReminderStatus(reminder.id, !reminder.is_active);
-          }}
+          action={toggleReminderStatusFromForm}
           className="hidden"
         >
           <input type="hidden" name="id" value={reminder.id} />
+          <input
+            type="hidden"
+            name="isActive"
+            value={String(!reminder.is_active)}
+          />
         </form>
 
         <form
           id="delete-form"
-          action={async () => {
-            'use server';
-            await deleteReminder(reminder.id);
-          }}
+          action={deleteReminderFromForm}
           className="hidden"
         >
           <input type="hidden" name="id" value={reminder.id} />

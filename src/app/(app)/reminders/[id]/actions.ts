@@ -20,6 +20,17 @@ export async function toggleReminderStatus(id: string, isActive: boolean) {
   if (error) throw error;
 }
 
+export async function toggleReminderStatusFromForm(formData: FormData) {
+  const id = formData.get('id');
+  const isActive = formData.get('isActive');
+
+  if (typeof id !== 'string' || typeof isActive !== 'string') {
+    throw new Error('Datos invalidos');
+  }
+
+  await toggleReminderStatus(id, isActive === 'true');
+}
+
 export async function deleteReminder(id: string) {
   const supabase = await createSupabaseServerClient();
   const {
@@ -37,4 +48,14 @@ export async function deleteReminder(id: string) {
   if (error) throw error;
 
   redirect('/reminders');
+}
+
+export async function deleteReminderFromForm(formData: FormData) {
+  const id = formData.get('id');
+
+  if (typeof id !== 'string') {
+    throw new Error('Datos invalidos');
+  }
+
+  await deleteReminder(id);
 }

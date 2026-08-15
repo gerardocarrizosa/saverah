@@ -1,9 +1,9 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import {
   getRemindersWithPaymentStatus,
-  searchRemindersWithPaymentStatus,
   type ReminderWithStatus,
 } from "@/lib/api/remindersWithPayments";
+import { searchRemindersAction } from "./actions";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { Suspense } from "react";
@@ -12,19 +12,6 @@ import { RemindersHero } from "@/components/reminders/RemindersHero";
 import { CriticalAlertsSummary } from "@/components/reminders/CriticalAlertsSummary";
 import { RemindersSearchFilter } from "@/components/reminders/RemindersSearchFilter";
 import { Plus, Calendar, Search } from "lucide-react";
-
-// Server action to search reminders
-async function searchRemindersAction(query: string, category: string | null) {
-  "use server";
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) throw new Error("No autorizado");
-
-  return await searchRemindersWithPaymentStatus(user.id, query, category);
-}
 
 interface RemindersPageProps {
   searchParams: Promise<{
@@ -71,18 +58,19 @@ export default async function RemindersPage({
 
   // Calculate stats for hero
   const total = reminders.length;
-  const urgentCount = reminders.filter(
-    (r) =>
-      r.is_active &&
-      !r.isPaidForCurrentCycle &&
-      (r.isOverdue || r.daysUntilDue <= 3),
-  ).length;
+  // const urgentCount = reminders.filter(
+  //   (r) =>
+  //     r.is_active &&
+  //     !r.isPaidForCurrentCycle &&
+  //     (r.isOverdue || r.daysUntilDue <= 3),
+  // ).length;
 
   return (
     <main className="space-y-10">
       {/* Header with Title + Add Button */}
       <div className="flex items-start justify-between gap-4">
-        <RemindersHero totalReminders={total} urgentCount={urgentCount} />
+        {/* <RemindersHero totalReminders={total} urgentCount={urgentCount} /> */}
+        <RemindersHero />
         <Link
           href="/reminders/new"
           className="shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary hover:bg-primary/20 transition-colors"
