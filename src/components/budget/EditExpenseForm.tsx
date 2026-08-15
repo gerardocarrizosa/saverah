@@ -8,6 +8,9 @@ import { updateExpenseSchema } from '@/lib/validations/budget.schemas';
 import { useBudget } from '@/hooks/useBudget';
 import { EXPENSE_CATEGORIES, DEFAULT_CURRENCY } from '@/config/constants';
 import type { Expense } from '@/types/budget.types';
+import { formatCurrency } from '@/lib/utils/currency';
+import { formatDate } from '@/lib/utils/dates';
+import { getInstallmentSeriesDetails } from '@/lib/utils/installments';
 import {
   FileText,
   Calendar,
@@ -28,6 +31,7 @@ export function EditExpenseForm({ expense }: EditExpenseFormProps) {
   const router = useRouter();
   const { updateExpense } = useBudget();
   const [error, setError] = useState<string | null>(null);
+  const installmentDetails = getInstallmentSeriesDetails(expense);
 
   const initialValues = {
     description: expense.description,
@@ -58,6 +62,33 @@ export function EditExpenseForm({ expense }: EditExpenseFormProps) {
           Modifica los detalles de tu gasto.
         </p>
       </section>
+
+      {installmentDetails && (
+        <section className="rounded-2xl bg-accent/10 p-5 text-sm text-base-content/70">
+          <p className="mb-3 text-xs font-bold uppercase tracking-widest text-accent">
+            Gasto en cuotas
+          </p>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <span>{installmentDetails.label}</span>
+            <span>
+              Total original: {formatCurrency(installmentDetails.totalAmount ?? 0, 2)}
+            </span>
+            <span>
+              Cargo de esta cuota: {formatCurrency(installmentDetails.currentAmount, 2)}
+            </span>
+            <span>Total de cuotas: {installmentDetails.totalInstallments}</span>
+            <span>
+              Inicio: {installmentDetails.startDate ? formatDate(installmentDetails.startDate) : 'Sin fecha'}
+            </span>
+            <span>
+              Fin estimado: {installmentDetails.endDate ? formatDate(installmentDetails.endDate) : 'Sin fecha'}
+            </span>
+          </div>
+          <p className="mt-4 text-xs text-base-content/50">
+            En esta versión, la edición modifica solo esta cuota. Para cambiar toda la serie, elimina la compra completa y vuelve a registrarla.
+          </p>
+        </section>
+      )}
 
       <Formik
         initialValues={initialValues}

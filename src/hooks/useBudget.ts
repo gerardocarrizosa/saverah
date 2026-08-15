@@ -2,7 +2,16 @@
 
 import { useState, useEffect } from 'react';
 import api from '@/lib/axios';
-import type { Income, Expense, BudgetSummary, BudgetLimit } from '@/types/budget.types';
+import type {
+  Income,
+  Expense,
+  BudgetSummary,
+  BudgetLimit,
+  CreateExpensePayload,
+  CreateExpenseResponse,
+  DeleteExpenseScope,
+  DeleteExpenseResult,
+} from '@/types/budget.types';
 
 export function useBudget(initialData?: { income?: Income[]; expenses?: Expense[]; summary?: BudgetSummary }) {
   const [income, setIncome] = useState<Income[]>(initialData?.income || []);
@@ -11,14 +20,15 @@ export function useBudget(initialData?: { income?: Income[]; expenses?: Expense[
   const [loading, setLoading] = useState(!initialData?.income?.length);
   const [error, setError] = useState<string | null>(null);
 
-  const refresh = async () => {
+  const refresh = async (month?: string) => {
     setLoading(true);
     setError(null);
     try {
+      const config = month ? { params: { month } } : undefined;
       const [incomeRes, expensesRes, summaryRes] = await Promise.all([
-        api.get<{ data: Income[] }>('/budget/income'),
-        api.get<{ data: Expense[] }>('/budget/expenses'),
-        api.get<{ data: BudgetSummary }>('/budget/summary'),
+        api.get<{ data: Income[] }>('/budget/income', config),
+        api.get<{ data: Expense[] }>('/budget/expenses', config),
+        api.get<{ data: BudgetSummary }>('/budget/summary', config),
       ]);
       setIncome(incomeRes.data.data);
       setExpenses(expensesRes.data.data);
@@ -41,9 +51,12 @@ export function useBudget(initialData?: { income?: Income[]; expenses?: Expense[
     return res.data.data;
   };
 
-  const addExpense = async (data: Omit<Expense, 'id' | 'user_id' | 'created_at'>) => {
-    const res = await api.post<{ data: Expense }>('/budget/expenses', data);
-    setExpenses((prev) => [res.data.data, ...prev]);
+  const addExpense = async (data: CreateExpensePayload) => {
+    const res = await api.post<{ data: CreateExpenseResponse }>('/budget/expenses', data);
+    const createdExpenses = Array.isArray(res.data.data)
+      ? res.data.data
+      : [res.data.data];
+    setExpenses((prev) => [...createdExpenses, ...prev]);
     return res.data.data;
   };
 
@@ -53,9 +66,25 @@ export function useBudget(initialData?: { income?: Income[]; expenses?: Expense[
     return res.data.data;
   };
 
-  const deleteExpense = async (id: string) => {
-    await api.delete(`/budget/expenses/${id}`);
-    setExpenses((prev) => prev.filter((e) => e.id !== id));
+  const deleteExpense = async (id: string, scope: DeleteExpenseScope = 'single') => {
+    const res = await api.delete<{ data: DeleteExpenseResult }>(
+      `/budget/expenses/${id}`,
+      { params: { scope } },
+    );
+
+    if (scope === 'series') {
+      const deleted = expenses.find((expense) => expense.id === id);
+      const groupId = deleted?.installment_group_id;
+      setExpenses((prev) =>
+        groupId
+          ? prev.filter((expense) => expense.installment_group_id !== groupId)
+          : prev.filter((expense) => expense.id !== id),
+      );
+    } else {
+      setExpenses((prev) => prev.filter((e) => e.id !== id));
+    }
+
+    return res.data.data;
   };
 
   const updateIncome = async (id: string, data: Partial<Income>) => {

@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
-import { getIncome, createIncome } from '@/lib/api/budget';
+import { getIncome, createIncome, isMonthFormatError } from '@/lib/api/budget';
 import { createIncomeSchema } from '@/lib/validations/budget.schemas';
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
     const supabase = await createSupabaseServerClient();
     const {
@@ -15,9 +15,17 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const income = await getIncome(user.id);
+    const month = req.nextUrl.searchParams.get('month') || undefined;
+    const income = await getIncome(user.id, month);
     return NextResponse.json({ data: income });
   } catch (err) {
+    if (isMonthFormatError(err)) {
+      return NextResponse.json(
+        { error: 'El mes debe tener formato YYYY-MM' },
+        { status: 422 },
+      );
+    }
+
     console.error('[API Error]', err);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

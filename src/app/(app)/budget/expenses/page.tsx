@@ -1,5 +1,5 @@
 import { createSupabaseServerClient } from '@/lib/supabase/server';
-import { getExpenses } from '@/lib/api/budget';
+import { getExpenses, getMonthRange, isMonthFormatError } from '@/lib/api/budget';
 import { ExpensesPageClient } from '@/components/budget/ExpensesPageClient';
 import { redirect } from 'next/navigation';
 import type { Expense } from '@/types/budget.types';
@@ -59,7 +59,15 @@ function calculateInsights(expenses: Expense[]): ExpenseInsights {
   };
 }
 
-export default async function ExpensesPage() {
+interface ExpensesPageProps {
+  searchParams?: Promise<{ month?: string }>;
+}
+
+export default async function ExpensesPage({ searchParams }: ExpensesPageProps) {
+  const resolvedSearchParams = await searchParams;
+  const selectedMonth = resolvedSearchParams?.month;
+  let monthContext = getMonthRange().month;
+
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },
@@ -70,14 +78,26 @@ export default async function ExpensesPage() {
   }
 
   // Direct DB call for SSR - no HTTP round-trip
-  const expenses = await getExpenses(user.id);
+  let expenses: Expense[];
+  try {
+    monthContext = getMonthRange(selectedMonth).month;
+    expenses = await getExpenses(user.id, selectedMonth);
+  } catch (error) {
+    if (!isMonthFormatError(error)) throw error;
+    monthContext = getMonthRange().month;
+    expenses = await getExpenses(user.id);
+  }
 
   // Calculate insights server-side
   const insights = calculateInsights(expenses);
 
   return (
     <main className="space-y-10">
-      <ExpensesPageClient initialExpenses={expenses} insights={insights} />
+      <ExpensesPageClient
+        initialExpenses={expenses}
+        insights={insights}
+        selectedMonth={monthContext}
+      />
     </main>
   );
 }

@@ -56,8 +56,9 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    await deleteExpense(user.id, id);
-    return NextResponse.json({ data: { success: true } });
+    const scope = req.nextUrl.searchParams.get('scope') === 'series' ? 'series' : 'single';
+    const result = await deleteExpense(user.id, id, scope);
+    return NextResponse.json({ data: result });
   } catch (err) {
     console.error('[API Error]', err);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

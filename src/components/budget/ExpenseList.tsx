@@ -6,10 +6,11 @@ import type { Expense } from "@/types/budget.types";
 import { Calendar, Tag, Receipt, Trash2, Loader2 } from "lucide-react";
 import { formatDate } from "@/lib/utils/dates";
 import { formatCurrency } from "@/lib/utils/currency";
+import { getInstallmentLabel, isInstallmentExpense } from "@/lib/utils/installments";
 
 interface ExpenseListProps {
   expenses: Expense[];
-  onDelete: (id: string) => void;
+  onDelete: (id: string, scope?: "single" | "series") => void;
   deletingId: string | null;
 }
 
@@ -37,17 +38,20 @@ export function ExpenseList({
 }: ExpenseListProps) {
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
 
-  const handleDeleteClick = (e: React.MouseEvent, id: string) => {
+  const handleDeleteClick = (e: React.MouseEvent, expense: Expense) => {
     e.preventDefault();
     e.stopPropagation();
-    if (confirmDelete === id) {
-      onDelete(id);
+    const scope = isInstallmentExpense(expense) ? "series" : "single";
+    const confirmationKey = `${expense.id}:${scope}`;
+
+    if (confirmDelete === confirmationKey) {
+      onDelete(expense.id, scope);
       setConfirmDelete(null);
     } else {
-      setConfirmDelete(id);
+      setConfirmDelete(confirmationKey);
       setTimeout(
-        () => setConfirmDelete((current) => (current === id ? null : current)),
-        3000,
+        () => setConfirmDelete((current) => (current === confirmationKey ? null : current)),
+        scope === "series" ? 6000 : 3000,
       );
     }
   };
@@ -81,8 +85,11 @@ export function ExpenseList({
   return (
     <div className="bg-base-200 rounded-2xl overflow-hidden">
       {expenses.map((expense) => {
-        const isConfirming = confirmDelete === expense.id;
+        const installmentExpense = isInstallmentExpense(expense);
+        const confirmationKey = `${expense.id}:${installmentExpense ? "series" : "single"}`;
+        const isConfirming = confirmDelete === confirmationKey;
         const isDeleting = deletingId === expense.id;
+        const installmentLabel = getInstallmentLabel(expense);
 
         return (
           <div
@@ -115,7 +122,17 @@ export function ExpenseList({
                       {expense.notes}
                     </span>
                   )}
+                  {installmentLabel && (
+                    <span className="rounded-full bg-accent/10 px-2 py-1 font-(family-name:--font-body) text-[10px] font-bold uppercase tracking-wider text-accent">
+                      {installmentLabel}
+                    </span>
+                  )}
                 </div>
+                {installmentLabel && (
+                  <p className="mt-2 text-xs text-base-content/50">
+                    Compra total: {formatCurrency(expense.installment_total_amount ?? 0, 2)} · Cargo del mes: {formatCurrency(expense.amount, 2)}
+                  </p>
+                )}
               </div>
             </Link>
 
@@ -125,7 +142,7 @@ export function ExpenseList({
               </span>
 
               <button
-                onClick={(e) => handleDeleteClick(e, expense.id)}
+                onClick={(e) => handleDeleteClick(e, expense)}
                 disabled={isDeleting}
                 className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all ${
                   isConfirming
@@ -138,7 +155,11 @@ export function ExpenseList({
                 ) : (
                   <Trash2 className="w-3.5 h-3.5" />
                 )}
-                {isConfirming ? "Confirmar" : ""}
+                {isConfirming
+                  ? installmentExpense
+                    ? "Eliminar todas las cuotas"
+                    : "Confirmar"
+                  : ""}
               </button>
             </div>
           </div>
