@@ -1,13 +1,13 @@
-import { createSupabaseServerClient } from '@/lib/supabase/server';
-import { getRemindersWithPaymentStatus } from '@/lib/api/remindersWithPayments';
-import { getBudgetSummary } from '@/lib/api/budget';
-import { getRecentActivity } from '@/lib/api/recentActivity';
-import { redirect } from 'next/navigation';
-import { DashboardHero } from '@/components/dashboard/DashboardHero';
-import { BudgetOverviewCard } from '@/components/dashboard/BudgetOverviewCard';
-import { UpcomingRemindersCard } from '@/components/dashboard/UpcomingRemindersCard';
-import { QuickActionsBanner } from '@/components/dashboard/QuickActionsBanner';
-import { WealthStream } from '@/components/dashboard/WealthStream';
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getRemindersWithPaymentStatus } from "@/lib/api/remindersWithPayments";
+import { getBudgetSummary } from "@/lib/api/budget";
+import { getRecentActivity } from "@/lib/api/recentActivity";
+import { redirect } from "next/navigation";
+import { DashboardHero } from "@/components/dashboard/DashboardHero";
+import { BudgetOverviewCard } from "@/components/dashboard/BudgetOverviewCard";
+import { UpcomingRemindersCard } from "@/components/dashboard/UpcomingRemindersCard";
+// import { QuickActionsBanner } from '@/components/dashboard/QuickActionsBanner';
+import { WealthStream } from "@/components/dashboard/WealthStream";
 
 export default async function DashboardPage() {
   const supabase = await createSupabaseServerClient();
@@ -16,7 +16,7 @@ export default async function DashboardPage() {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect('/login');
+    redirect("/login");
   }
 
   const [reminders, budget, recentActivity] = await Promise.all([
@@ -47,7 +47,7 @@ export default async function DashboardPage() {
         </div>
 
         {/* Quick Actions Banner */}
-        <QuickActionsBanner />
+        {/* <QuickActionsBanner /> */}
       </div>
 
       {/* Recent Activity */}

@@ -32,9 +32,9 @@ export function MobileNav() {
             }`}
           >
             <Icon className="w-6 h-6 mb-1" strokeWidth={isActive ? 2.5 : 2} />
-            <span className="font-(family-name:--font-body) text-[10px] uppercase tracking-widest font-medium">
+            {/* <span className="font-(family-name:--font-body) text-[10px] uppercase tracking-widest font-medium">
               {item.label}
-            </span>
+            </span> */}
             {isActive && (
               <span className="w-1 h-1 bg-secondary rounded-full mt-1" />
             )}

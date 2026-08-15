@@ -70,7 +70,7 @@ export function BudgetHero({
           <p className="text-primary uppercase tracking-[0.2em] text-xs font-semibold">
             Rendimiento mensual
           </p>
-          <span className="rounded-full bg-base-200 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-base-content/50">
+          <span className="rounded-full bg-base-200 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-base-content/50 text-center">
             {monthLabel}
           </span>
           <button
@@ -108,13 +108,11 @@ export function BudgetHero({
           className="bg-base-200 p-6 rounded-xl space-y-2"
         >
           <div className="flex items-center gap-2 mb-1">
-            <div className="flex flex-1 justify-between">
+            <div className="flex flex-1 justify-between items-center">
               <p className="font-(family-name:--font-body) text-base-content/60 text-xs font-medium uppercase tracking-wider">
                 Ingresos
               </p>
-              <p className="text-[10px] text-base-content/40">
-                {incomeCount} {incomeCount === 1 ? "registro" : "registros"}
-              </p>
+              <p className="text-sm text-base-content/40">{incomeCount}</p>
             </div>
           </div>
           <p className="font-(family-name:--font-headline) text-2xl font-bold text-secondary">
@@ -131,9 +129,7 @@ export function BudgetHero({
               <p className="font-(family-name:--font-body) text-base-content/60 text-xs font-medium uppercase tracking-wider">
                 Gastos
               </p>
-              <p className="text-[10px] text-base-content/40">
-                {expenseCount} {expenseCount === 1 ? "registro" : "registros"}
-              </p>
+              <p className="text-sm text-base-content/40">{expenseCount}</p>
             </div>
           </div>
           <p className="font-(family-name:--font-headline) text-2xl font-bold text-accent">
