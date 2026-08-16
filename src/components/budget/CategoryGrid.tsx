@@ -138,35 +138,18 @@ function CategoryCard({
 
   return (
     <div className="bg-base-200 p-6 rounded-xl space-y-6">
-      <div className="flex justify-between items-start">
-        {/* <div className="bg-base-300 p-3 rounded-lg">
-          <span
-            className={
-              isExceeded
-                ? 'text-error'
-                : isWarning
-                  ? 'text-secondary'
-                  : 'text-primary'
-            }
-          >
-            {categoryIcons[category.category] || (
-              <MoreHorizontal className="w-5 h-5" />
-            )}
-          </span>
-        </div> */}
-        {/* <div className="flex flex-col items-end gap-1"> */}
-        <p className="font-[family-name:var(--font-body)] text-base-content/60 text-xs font-bold uppercase tracking-wider">
+      <div className="flex justify-between gap-2 items-start sm:flex-col">
+        <p className="flex-1 font-[family-name:var(--font-body)] text-base-content/60 text-xs font-bold uppercase tracking-wider">
           {category.category}
         </p>
         {category.limit && (
-          <span
-            className={`text-[10px] font-bold uppercase tracking-widest flex items-center gap-1 ${status.textColor}`}
+          <div
+            className={`flex items-center justify-end text-[10px] font-bold uppercase tracking-wide gap-1 ${status.textColor}`}
           >
-            {status.icon}
-            {status.label}
-          </span>
+            <span className="text-end">{status.label}</span>
+            <span>{status.icon}</span>
+          </div>
         )}
-        {/* </div> */}
       </div>
 
       <div className="space-y-2">

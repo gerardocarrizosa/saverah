@@ -18,7 +18,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         </div>
 
         {/* Desktop Menu */}
-        <div className="hidden lg:flex items-center gap-6">
+        <div className="hidden md:flex items-center gap-6">
           <Link
             href="/dashboard"
             className="flex items-center gap-2 text-sm text-base-content/70 hover:text-base-content transition-colors"
