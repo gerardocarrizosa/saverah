@@ -1,17 +1,13 @@
-"use client";
-
-import { useState } from "react";
 import Link from "next/link";
 import type { Expense } from "@/types/budget.types";
-import { Calendar, Tag, Receipt, Trash2, Loader2 } from "lucide-react";
+import { Calendar, Tag, Receipt } from "lucide-react";
 import { formatDate } from "@/lib/utils/dates";
 import { formatCurrency } from "@/lib/utils/currency";
 import { getInstallmentLabel, isInstallmentExpense } from "@/lib/utils/installments";
+import { DeleteExpenseButton } from "@/components/budget/DeleteExpenseButton";
 
 interface ExpenseListProps {
   expenses: Expense[];
-  onDelete: (id: string, scope?: "single" | "series") => void;
-  deletingId: string | null;
 }
 
 function getCategoryColor(category: string): string {
@@ -31,31 +27,7 @@ function getCategoryColor(category: string): string {
   return colors[category] || "text-base-content/60";
 }
 
-export function ExpenseList({
-  expenses,
-  onDelete,
-  deletingId,
-}: ExpenseListProps) {
-  const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
-
-  const handleDeleteClick = (e: React.MouseEvent, expense: Expense) => {
-    e.preventDefault();
-    e.stopPropagation();
-    const scope = isInstallmentExpense(expense) ? "series" : "single";
-    const confirmationKey = `${expense.id}:${scope}`;
-
-    if (confirmDelete === confirmationKey) {
-      onDelete(expense.id, scope);
-      setConfirmDelete(null);
-    } else {
-      setConfirmDelete(confirmationKey);
-      setTimeout(
-        () => setConfirmDelete((current) => (current === confirmationKey ? null : current)),
-        scope === "series" ? 6000 : 3000,
-      );
-    }
-  };
-
+export function ExpenseList({ expenses }: ExpenseListProps) {
   if (expenses.length === 0) {
     return (
       <div className="bg-base-200 rounded-2xl p-12 text-center">
@@ -86,10 +58,8 @@ export function ExpenseList({
     <div className="bg-base-200 rounded-2xl overflow-hidden">
       {expenses.map((expense) => {
         const installmentExpense = isInstallmentExpense(expense);
-        const confirmationKey = `${expense.id}:${installmentExpense ? "series" : "single"}`;
-        const isConfirming = confirmDelete === confirmationKey;
-        const isDeleting = deletingId === expense.id;
         const installmentLabel = getInstallmentLabel(expense);
+        const deleteScope = installmentExpense ? "series" : "single";
 
         return (
           <div
@@ -141,26 +111,11 @@ export function ExpenseList({
                 -{formatCurrency(expense.amount, 0)}
               </span>
 
-              <button
-                onClick={(e) => handleDeleteClick(e, expense)}
-                disabled={isDeleting}
-                className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all ${
-                  isConfirming
-                    ? "bg-error/10 text-error opacity-100"
-                    : "bg-base-300 text-base-content/60 opacity-100 sm:opacity-0 group-hover:sm:opacity-100"
-                }`}
-              >
-                {isDeleting ? (
-                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                ) : (
-                  <Trash2 className="w-3.5 h-3.5" />
-                )}
-                {isConfirming
-                  ? installmentExpense
-                    ? "Eliminar todas las cuotas"
-                    : "Confirmar"
-                  : ""}
-              </button>
+              <DeleteExpenseButton
+                expenseId={expense.id}
+                scope={deleteScope}
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all"
+              />
             </div>
           </div>
         );
