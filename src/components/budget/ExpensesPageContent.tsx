@@ -12,7 +12,6 @@ import {
   ArrowDownRight,
   ChevronLeft,
   ChevronRight,
-  CalendarDays,
 } from "lucide-react";
 
 interface ExpenseInsights {
