@@ -67,7 +67,15 @@ export function isCutoffSoon(daysUntilCutoff: number): boolean {
 }
 
 export function formatDate(dateString: string): string {
-  const date = new Date(dateString);
+  const dateOnlyMatch = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dateString);
+  const date = dateOnlyMatch
+    ? new Date(
+        Number(dateOnlyMatch[1]),
+        Number(dateOnlyMatch[2]) - 1,
+        Number(dateOnlyMatch[3]),
+      )
+    : new Date(dateString);
+
   return date.toLocaleDateString('es-ES', {
     year: 'numeric',
     month: 'long',
