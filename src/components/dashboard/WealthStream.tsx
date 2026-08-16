@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import type { ActivityItem } from '@/types/dashboard.types';
-import { formatCurrency } from '@/lib/utils/currency';
+import Link from "next/link";
+import type { ActivityItem } from "@/types/dashboard.types";
+import { formatCurrency } from "@/lib/utils/currency";
 
 interface WealthStreamProps {
   activities: ActivityItem[];
@@ -10,48 +10,48 @@ interface WealthStreamProps {
 
 function formatActivityTime(dateString: string): string {
   const date = new Date(dateString);
-  return date.toLocaleTimeString('es-MX', {
-    hour: '2-digit',
-    minute: '2-digit',
+  return date.toLocaleTimeString("es-MX", {
+    hour: "2-digit",
+    minute: "2-digit",
     hour12: true,
   });
 }
 
-function getActivityStatusLabel(type: ActivityItem['type']): string {
+function getActivityStatusLabel(type: ActivityItem["type"]): string {
   switch (type) {
-    case 'income':
-      return 'Completado';
-    case 'expense':
-      return 'Registrado';
-    case 'payment':
-      return 'Pagado';
+    case "income":
+      return "Completado";
+    case "expense":
+      return "Registrado";
+    case "payment":
+      return "Pagado";
     default:
-      return '';
+      return "";
   }
 }
 
-function getActivityColor(type: ActivityItem['type']): string {
+function getActivityColor(type: ActivityItem["type"]): string {
   switch (type) {
-    case 'income':
-      return 'text-secondary';
-    case 'expense':
-      return 'text-base-content';
-    case 'payment':
-      return 'text-primary';
+    case "income":
+      return "text-secondary";
+    case "expense":
+      return "text-base-content";
+    case "payment":
+      return "text-primary";
     default:
-      return 'text-base-content';
+      return "text-base-content";
   }
 }
 
-function getActivityAmountPrefix(type: ActivityItem['type']): string {
+function getActivityAmountPrefix(type: ActivityItem["type"]): string {
   switch (type) {
-    case 'income':
-      return '+';
-    case 'expense':
-    case 'payment':
-      return '-';
+    case "income":
+      return "+";
+    case "expense":
+    case "payment":
+      return "-";
     default:
-      return '';
+      return "";
   }
 }
 
@@ -87,7 +87,7 @@ export function WealthStream({ activities }: WealthStreamProps) {
             const colorClass = getActivityColor(activity.type);
             const prefix = getActivityAmountPrefix(activity.type);
             const statusLabel = getActivityStatusLabel(activity.type);
-            const isIncome = activity.type === 'income';
+            const isIncome = activity.type === "income";
 
             return (
               <div
@@ -103,7 +103,7 @@ export function WealthStream({ activities }: WealthStreamProps) {
                       {activity.description}
                     </p>
                     <p className="font-[family-name:var(--font-body)] text-[10px] text-base-content/60 uppercase tracking-wider">
-                      {activity.category || 'General'}
+                      {activity.category || "General"}
                     </p>
                   </div>
                 </div>
@@ -111,11 +111,11 @@ export function WealthStream({ activities }: WealthStreamProps) {
                   <p className="font-[family-name:var(--font-headline)] text-sm text-base-content">
                     <span className={colorClass}>
                       {prefix}
-                      {formatCurrency(activity.amount, 0)}
+                      {formatCurrency(activity.amount)}
                     </span>
                   </p>
                   <p
-                    className={`font-[family-name:var(--font-body)] text-[10px] ${isIncome ? 'text-secondary' : 'text-base-content/60'}`}
+                    className={`font-[family-name:var(--font-body)] text-[10px] ${isIncome ? "text-secondary" : "text-base-content/60"}`}
                   >
                     {statusLabel}
                   </p>

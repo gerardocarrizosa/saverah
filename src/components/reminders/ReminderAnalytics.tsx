@@ -1,92 +1,118 @@
-'use client';
-
-import { 
-  DollarSign, 
-  TrendingUp, 
-  Receipt, 
+import {
   Calendar,
-  Sparkles
-} from 'lucide-react';
-import { DEFAULT_CURRENCY } from '@/config/constants';
-import type { ReminderAnalytics } from '@/types/reminder.types';
+  DollarSign,
+  Receipt,
+  Sparkles,
+  TrendingUp,
+} from "lucide-react";
+import { DEFAULT_CURRENCY } from "@/config/constants";
+import type { ReminderAnalytics } from "@/types/reminder.types";
 
 interface ReminderAnalyticsProps {
   analytics: ReminderAnalytics;
 }
 
 function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat('es-MX', {
-    style: 'currency',
+  return new Intl.NumberFormat("es-MX", {
+    style: "currency",
     currency: DEFAULT_CURRENCY,
   }).format(amount);
 }
 
 function formatDate(dateString: string | null): string {
-  if (!dateString) return 'Nunca';
-  return new Date(dateString).toLocaleDateString('es-MX', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
+  if (!dateString) return "Nunca";
+  return new Date(dateString).toLocaleDateString("es-MX", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
   });
+}
+
+function MetricCard({
+  label,
+  value,
+  detail,
+  icon,
+  colorClass,
+}: {
+  label: string;
+  value: string;
+  detail: string;
+  icon: React.ReactNode;
+  colorClass: string;
+}) {
+  return (
+    <div className="p-4 flex flex-col justify-between">
+      <div className="flex items-center justify-between gap-4">
+        <p className="font-(family-name:--font-body) text-[10px] font-bold uppercase tracking-widest text-base-content/50">
+          {label}
+        </p>
+        <div className={`${colorClass} opacity-80`}>{icon}</div>
+      </div>
+      <div>
+        <p
+          className={`font-(family-name:--font-headline) text-2xl font-bold tracking-tight ${colorClass}`}
+        >
+          {value}
+        </p>
+        <p className="font-(family-name:--font-body) text-xs text-base-content/40 mt-1">
+          {detail}
+        </p>
+      </div>
+    </div>
+  );
 }
 
 export function ReminderAnalytics({ analytics }: ReminderAnalyticsProps) {
   return (
     <div className="space-y-4">
-      {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="stat bg-success/10 rounded-2xl p-4">
-          <div className="stat-figure text-success">
-            <DollarSign className="w-8 h-8" />
-          </div>
-          <div className="stat-title text-xs text-success">Total pagado</div>
-          <div className="stat-value text-2xl text-success">
-            {formatCurrency(analytics.total_paid)}
-          </div>
-          <div className="stat-desc text-xs">Histórico</div>
-        </div>
-
-        <div className="stat bg-info/10 rounded-2xl p-4">
-          <div className="stat-figure text-info">
-            <TrendingUp className="w-8 h-8" />
-          </div>
-          <div className="stat-title text-xs text-info">Promedio</div>
-          <div className="stat-value text-2xl text-info">
-            {formatCurrency(analytics.average_payment)}
-          </div>
-          <div className="stat-desc text-xs">Por pago</div>
-        </div>
-
-        <div className="stat bg-primary/10 rounded-2xl p-4">
-          <div className="stat-figure text-primary">
-            <Receipt className="w-8 h-8" />
-          </div>
-          <div className="stat-title text-xs text-primary">Total pagos</div>
-          <div className="stat-value text-2xl text-primary">
-            {analytics.payment_count}
-          </div>
-          <div className="stat-desc text-xs">Registros</div>
-        </div>
+        <MetricCard
+          label="Total pagado"
+          value={formatCurrency(analytics.total_paid)}
+          detail="Histórico registrado"
+          icon={<DollarSign className="w-5 h-5" />}
+          colorClass="text-secondary"
+        />
+        <MetricCard
+          label="Promedio"
+          value={formatCurrency(analytics.average_payment)}
+          detail="Por pago realizado"
+          icon={<TrendingUp className="w-5 h-5" />}
+          colorClass="text-primary"
+        />
+        <MetricCard
+          label="Total pagos"
+          value={String(analytics.payment_count)}
+          detail="Registros guardados"
+          icon={<Receipt className="w-5 h-5" />}
+          colorClass="text-base-content"
+        />
       </div>
 
-      {/* Last Payment */}
       {analytics.last_paid_at && (
-        <div className="flex items-center gap-3 p-4 bg-base-200/50 rounded-xl">
-          <div className="p-2 rounded-lg bg-accent/10 text-accent">
+        <div className="flex items-center gap-4 p-5 bg-base-300/60 rounded-xl">
+          <div className="w-11 h-11 rounded-xl bg-accent/10 text-accent flex items-center justify-center shrink-0">
             <Calendar className="w-5 h-5" />
           </div>
           <div>
-            <p className="text-sm text-base-content/60">Último pago</p>
-            <p className="font-medium">{formatDate(analytics.last_paid_at)}</p>
+            <p className="font-(family-name:--font-body) text-[10px] font-bold uppercase tracking-widest text-base-content/40">
+              Último pago
+            </p>
+            <p className="font-(family-name:--font-body) text-sm font-semibold text-base-content mt-1">
+              {formatDate(analytics.last_paid_at)}
+            </p>
           </div>
         </div>
       )}
 
-      {/* Empty State */}
       {analytics.payment_count === 0 && (
-        <div className="alert alert-info">
-          <Sparkles className="w-5 h-5" />
-          <span>Aún no hay pagos registrados. ¡Comienza registrando tu primer pago!</span>
+        <div className="rounded-xl bg-primary/10 p-5 flex items-start gap-3 text-primary">
+          <Sparkles className="w-5 h-5 mt-0.5 shrink-0" />
+          <p className="font-(family-name:--font-body) text-sm">
+            Aún no hay pagos registrados. Registra el primero para construir el
+            historial de este recordatorio.
+          </p>
         </div>
       )}
     </div>

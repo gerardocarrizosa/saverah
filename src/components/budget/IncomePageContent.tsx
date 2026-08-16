@@ -1,8 +1,4 @@
-"use client";
-
-import { useState } from "react";
 import Link from "next/link";
-import { useBudget } from "@/hooks/useBudget";
 import { IncomeList } from "@/components/budget/IncomeList";
 import type { Income } from "@/types/budget.types";
 import { formatCurrency } from "@/lib/utils/currency";
@@ -12,6 +8,8 @@ import {
   ArrowLeft,
   Briefcase,
   LineChart,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 
 interface IncomeInsights {
@@ -21,35 +19,34 @@ interface IncomeInsights {
   variableCount: number;
 }
 
-interface IncomePageClientProps {
-  initialIncome: Income[];
+interface IncomePageContentProps {
+  income: Income[];
   insights: IncomeInsights;
+  selectedMonth: string;
 }
 
-export function IncomePageClient({
-  initialIncome,
+export function IncomePageContent({
+  income,
   insights,
-}: IncomePageClientProps) {
-  const { income, loading, error, deleteIncome } = useBudget({
-    income: initialIncome,
-  });
-  const [deletingId, setDeletingId] = useState<string | null>(null);
-
-  const handleDelete = async (id: string) => {
-    setDeletingId(id);
-    try {
-      await deleteIncome(id);
-    } catch {
-      // Error is handled in the hook
-    } finally {
-      setDeletingId(null);
-    }
-  };
-
+  selectedMonth,
+}: IncomePageContentProps) {
   const totalStr = formatCurrency(insights.total, 0);
   const [totalWhole, totalCents] = totalStr.includes(".")
     ? totalStr.split(".")
     : [totalStr, "00"];
+  const [year, monthNumber] = selectedMonth.split("-").map(Number);
+  const monthDate = new Date(Date.UTC(year, monthNumber - 1, 1));
+  const previousMonthDate = new Date(Date.UTC(year, monthNumber - 2, 1));
+  const nextMonthDate = new Date(Date.UTC(year, monthNumber, 1));
+  const today = new Date();
+  const currentMonth = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}`;
+  const monthLabel = new Intl.DateTimeFormat("es-MX", {
+    month: "long",
+    year: "numeric",
+    timeZone: "UTC",
+  }).format(monthDate);
+  const toMonthParam = (date: Date) =>
+    `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, "0")}`;
 
   return (
     <div className="space-y-10">
@@ -63,17 +60,16 @@ export function IncomePageClient({
       </Link>
 
       {/* Header + CTA */}
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex items-start justify-between gap-4 mb-4!">
         <section className="space-y-2">
-          <span className="font-[family-name:var(--font-body)] text-success uppercase tracking-[0.2em] text-[0.6875rem] font-semibold">
+          <span className="font-(family-name:--font-body) text-success uppercase tracking-[0.2em] text-[0.6875rem] font-semibold">
             Registro de movimientos
           </span>
-          <h1 className="font-[family-name:var(--font-headline)] text-4xl font-extrabold tracking-tight text-base-content">
-            Ingresos
+          <h1 className="font-(family-name:--font-headline) text-4xl font-extrabold tracking-tight text-base-content">
+            Ingresos del mes
           </h1>
-          <p className="font-[family-name:var(--font-body)] text-base-content/60 mt-2 max-w-[80%]">
-            Registra y gestiona tus fuentes de ingreso. {insights.count}{" "}
-            {insights.count === 1 ? "registro" : "registros"} en total.
+          <p className="font-(family-name:--font-body) text-base-content/60 mt-2 max-w-[80%]">
+            {monthLabel}
           </p>
         </section>
 
@@ -87,23 +83,48 @@ export function IncomePageClient({
         </Link>
       </div>
 
+      <nav className="my-4! flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="grid grid-cols-3 gap-2 sm:flex">
+          <Link
+            href={`/budget/income?month=${toMonthParam(previousMonthDate)}`}
+            className="inline-flex items-center justify-center gap-1 rounded-full bg-base-300 px-3 py-2 text-xs font-bold text-base-content/60 transition-colors hover:text-base-content"
+          >
+            <ChevronLeft className="h-3.5 w-3.5" />
+            Anterior
+          </Link>
+          <Link
+            href={`/budget/income?month=${currentMonth}`}
+            className="inline-flex items-center justify-center rounded-full bg-success/10 px-3 py-2 text-xs font-bold text-success transition-colors hover:bg-success/20"
+          >
+            Actual
+          </Link>
+          <Link
+            href={`/budget/income?month=${toMonthParam(nextMonthDate)}`}
+            className="inline-flex items-center justify-center gap-1 rounded-full bg-base-300 px-3 py-2 text-xs font-bold text-base-content/60 transition-colors hover:text-base-content"
+          >
+            Siguiente
+            <ChevronRight className="h-3.5 w-3.5" />
+          </Link>
+        </div>
+      </nav>
+
       {/* Stats Grid */}
       <section className="grid grid-cols-1 md:grid-cols-12 gap-6">
         {/* Total Hero */}
         <div className="md:col-span-7 bg-base-200 rounded-xl p-6 flex flex-col justify-between">
           <div className="flex items-center gap-2 mb-4">
-            <p className="font-[family-name:var(--font-body)] text-base-content/60 text-xs font-bold uppercase tracking-wider">
+            <p className="font-(family-name:--font-body) text-base-content/60 text-xs font-bold uppercase tracking-wider">
               Total de ingresos
             </p>
             <div className="p-1.5 rounded-lg bg-success/10">
               <TrendingUp className="w-4 h-4 text-success" />
             </div>
           </div>
-          <h2 className="font-[family-name:var(--font-headline)] text-5xl md:text-6xl font-bold tracking-tighter text-base-content leading-none mb-4">
+          <h2 className="font-(family-name:--font-headline) text-5xl md:text-6xl font-bold tracking-tighter text-base-content leading-none mb-4">
             {totalWhole}
             <span className="text-base-content/40">.{totalCents}</span>
           </h2>
-          <p className="font-[family-name:var(--font-body)] text-[10px] text-base-content/40 uppercase tracking-widest">
+          <p className="font-(family-name:--font-body) text-[10px] text-base-content/40 uppercase tracking-widest">
             {insights.count} {insights.count === 1 ? "registro" : "registros"}
           </p>
         </div>
@@ -113,14 +134,14 @@ export function IncomePageClient({
           {/* Steady Income */}
           <div className="bg-base-200 rounded-xl p-6 space-y-2">
             <div className="flex items-center justify-between mb-1">
-              <p className="font-[family-name:var(--font-body)] text-base-content/60 text-xs font-bold uppercase tracking-wider">
+              <p className="font-(family-name:--font-body) text-base-content/60 text-xs font-bold uppercase tracking-wider">
                 Ingresos fijos
               </p>
               <div className="p-1.5 rounded-lg bg-base-300">
                 <Briefcase className="w-4 h-4 text-base-content/70" />
               </div>
             </div>
-            <p className="font-[family-name:var(--font-headline)] text-2xl font-bold text-base-content">
+            <p className="font-(family-name:--font-headline) text-2xl font-bold text-base-content">
               {insights.steadyCount}
             </p>
             <p className="text-[10px] text-base-content/40 uppercase tracking-widest">
@@ -131,14 +152,14 @@ export function IncomePageClient({
           {/* Variable Income */}
           <div className="bg-base-200 rounded-xl p-6 space-y-2">
             <div className="flex items-center justify-between mb-1">
-              <p className="font-[family-name:var(--font-body)] text-base-content/60 text-xs font-bold uppercase tracking-wider">
+              <p className="font-(family-name:--font-body) text-base-content/60 text-xs font-bold uppercase tracking-wider">
                 Ingresos variables
               </p>
               <div className="p-1.5 rounded-lg bg-base-300">
                 <LineChart className="w-4 h-4 text-base-content/70" />
               </div>
             </div>
-            <p className="font-[family-name:var(--font-headline)] text-2xl font-bold text-base-content">
+            <p className="font-(family-name:--font-headline) text-2xl font-bold text-base-content">
               {insights.variableCount}
             </p>
             <p className="text-[10px] text-base-content/40 uppercase tracking-widest">
@@ -151,34 +172,12 @@ export function IncomePageClient({
       {/* Income List */}
       <section className="space-y-6">
         <div className="flex justify-between items-end px-2">
-          <h2 className="font-[family-name:var(--font-headline)] text-2xl font-bold tracking-tight">
+          <h2 className="font-(family-name:--font-headline) text-2xl font-bold tracking-tight">
             Historial de ingresos
           </h2>
-          {loading && (
-            <div className="w-10 h-10 border-3 border-primary/20 border-t-primary rounded-full animate-spin" />
-          )}
         </div>
 
-        {loading ? (
-          <div className="flex items-center justify-center py-16">
-            <div className="flex flex-col items-center gap-3">
-              <div className="w-10 h-10 border-3 border-primary/20 border-t-primary rounded-full animate-spin" />
-              <p className="text-sm text-base-content/60">
-                Cargando ingresos...
-              </p>
-            </div>
-          </div>
-        ) : error ? (
-          <div className="bg-error/10 text-error rounded-xl p-6 flex items-center gap-3">
-            <span className="text-sm">{error}</span>
-          </div>
-        ) : (
-          <IncomeList
-            income={income}
-            onDelete={handleDelete}
-            deletingId={deletingId}
-          />
-        )}
+        <IncomeList income={income} />
       </section>
     </div>
   );

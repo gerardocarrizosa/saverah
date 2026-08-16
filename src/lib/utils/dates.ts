@@ -66,7 +66,10 @@ export function isCutoffSoon(daysUntilCutoff: number): boolean {
   return daysUntilCutoff >= 0 && daysUntilCutoff <= 3;
 }
 
-export function formatDate(dateString: string): string {
+export function formatDate(
+  dateString: string,
+  options: { includeYear?: boolean } = {},
+): string {
   const dateOnlyMatch = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dateString);
   const date = dateOnlyMatch
     ? new Date(
@@ -77,7 +80,7 @@ export function formatDate(dateString: string): string {
     : new Date(dateString);
 
   return date.toLocaleDateString('es-ES', {
-    year: 'numeric',
+    ...(options.includeYear === false ? {} : { year: 'numeric' }),
     month: 'long',
     day: 'numeric',
   });

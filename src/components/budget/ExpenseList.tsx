@@ -1,9 +1,12 @@
 import Link from "next/link";
 import type { Expense } from "@/types/budget.types";
-import { Calendar, Tag, Receipt } from "lucide-react";
+import { Receipt } from "lucide-react";
 import { formatDate } from "@/lib/utils/dates";
 import { formatCurrency } from "@/lib/utils/currency";
-import { getInstallmentLabel, isInstallmentExpense } from "@/lib/utils/installments";
+import {
+  getInstallmentLabel,
+  isInstallmentExpense,
+} from "@/lib/utils/installments";
 import { DeleteExpenseButton } from "@/components/budget/DeleteExpenseButton";
 
 interface ExpenseListProps {
@@ -70,9 +73,6 @@ export function ExpenseList({ expenses }: ExpenseListProps) {
               href={`/budget/expenses/${expense.id}/edit`}
               className="flex items-center gap-5 flex-1 min-w-0"
             >
-              <div className="w-12 h-12 rounded-full bg-base-300 flex items-center justify-center border border-base-content/10 shrink-0">
-                <Tag className="w-5 h-5 text-base-content/60" />
-              </div>
               <div className="min-w-0">
                 <h4 className="font-(family-name:--font-headline) font-bold text-base-content truncate">
                   {expense.description}
@@ -84,8 +84,7 @@ export function ExpenseList({ expenses }: ExpenseListProps) {
                     {expense.category}
                   </span>
                   <span className="font-(family-name:--font-body) text-[10px] text-base-content/40 uppercase tracking-wider flex items-center gap-1">
-                    <Calendar className="w-3 h-3" />
-                    {formatDate(expense.spent_at)}
+                    {formatDate(expense.spent_at, { includeYear: false })}
                   </span>
                   {expense.notes && (
                     <span className="font-(family-name:--font-body) text-[10px] text-base-content/40 uppercase tracking-wider truncate max-w-50">
@@ -100,21 +99,23 @@ export function ExpenseList({ expenses }: ExpenseListProps) {
                 </div>
                 {installmentLabel && (
                   <p className="mt-2 text-xs text-base-content/50">
-                    Compra total: {formatCurrency(expense.installment_total_amount ?? 0, 2)} · Cargo del mes: {formatCurrency(expense.amount, 2)}
+                    Compra total:{" "}
+                    {formatCurrency(expense.installment_total_amount ?? 0, 2)} ·
+                    Cargo del mes: {formatCurrency(expense.amount, 2)}
                   </p>
                 )}
               </div>
             </Link>
 
             <div className="flex items-center gap-4 shrink-0 ml-4">
-              <span className="font-(family-name:--font-headline) font-bold text-lg text-base-content">
-                -{formatCurrency(expense.amount, 0)}
+              <span className="font-(family-name:--font-headline) text-base-content">
+                -{formatCurrency(expense.amount)}
               </span>
 
               <DeleteExpenseButton
                 expenseId={expense.id}
                 scope={deleteScope}
-                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all"
+                className="inline-flex items-center gap-1.5 p-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all"
               />
             </div>
           </div>
