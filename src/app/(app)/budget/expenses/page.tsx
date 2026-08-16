@@ -1,6 +1,6 @@
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { getExpenses, getMonthRange, isMonthFormatError } from '@/lib/api/budget';
-import { ExpensesPageClient } from '@/components/budget/ExpensesPageClient';
+import { ExpensesPageContent } from '@/components/budget/ExpensesPageContent';
 import { redirect } from 'next/navigation';
 import type { Expense } from '@/types/budget.types';
 
@@ -93,8 +93,8 @@ export default async function ExpensesPage({ searchParams }: ExpensesPageProps) 
 
   return (
     <main className="space-y-10">
-      <ExpensesPageClient
-        initialExpenses={expenses}
+      <ExpensesPageContent
+        expenses={expenses}
         insights={insights}
         selectedMonth={monthContext}
       />

@@ -270,7 +270,7 @@ export function CategoryGrid({ categories }: CategoryGridProps) {
       <h2 className="font-[family-name:var(--font-headline)] text-2xl font-bold tracking-tight px-2">
         Desglose por categoría
       </h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {sortedCategories.map((category) => (
           <CategoryCard
             key={category.category}

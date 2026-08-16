@@ -1,5 +1,11 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { getBudgetSummary, getIncome, getExpenses, getMonthRange, isMonthFormatError } from "@/lib/api/budget";
+import {
+  getBudgetSummary,
+  getIncome,
+  getExpenses,
+  getMonthRange,
+  isMonthFormatError,
+} from "@/lib/api/budget";
 import { redirect } from "next/navigation";
 import { BudgetHero } from "@/components/budget/BudgetHero";
 import { CategoryGrid } from "@/components/budget/CategoryGrid";
@@ -112,14 +118,10 @@ export default async function BudgetPage({ searchParams }: BudgetPageProps) {
             monthLabel={getMonthLabel(monthContext)}
           />
 
-          {/* Bento Grid: Categories & Quick Actions */}
-          <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="md:col-span-2">
-              <QuickLogPanel />
-            </div>
-            <div className="md:col-span-2">
-              <CategoryGrid categories={summary.categories} />
-            </div>
+          {/* Quick Actions & Categories */}
+          <section className="grid grid-cols-1 gap-8">
+            <QuickLogPanel />
+            <CategoryGrid categories={summary.categories} />
           </section>
 
           {/* Recent Transactions: Editorial Style */}

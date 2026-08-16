@@ -1,8 +1,4 @@
-"use client";
-
-import { useState } from "react";
 import Link from "next/link";
-import { useBudget } from "@/hooks/useBudget";
 import { ExpenseList } from "@/components/budget/ExpenseList";
 import type { Expense } from "@/types/budget.types";
 import { formatCurrency } from "@/lib/utils/currency";
@@ -27,37 +23,17 @@ interface ExpenseInsights {
   trend: number;
 }
 
-interface ExpensesPageClientProps {
-  initialExpenses: Expense[];
+interface ExpensesPageContentProps {
+  expenses: Expense[];
   insights: ExpenseInsights;
   selectedMonth: string;
 }
 
-export function ExpensesPageClient({
-  initialExpenses,
+export function ExpensesPageContent({
+  expenses,
   insights,
   selectedMonth,
-}: ExpensesPageClientProps) {
-  const { expenses, loading, error, refresh, deleteExpense } = useBudget({
-    expenses: initialExpenses,
-  });
-  const [deletingId, setDeletingId] = useState<string | null>(null);
-
-  const handleDelete = async (
-    id: string,
-    scope: "single" | "series" = "single",
-  ) => {
-    setDeletingId(id);
-    try {
-      await deleteExpense(id, scope);
-      await refresh(selectedMonth);
-    } catch {
-      // Error is handled in the hook
-    } finally {
-      setDeletingId(null);
-    }
-  };
-
+}: ExpensesPageContentProps) {
   const totalStr = formatCurrency(insights.total, 0);
   const [totalWhole, totalCents] = totalStr.includes(".")
     ? totalStr.split(".")
@@ -274,29 +250,9 @@ export function ExpensesPageClient({
           <h2 className="font-(family-name:--font-headline) text-2xl font-bold tracking-tight">
             Historial de gastos
           </h2>
-          {loading && (
-            <div className="w-10 h-10 border-3 border-primary/20 border-t-primary rounded-full animate-spin" />
-          )}
         </div>
 
-        {loading ? (
-          <div className="flex items-center justify-center py-16">
-            <div className="flex flex-col items-center gap-3">
-              <div className="w-10 h-10 border-3 border-primary/20 border-t-primary rounded-full animate-spin" />
-              <p className="text-sm text-base-content/60">Cargando gastos...</p>
-            </div>
-          </div>
-        ) : error ? (
-          <div className="bg-error/10 text-error rounded-xl p-6 flex items-center gap-3">
-            <span className="text-sm">{error}</span>
-          </div>
-        ) : (
-          <ExpenseList
-            expenses={expenses}
-            onDelete={handleDelete}
-            deletingId={deletingId}
-          />
-        )}
+        <ExpenseList expenses={expenses} />
       </section>
     </div>
   );
