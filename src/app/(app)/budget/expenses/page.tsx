@@ -1,8 +1,12 @@
-import { createSupabaseServerClient } from '@/lib/supabase/server';
-import { getExpenses, getMonthRange, isMonthFormatError } from '@/lib/api/budget';
-import { ExpensesPageContent } from '@/components/budget/ExpensesPageContent';
-import { redirect } from 'next/navigation';
-import type { Expense } from '@/types/budget.types';
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+import {
+  getExpenses,
+  getMonthRange,
+  isMonthFormatError,
+} from "@/lib/api/budget";
+import { ExpensesPageContent } from "@/components/budget/ExpensesPageContent";
+import { redirect } from "next/navigation";
+import type { Expense } from "@/types/budget.types";
 
 interface ExpenseInsights {
   total: number;
@@ -63,7 +67,9 @@ interface ExpensesPageProps {
   searchParams?: Promise<{ month?: string }>;
 }
 
-export default async function ExpensesPage({ searchParams }: ExpensesPageProps) {
+export default async function ExpensesPage({
+  searchParams,
+}: ExpensesPageProps) {
   const resolvedSearchParams = await searchParams;
   const selectedMonth = resolvedSearchParams?.month;
   let monthContext = getMonthRange().month;
@@ -74,7 +80,7 @@ export default async function ExpensesPage({ searchParams }: ExpensesPageProps) 
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect('/login');
+    redirect("/login");
   }
 
   // Direct DB call for SSR - no HTTP round-trip
@@ -92,7 +98,7 @@ export default async function ExpensesPage({ searchParams }: ExpensesPageProps) 
   const insights = calculateInsights(expenses);
 
   return (
-    <main className="space-y-10">
+    <main>
       <ExpensesPageContent
         expenses={expenses}
         insights={insights}

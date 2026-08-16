@@ -64,7 +64,7 @@ export function ExpensesPageContent({
       </Link>
 
       {/* Header + CTA */}
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex items-start justify-between gap-4 mb-4!">
         <section className="space-y-2">
           <span className="font-(family-name:--font-body) text-accent uppercase tracking-[0.2em] text-[0.6875rem] font-semibold">
             Registro de movimientos
@@ -87,12 +87,7 @@ export function ExpensesPageContent({
         </Link>
       </div>
 
-      <nav className="flex flex-col gap-3 rounded-2xl bg-base-200 p-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-2 text-sm text-base-content/70">
-          <CalendarDays className="h-4 w-4 text-accent" />
-          <span className="font-bold capitalize">{monthLabel}</span>
-          <span className="text-base-content/40">cargos del mes</span>
-        </div>
+      <nav className="my-4! flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="grid grid-cols-3 gap-2 sm:flex">
           <Link
             href={`/budget/expenses?month=${toMonthParam(previousMonthDate)}`}
