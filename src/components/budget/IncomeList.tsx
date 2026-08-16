@@ -1,16 +1,12 @@
-"use client";
-
-import { useState } from "react";
 import Link from "next/link";
 import type { Income } from "@/types/budget.types";
-import { Calendar, Wallet, Trash2, Loader2 } from "lucide-react";
+import { Calendar, Wallet } from "lucide-react";
 import { formatDate } from "@/lib/utils/dates";
 import { formatCurrency } from "@/lib/utils/currency";
+import { DeleteIncomeButton } from "@/components/budget/DeleteIncomeButton";
 
 interface IncomeListProps {
   income: Income[];
-  onDelete: (id: string) => void;
-  deletingId?: string | null;
 }
 
 function getTypeColor(type: string): string {
@@ -33,21 +29,7 @@ function getTypeLabel(type: string): string {
   return typeMap[type] || type;
 }
 
-export function IncomeList({ income, onDelete, deletingId }: IncomeListProps) {
-  const [confirmingId, setConfirmingId] = useState<string | null>(null);
-
-  const handleDeleteClick = (e: React.MouseEvent, id: string) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (confirmingId === id) {
-      onDelete(id);
-      setConfirmingId(null);
-    } else {
-      setConfirmingId(id);
-      setTimeout(() => setConfirmingId(null), 3000);
-    }
-  };
-
+export function IncomeList({ income }: IncomeListProps) {
   if (income.length === 0) {
     return (
       <div className="bg-base-200 rounded-2xl p-12 text-center">
@@ -77,9 +59,6 @@ export function IncomeList({ income, onDelete, deletingId }: IncomeListProps) {
   return (
     <div className="bg-base-200 rounded-2xl overflow-hidden">
       {income.map((item) => {
-        const isConfirming = confirmingId === item.id;
-        const isDeleting = deletingId === item.id;
-
         return (
           <div
             key={item.id}
@@ -89,9 +68,9 @@ export function IncomeList({ income, onDelete, deletingId }: IncomeListProps) {
               href={`/budget/income/${item.id}/edit`}
               className="flex items-center gap-5 flex-1 min-w-0"
             >
-              <div className="w-12 h-12 rounded-full bg-base-300 flex items-center justify-center border border-base-content/10 shrink-0">
+              {/* <div className="w-12 h-12 rounded-full bg-base-300 flex items-center justify-center border border-base-content/10 shrink-0">
                 <Wallet className="w-5 h-5 text-base-content/60" />
-              </div>
+              </div> */}
               <div className="min-w-0">
                 <h4 className="font-(family-name:--font-headline) font-bold text-base-content truncate">
                   {item.source}
@@ -104,7 +83,7 @@ export function IncomeList({ income, onDelete, deletingId }: IncomeListProps) {
                   </span>
                   <span className="font-(family-name:--font-body) text-[10px] text-base-content/40 uppercase tracking-wider flex items-center gap-1">
                     <Calendar className="w-3 h-3" />
-                    {formatDate(item.received_at)}
+                    {formatDate(item.received_at, { includeYear: false })}
                   </span>
                   {item.notes && (
                     <span className="font-(family-name:--font-body) text-[10px] text-base-content/40 uppercase tracking-wider truncate max-w-50">
@@ -116,26 +95,14 @@ export function IncomeList({ income, onDelete, deletingId }: IncomeListProps) {
             </Link>
 
             <div className="flex items-center gap-4 shrink-0 ml-4">
-              <span className="font-(family-name:--font-headline) font-bold text-lg text-base-content">
-                +{formatCurrency(item.amount, 0)}
+              <span className="font-(family-name:--font-headline) text-base-content">
+                +{formatCurrency(item.amount)}
               </span>
 
-              <button
-                onClick={(e) => handleDeleteClick(e, item.id)}
-                disabled={isDeleting}
-                className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all ${
-                  isConfirming
-                    ? "bg-error/10 text-error opacity-100"
-                    : "bg-base-300 text-base-content/60 opacity-100 sm:opacity-0 group-hover:sm:opacity-100"
-                }`}
-              >
-                {isDeleting ? (
-                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                ) : (
-                  <Trash2 className="w-3.5 h-3.5" />
-                )}
-                {isConfirming ? "Confirmar" : ""}
-              </button>
+              <DeleteIncomeButton
+                incomeId={item.id}
+                className="inline-flex items-center gap-1.5 p-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all"
+              />
             </div>
           </div>
         );
