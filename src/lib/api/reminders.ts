@@ -2,6 +2,7 @@ import { createSupabaseServerClient } from '../supabase/server';
 import type { Reminder, ReminderPayment, ReminderAnalytics } from '@/types/reminder.types';
 import type { CreateReminderInput, UpdateReminderInput } from '../validations/reminder.schemas';
 import { checkIfPaidForCurrentCycle } from '../utils/reminders';
+import { getReminderDueStatus, getDaysUntilCutoff, isCutoffSoon } from '../utils/dates';
 
 export async function getReminders(userId: string): Promise<Reminder[]> {
   const supabase = await createSupabaseServerClient();
@@ -122,9 +123,10 @@ export async function getReminderAnalytics(
   const averagePayment = paymentCount > 0 ? totalPaid / paymentCount : 0;
   const lastPaidAt = payments.length > 0 ? payments[0].paid_at : null;
 
-  const { getDaysUntilDue, getDaysUntilCutoff, isCutoffSoon } = await import('../utils/dates');
-  const daysUntilDue = getDaysUntilDue(reminder.due_day, reminder.recurrence);
-  const isOverdue = daysUntilDue < 0;
+  const { daysUntilDue, isOverdue } = getReminderDueStatus(
+    reminder.due_day,
+    reminder.recurrence,
+  );
 
   // Calculate cutoff information only if cutoff_day is set
   let daysUntilCutoff: number | null = null;

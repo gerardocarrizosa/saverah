@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Bell, Home, Zap, Receipt, ArrowRight } from "lucide-react";
 import type { Reminder } from "@/types/reminder.types";
-import { getDaysUntilDue } from "@/lib/utils/dates";
+import { getCountdownText, getDaysUntilDue } from "@/lib/utils/dates";
 
 interface ReminderWithStatus extends Reminder {
   isPaidForCurrentCycle?: boolean;
@@ -72,7 +72,6 @@ export function UpcomingRemindersCard({
           </div>
         ) : (
           upcoming.map((reminder) => {
-            const isOverdue = reminder.daysUntilDue < 0;
             const colorClass =
               categoryColors[reminder.category] || "text-base-content";
 
@@ -90,11 +89,7 @@ export function UpcomingRemindersCard({
                     {reminder.name}
                   </p>
                   <p className="font-(family-name:--font-body) text-[10px] text-base-content/60 uppercase tracking-wider">
-                    {isOverdue
-                      ? `VENCIDO HACE ${Math.abs(reminder.daysUntilDue)} DÍAS`
-                      : reminder.daysUntilDue === 0
-                        ? "VENCE HOY"
-                        : `VENCE EN ${reminder.daysUntilDue} DÍAS`}
+                    {getCountdownText(reminder.daysUntilDue).toUpperCase()}
                   </p>
                 </div>
               </div>

@@ -2,6 +2,7 @@ import { ReminderListItem } from "./ReminderListItem";
 import { RemindersSection } from "./RemindersSection";
 import type { Reminder } from "@/types/reminder.types";
 import { AlertCircle, Calendar } from "lucide-react";
+import { getReminderUrgencyLevel } from "@/lib/utils/dates";
 
 interface ReminderListProps {
   reminders: (Reminder & {
@@ -29,19 +30,13 @@ function groupReminders(
 ): GroupedReminders {
   return reminders.reduce(
     (acc, reminder) => {
-      if (!reminder.is_active) {
-        acc.inactive.push(reminder);
-      } else if (reminder.isPaidForCurrentCycle) {
-        acc.paid.push(reminder);
-      } else if (reminder.isOverdue || reminder.daysUntilDue < 0) {
-        acc.overdue.push(reminder);
-      } else if (reminder.daysUntilDue <= 3) {
-        acc.urgent.push(reminder);
-      } else if (reminder.daysUntilDue <= 7) {
-        acc.soon.push(reminder);
-      } else {
-        acc.future.push(reminder);
-      }
+      const urgency = getReminderUrgencyLevel({
+        daysUntilDue: reminder.daysUntilDue,
+        isActive: reminder.is_active,
+        isPaidForCurrentCycle: reminder.isPaidForCurrentCycle,
+      });
+
+      acc[urgency].push(reminder);
       return acc;
     },
     {

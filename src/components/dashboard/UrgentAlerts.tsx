@@ -9,7 +9,7 @@ import {
   ArrowRight,
 } from 'lucide-react';
 import type { Reminder } from '@/types/reminder.types';
-import { getDaysUntilDue } from '@/lib/utils/dates';
+import { getCountdownText, getDaysUntilDue } from '@/lib/utils/dates';
 import { CATEGORY_EMOJIS } from '@/config/constants';
 
 interface ReminderWithStatus extends Reminder {
@@ -76,7 +76,7 @@ export function UrgentAlerts({ reminders, isLoading }: UrgentAlertsProps) {
         if (isOverdue) {
           urgencyClass = 'border-l-4 border-error bg-error/5';
           badgeClass = 'badge-error';
-          badgeText = `Vencido hace ${Math.abs(reminder.daysUntilDue)} días`;
+          badgeText = getCountdownText(reminder.daysUntilDue);
           icon = <AlertCircle className="w-4 h-4" />;
         } else if (isToday) {
           urgencyClass = 'border-l-4 border-error bg-error/10';
