@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import type { Reminder } from '@/types/reminder.types';
 import { RECURRENCE_TYPES } from '@/config/constants';
+import { getCountdownText } from '@/lib/utils/dates';
 
 
 interface ReminderListItemProps {
@@ -33,18 +34,6 @@ const categoryIcons: Record<string, React.ReactNode> = {
   Otros: <Package className="w-5 h-5" />,
 };
 
-function getCountdownText(
-  daysUntilDue: number,
-  isOverdue: boolean,
-  isPaidForCurrentCycle?: boolean
-): string {
-  if (isPaidForCurrentCycle) return 'Pagado';
-  if (isOverdue || daysUntilDue < 0) return `Vencido hace ${Math.abs(daysUntilDue)} días`;
-  if (daysUntilDue === 0) return 'Vence hoy';
-  if (daysUntilDue === 1) return 'Vence mañana';
-  return `En ${daysUntilDue} días`;
-}
-
 function getCountdownColor(
   daysUntilDue: number,
   isOverdue: boolean,
@@ -63,8 +52,7 @@ export function ReminderListItem({ reminder }: ReminderListItemProps) {
   const isOverdue = reminder.isOverdue;
   const countdownText = getCountdownText(
     reminder.daysUntilDue,
-    reminder.isOverdue,
-    reminder.isPaidForCurrentCycle
+    { isPaidForCurrentCycle: reminder.isPaidForCurrentCycle },
   );
   const countdownColor = getCountdownColor(
     reminder.daysUntilDue,

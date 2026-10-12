@@ -1,6 +1,7 @@
 import { createSupabaseServerClient } from "../supabase/server";
 import type { Reminder, ReminderPayment } from "@/types/reminder.types";
 import { checkIfPaidForCurrentCycle } from "../utils/reminders";
+import { getReminderDueStatus } from "../utils/dates";
 
 export type ReminderWithStatus = Reminder & {
   daysUntilDue: number;
@@ -44,20 +45,15 @@ export async function getRemindersWithPaymentStatus(
     paymentsByReminder.get(payment.reminder_id)!.push(payment);
   });
 
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
   return reminders.map((reminder) => {
-    const { daysUntilDue, isOverdue } = calculateDueStatus(
+    const { daysUntilDue, isOverdue } = getReminderDueStatus(
       reminder.due_day,
       reminder.recurrence,
-      today,
     );
     const reminderPayments = paymentsByReminder.get(reminder.id) || [];
     const { isPaidForCurrentCycle, lastPaidAt } = checkIfPaidForCurrentCycle(
       reminder,
       reminderPayments,
-      today,
     );
 
     return {
@@ -68,60 +64,6 @@ export async function getRemindersWithPaymentStatus(
       lastPaidAt,
     };
   });
-}
-
-function calculateDueStatus(
-  dueDay: number,
-  recurrence: "monthly" | "yearly" | "weekly",
-  today: Date,
-): { daysUntilDue: number; isOverdue: boolean } {
-  let nextDueDate: Date;
-
-  switch (recurrence) {
-    case "monthly": {
-      nextDueDate = new Date(today.getFullYear(), today.getMonth(), dueDay);
-      if (nextDueDate < today) {
-        nextDueDate = new Date(
-          today.getFullYear(),
-          today.getMonth() + 1,
-          dueDay,
-        );
-      }
-      break;
-    }
-
-    case "yearly": {
-      nextDueDate = new Date(today.getFullYear(), 0, dueDay);
-      if (nextDueDate < today) {
-        nextDueDate = new Date(today.getFullYear() + 1, 0, dueDay);
-      }
-      break;
-    }
-
-    case "weekly": {
-      // Get the start of the current week (Sunday)
-      const currentWeekStart = new Date(today);
-      currentWeekStart.setDate(today.getDate() - today.getDay());
-      currentWeekStart.setHours(0, 0, 0, 0);
-
-      nextDueDate = new Date(currentWeekStart);
-      nextDueDate.setDate(currentWeekStart.getDate() + dueDay);
-      if (nextDueDate < today) {
-        nextDueDate.setDate(nextDueDate.getDate() + 7);
-      }
-      break;
-    }
-
-    default: {
-      nextDueDate = new Date(today.getFullYear(), today.getMonth(), dueDay);
-    }
-  }
-
-  const diffTime = nextDueDate.getTime() - today.getTime();
-  const daysUntilDue = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  const isOverdue = daysUntilDue < 0;
-
-  return { daysUntilDue, isOverdue };
 }
 
 export async function searchRemindersWithPaymentStatus(
@@ -168,20 +110,15 @@ export async function searchRemindersWithPaymentStatus(
     paymentsByReminder.get(payment.reminder_id)!.push(payment);
   });
 
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
   return reminders.map((reminder) => {
-    const { daysUntilDue, isOverdue } = calculateDueStatus(
+    const { daysUntilDue, isOverdue } = getReminderDueStatus(
       reminder.due_day,
       reminder.recurrence,
-      today,
     );
     const reminderPayments = paymentsByReminder.get(reminder.id) || [];
     const { isPaidForCurrentCycle, lastPaidAt } = checkIfPaidForCurrentCycle(
       reminder,
       reminderPayments,
-      today,
     );
 
     return {

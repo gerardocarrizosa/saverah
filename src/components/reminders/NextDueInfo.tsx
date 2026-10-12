@@ -2,6 +2,13 @@
 
 import { CheckCircle2 } from "lucide-react";
 import type { ReminderAnalytics } from "@/types/reminder.types";
+import {
+  getCountdownText,
+  getDaysToPayFromCutoff,
+  getDaysUntilCutoff,
+  getDaysUntilDue,
+  type ReminderRecurrence,
+} from "@/lib/utils/dates";
 
 interface NextDueInfoProps {
   name: string;
@@ -13,71 +20,6 @@ interface NextDueInfoProps {
 }
 
 const CREDIT_CARD_CATEGORY = "Tarjeta de Crédito";
-
-// Calculate days between today and cutoff date
-function getDaysUntilCutoffFromToday(cutoffDay: number): number {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  let nextCutoffDate = new Date(
-    today.getFullYear(),
-    today.getMonth(),
-    cutoffDay,
-  );
-  if (nextCutoffDate < today) {
-    nextCutoffDate = new Date(
-      today.getFullYear(),
-      today.getMonth() + 1,
-      cutoffDay,
-    );
-  }
-
-  const diffTime = nextCutoffDate.getTime() - today.getTime();
-  return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-}
-
-// Calculate days from cutoff to due date (the interest-free payment window)
-function getDaysToPayFromCutoff(cutoffDay: number, dueDay: number): number {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  // Get the next occurrence of cutoff
-  let cutoffDate = new Date(today.getFullYear(), today.getMonth(), cutoffDay);
-  if (cutoffDate < today) {
-    cutoffDate = new Date(today.getFullYear(), today.getMonth() + 1, cutoffDay);
-  }
-
-  // Get the next occurrence of due date after cutoff
-  let dueDate = new Date(
-    cutoffDate.getFullYear(),
-    cutoffDate.getMonth(),
-    dueDay,
-  );
-  if (dueDate < cutoffDate) {
-    dueDate = new Date(
-      cutoffDate.getFullYear(),
-      cutoffDate.getMonth() + 1,
-      dueDay,
-    );
-  }
-
-  const diffTime = dueDate.getTime() - cutoffDate.getTime();
-  return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-}
-
-// Calculate days from today to due date
-function getDaysUntilDueFromToday(dueDay: number): number {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  let nextDueDate = new Date(today.getFullYear(), today.getMonth(), dueDay);
-  if (nextDueDate < today) {
-    nextDueDate = new Date(today.getFullYear(), today.getMonth() + 1, dueDay);
-  }
-
-  const diffTime = nextDueDate.getTime() - today.getTime();
-  return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-}
 
 function getUrgencyColor(days: number): {
   accentClass: string;
@@ -117,13 +59,6 @@ function getUrgencyColor(days: number): {
     textColor: "text-secondary",
     iconBgClass: "bg-secondary/10",
   };
-}
-
-function getCountdownText(days: number): string {
-  if (days < 0) return `Vencido hace ${Math.abs(days)} días`;
-  if (days === 0) return "Hoy";
-  if (days === 1) return "Mañana";
-  return `En ${days} días`;
 }
 
 function formatDate(dateString: string | null): string {
@@ -211,9 +146,12 @@ export function NextDueInfo({
   }
 
   if (isCreditCard && cutoffDay) {
-    const daysUntilCutoff = getDaysUntilCutoffFromToday(cutoffDay);
+    const daysUntilCutoff = getDaysUntilCutoff(cutoffDay);
     const daysToPayFromCutoff = getDaysToPayFromCutoff(cutoffDay, dueDay);
-    const daysUntilDueFromToday = getDaysUntilDueFromToday(dueDay);
+    const daysUntilDueFromToday = getDaysUntilDue(
+      dueDay,
+      recurrence as ReminderRecurrence,
+    );
     const cutoffUrgency = getUrgencyColor(daysUntilCutoff);
     const payWindowUrgency =
       daysUntilDueFromToday < 0
@@ -237,7 +175,7 @@ export function NextDueInfo({
             value={
               daysUntilCutoff >= 0
                 ? `${daysToPayFromCutoff} días`
-                : getCountdownText(daysUntilDueFromToday)
+                  : getCountdownText(daysUntilDueFromToday)
             }
             label={
               daysUntilCutoff >= 0

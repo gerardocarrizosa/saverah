@@ -1,19 +1,20 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { 
-  CreditCard, 
-  Calendar, 
-  AlertTriangle, 
-  CheckCircle2, 
+import { useState, useEffect } from "react";
+import {
+  CreditCard,
+  Calendar,
+  AlertTriangle,
+  CheckCircle2,
   Clock,
   ArrowRight,
   Loader2,
-  Plus
-} from 'lucide-react';
-import Link from 'next/link';
-import api from '@/lib/axios';
-import type { Reminder } from '@/types/reminder.types';
+  Plus,
+} from "lucide-react";
+import Link from "next/link";
+import api from "@/lib/axios";
+import type { Reminder } from "@/types/reminder.types";
+import { getDaysUntilCutoff, getReminderDueStatus } from "@/lib/utils/dates";
 
 interface CreditCardData extends Reminder {
   days_until_due: number;
@@ -31,35 +32,44 @@ export function CreditCardsQuickView() {
 
   useEffect(() => {
     loadCreditCards();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const loadCreditCards = async () => {
     try {
       // Get reminders and filter those with cutoff_day (credit cards)
-      const response = await api.get('/reminders');
+      const response = await api.get("/reminders");
       const allReminders: Reminder[] = response.data.data;
-      
+
       // Filter reminders that have cutoff_day (these are credit cards)
-      const cardsWithCutoff = allReminders.filter(r => r.cutoff_day !== null && r.cutoff_day !== undefined && r.is_active);
-      
+      const cardsWithCutoff = allReminders.filter(
+        (r) =>
+          r.cutoff_day !== null && r.cutoff_day !== undefined && r.is_active,
+      );
+
       // Fetch analytics for each credit card to get cutoff info
       const cardsWithAnalytics = await Promise.all(
         cardsWithCutoff.map(async (card) => {
           try {
-            const analyticsRes = await api.get(`/analytics/reminders/${card.id}`);
+            const analyticsRes = await api.get(
+              `/analytics/reminders/${card.id}`,
+            );
             const analytics = analyticsRes.data.data;
-            
+
             // Calculate if paid this month
             const today = new Date();
-            const isPaidThisMonth = analytics.last_paid_at && 
-              new Date(analytics.last_paid_at).getMonth() === today.getMonth() &&
-              new Date(analytics.last_paid_at).getFullYear() === today.getFullYear();
-            
+            const isPaidThisMonth =
+              analytics.last_paid_at &&
+              new Date(analytics.last_paid_at).getMonth() ===
+                today.getMonth() &&
+              new Date(analytics.last_paid_at).getFullYear() ===
+                today.getFullYear();
+
             return {
               ...card,
               days_until_due: analytics.days_until_due,
-              days_until_cutoff: analytics.days_until_cutoff || calculateDaysUntilCutoff(card.cutoff_day!),
+              days_until_cutoff:
+                analytics.days_until_cutoff ??
+                getDaysUntilCutoff(card.cutoff_day!),
               is_overdue: analytics.is_overdue,
               is_cutoff_soon: analytics.is_cutoff_soon || false,
               is_paid_this_month: isPaidThisMonth,
@@ -68,19 +78,25 @@ export function CreditCardsQuickView() {
             };
           } catch {
             // If analytics fail, calculate basic info
+            const dueStatus = getReminderDueStatus(
+              card.due_day,
+              card.recurrence,
+            );
+            const daysUntilCutoff = getDaysUntilCutoff(card.cutoff_day!);
+
             return {
               ...card,
-              days_until_due: calculateDaysUntilDue(card.due_day),
-              days_until_cutoff: calculateDaysUntilCutoff(card.cutoff_day!),
-              is_overdue: false,
-              is_cutoff_soon: calculateDaysUntilCutoff(card.cutoff_day!) <= 3,
+              days_until_due: dueStatus.daysUntilDue,
+              days_until_cutoff: daysUntilCutoff,
+              is_overdue: dueStatus.isOverdue,
+              is_cutoff_soon: daysUntilCutoff <= 3,
               is_paid_this_month: false,
               estimated_payment: 0,
             };
           }
-        })
+        }),
       );
-      
+
       // Sort by urgency: cutoff soon first, then due soon
       const sortedCards = cardsWithAnalytics.sort((a, b) => {
         // Prioritize cards that haven't been paid
@@ -94,71 +110,56 @@ export function CreditCardsQuickView() {
         // Then by days until cutoff
         return a.days_until_cutoff - b.days_until_cutoff;
       });
-      
+
       setCreditCards(sortedCards);
     } catch (error) {
-      console.error('Error loading credit cards:', error);
+      console.error("Error loading credit cards:", error);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const calculateDaysUntilDue = (dueDay: number): number => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    let nextDue = new Date(today.getFullYear(), today.getMonth(), dueDay);
-    if (nextDue < today) {
-      nextDue = new Date(today.getFullYear(), today.getMonth() + 1, dueDay);
-    }
-    return Math.ceil((nextDue.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-  };
-
-  const calculateDaysUntilCutoff = (cutoffDay: number): number => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    let nextCutoff = new Date(today.getFullYear(), today.getMonth(), cutoffDay);
-    if (nextCutoff < today) {
-      nextCutoff = new Date(today.getFullYear(), today.getMonth() + 1, cutoffDay);
-    }
-    return Math.ceil((nextCutoff.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-  };
-
   const formatCurrency = (amount: number) => {
-    if (!amount || amount === 0) return '—';
-    return new Intl.NumberFormat('es-MX', {
-      style: 'currency',
-      currency: 'MXN',
+    if (!amount || amount === 0) return "—";
+    return new Intl.NumberFormat("es-MX", {
+      style: "currency",
+      currency: "MXN",
       maximumFractionDigits: 0,
     }).format(amount);
   };
 
   const getStatusColor = (card: CreditCardData) => {
-    if (card.is_paid_this_month) return 'success';
-    if (card.is_overdue) return 'error';
-    if (card.is_cutoff_soon) return 'warning';
-    return 'info';
+    if (card.is_paid_this_month) return "success";
+    if (card.is_overdue) return "error";
+    if (card.is_cutoff_soon) return "warning";
+    return "info";
   };
 
   const getStatusMessage = (card: CreditCardData) => {
-    if (card.is_paid_this_month) return 'Pagada este mes';
-    if (card.is_overdue) return `Venció hace ${Math.abs(card.days_until_due)} días`;
+    if (card.is_paid_this_month) return "Pagada este mes";
+    if (card.is_overdue)
+      return `Venció hace ${Math.abs(card.days_until_due)} días`;
     if (card.is_cutoff_soon) return `Corte en ${card.days_until_cutoff} días`;
-    if (card.days_until_cutoff <= 7) return `Corte en ${card.days_until_cutoff} días`;
+    if (card.days_until_cutoff <= 7)
+      return `Corte en ${card.days_until_cutoff} días`;
     return `Corte en ${card.days_until_cutoff} días`;
   };
 
   const getCardEmoji = (name: string): string => {
     const lowerName = name.toLowerCase();
-    if (lowerName.includes('visa')) return '💳';
-    if (lowerName.includes('mastercard') || lowerName.includes('master')) return '💳';
-    if (lowerName.includes('amex') || lowerName.includes('american')) return '💳';
-    if (lowerName.includes('citi') || lowerName.includes('citibanamex')) return '🏦';
-    if (lowerName.includes('bbva')) return '🏦';
-    if (lowerName.includes('santander')) return '🏦';
-    if (lowerName.includes('hsbc')) return '🏦';
-    if (lowerName.includes('banorte')) return '🏦';
-    if (lowerName.includes(' Scotiabank')) return '🏦';
-    return '💳';
+    if (lowerName.includes("visa")) return "💳";
+    if (lowerName.includes("mastercard") || lowerName.includes("master"))
+      return "💳";
+    if (lowerName.includes("amex") || lowerName.includes("american"))
+      return "💳";
+    if (lowerName.includes("citi") || lowerName.includes("citibanamex"))
+      return "🏦";
+    if (lowerName.includes("bbva")) return "🏦";
+    if (lowerName.includes("santander")) return "🏦";
+    if (lowerName.includes("hsbc")) return "🏦";
+    if (lowerName.includes("banorte")) return "🏦";
+    if (lowerName.includes(" Scotiabank")) return "🏦";
+    return "💳";
   };
 
   if (isLoading) {
@@ -175,7 +176,9 @@ export function CreditCardsQuickView() {
         <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center">
           <CreditCard className="w-8 h-8 text-primary" />
         </div>
-        <p className="text-base-content/70 mb-2">No tienes tarjetas de crédito registradas</p>
+        <p className="text-base-content/70 mb-2">
+          No tienes tarjetas de crédito registradas
+        </p>
         <p className="text-sm text-base-content/50 mb-4">
           Agrega tarjetas con fecha de corte para verlas aquí
         </p>
@@ -187,8 +190,10 @@ export function CreditCardsQuickView() {
     );
   }
 
-  const paidCount = creditCards.filter(c => c.is_paid_this_month).length;
-  const urgentCount = creditCards.filter(c => !c.is_paid_this_month && c.is_cutoff_soon).length;
+  const paidCount = creditCards.filter((c) => c.is_paid_this_month).length;
+  const urgentCount = creditCards.filter(
+    (c) => !c.is_paid_this_month && c.is_cutoff_soon,
+  ).length;
 
   return (
     <div className="space-y-4">
@@ -199,9 +204,11 @@ export function CreditCardsQuickView() {
             <CreditCard className="w-5 h-5 text-primary" />
           </div>
           <div>
-            <p className="font-medium text-sm">{creditCards.length} tarjeta{creditCards.length > 1 ? 's' : ''}</p>
+            <p className="font-medium text-sm">
+              {creditCards.length} tarjeta{creditCards.length > 1 ? "s" : ""}
+            </p>
             <p className="text-xs text-base-content/60">
-              {paidCount} pagada{paidCount !== 1 ? 's' : ''} este mes
+              {paidCount} pagada{paidCount !== 1 ? "s" : ""} este mes
             </p>
           </div>
         </div>
@@ -217,7 +224,7 @@ export function CreditCardsQuickView() {
       <div className="space-y-3">
         {creditCards.map((card) => {
           const statusColor = getStatusColor(card);
-          
+
           return (
             <Link
               key={card.id}
@@ -237,19 +244,28 @@ export function CreditCardsQuickView() {
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="text-right">
                   {card.estimated_payment ? (
-                    <p className="font-semibold text-sm">{formatCurrency(card.estimated_payment)}</p>
+                    <p className="font-semibold text-sm">
+                      {formatCurrency(card.estimated_payment)}
+                    </p>
                   ) : (
-                    <p className="text-sm text-base-content/40">Sin estimación</p>
+                    <p className="text-sm text-base-content/40">
+                      Sin estimación
+                    </p>
                   )}
-                  <div className={`flex items-center gap-1 text-xs mt-1 ${
-                    statusColor === 'success' ? 'text-success' :
-                    statusColor === 'error' ? 'text-error' :
-                    statusColor === 'warning' ? 'text-warning' :
-                    'text-info'
-                  }`}>
+                  <div
+                    className={`flex items-center gap-1 text-xs mt-1 ${
+                      statusColor === "success"
+                        ? "text-success"
+                        : statusColor === "error"
+                          ? "text-error"
+                          : statusColor === "warning"
+                            ? "text-warning"
+                            : "text-info"
+                    }`}
+                  >
                     {card.is_paid_this_month ? (
                       <CheckCircle2 className="w-3 h-3" />
                     ) : card.is_overdue ? (
@@ -266,25 +282,32 @@ export function CreditCardsQuickView() {
               <div className="mt-3 flex items-center gap-2">
                 <div className="flex-1 flex gap-1">
                   {/* Cutoff indicator */}
-                  <div 
+                  <div
                     className={`h-1.5 rounded-full flex-1 ${
-                      card.days_until_cutoff <= 3 ? 'bg-warning' : 
-                      card.days_until_cutoff <= 7 ? 'bg-info' : 'bg-base-300'
+                      card.days_until_cutoff <= 3
+                        ? "bg-warning"
+                        : card.days_until_cutoff <= 7
+                          ? "bg-info"
+                          : "bg-base-300"
                     }`}
                     title={`Corte en ${card.days_until_cutoff} días`}
                   />
                   {/* Due date indicator */}
-                  <div 
+                  <div
                     className={`h-1.5 rounded-full flex-1 ${
-                      card.is_overdue ? 'bg-error' :
-                      card.days_until_due <= 3 ? 'bg-warning' :
-                      card.days_until_due <= 7 ? 'bg-info' : 'bg-base-300'
+                      card.is_overdue
+                        ? "bg-error"
+                        : card.days_until_due <= 3
+                          ? "bg-warning"
+                          : card.days_until_due <= 7
+                            ? "bg-info"
+                            : "bg-base-300"
                     }`}
                     title={`Pago en ${card.days_until_due} días`}
                   />
                 </div>
                 <span className="text-xs text-base-content/40">
-                  {card.is_paid_this_month ? '✓' : `${card.days_until_due}d`}
+                  {card.is_paid_this_month ? "✓" : `${card.days_until_due}d`}
                 </span>
               </div>
             </Link>
@@ -294,10 +317,7 @@ export function CreditCardsQuickView() {
 
       {/* Footer */}
       <div className="flex justify-between items-center pt-2 border-t border-base-300">
-        <Link
-          href="/reminders"
-          className="btn btn-ghost btn-sm gap-1"
-        >
+        <Link href="/reminders" className="btn btn-ghost btn-sm gap-1">
           Ver todas
           <ArrowRight className="w-4 h-4" />
         </Link>
