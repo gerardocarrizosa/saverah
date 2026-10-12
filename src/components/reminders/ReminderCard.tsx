@@ -17,10 +17,12 @@ import {
   Clock,
   CheckCircle2,
   PauseCircle,
+  Mail,
 } from 'lucide-react';
 import { CircleCheck } from 'lucide-react';
 import type { Reminder } from '@/types/reminder.types';
 import { RECURRENCE_TYPES } from '@/config/constants';
+import { formatNotificationTimings } from '@/lib/utils/reminders';
 
 interface ReminderCardProps {
   reminder: Reminder & { daysUntilDue: number; isOverdue: boolean; isPaidForCurrentCycle?: boolean };
@@ -171,6 +173,20 @@ export function ReminderCard({ reminder }: ReminderCardProps) {
                   <p className="text-xs text-base-content/60 mt-2 line-clamp-1">
                     {reminder.notes}
                   </p>
+                )}
+
+                {reminder.email_notifications_enabled && (
+                  <div className="mt-2 flex flex-wrap items-center gap-1.5 text-xs text-primary">
+                    <span className="badge badge-primary badge-sm gap-1">
+                      <Mail className="w-3 h-3" />
+                      Avisos por correo
+                    </span>
+                    <span className="text-base-content/60">
+                      {formatNotificationTimings(
+                        reminder.email_notification_timings,
+                      )}
+                    </span>
+                  </div>
                 )}
               </div>
 

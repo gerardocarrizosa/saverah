@@ -1,4 +1,6 @@
 import type { Reminder, ReminderPayment } from '@/types/reminder.types';
+import { EMAIL_NOTIFICATION_TIMINGS } from '@/config/constants';
+import type { ReminderNotificationTiming } from '@/types/reminder.types';
 
 export interface PaidStatusResult {
   isPaidForCurrentCycle: boolean;
@@ -82,4 +84,19 @@ export function checkIfPaidForCurrentCycle(
     isPaidForCurrentCycle,
     lastPaidAt: lastPayment.paid_at
   };
+}
+
+export function getNotificationTimingLabel(
+  timing: ReminderNotificationTiming,
+): string {
+  return (
+    EMAIL_NOTIFICATION_TIMINGS.find((item) => item.value === timing)?.label ??
+    `${timing} días antes`
+  );
+}
+
+export function formatNotificationTimings(
+  timings: ReminderNotificationTiming[],
+): string {
+  return timings.map(getNotificationTimingLabel).join(', ');
 }

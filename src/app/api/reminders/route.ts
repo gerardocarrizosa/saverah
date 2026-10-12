@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { getReminders, createReminder } from '@/lib/api/reminders';
 import { createReminderSchema } from '@/lib/validations/reminder.schemas';
+import { ValidationError } from 'yup';
 
 export async function GET() {
   try {
@@ -44,7 +45,10 @@ export async function POST(req: NextRequest) {
       const reminder = await createReminder(user.id, validated);
       return NextResponse.json({ data: reminder }, { status: 201 });
     } catch (validationError: unknown) {
-      const errorMessage = validationError instanceof Error ? validationError.message : 'Validation error';
+      const errorMessage =
+        validationError instanceof ValidationError
+          ? validationError.errors
+          : ['Los datos del recordatorio no son válidos'];
       return NextResponse.json(
         { error: errorMessage },
         { status: 422 },

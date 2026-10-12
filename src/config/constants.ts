@@ -1,72 +1,79 @@
 export const EXPENSE_CATEGORIES = [
-  'Vivienda',
-  'Despensa',
-  'Alimentación',
-  'Transporte',
-  'Servicios',
-  'Salud',
-  'Educación',
-  'Entretenimiento',
-  'Ropa',
-  'Tecnología',
-  'Ahorro',
-  'Otros',
+  "Vivienda",
+  "Despensa",
+  "Alimentación",
+  "Transporte",
+  "Servicios",
+  "Salud",
+  "Educación",
+  "Entretenimiento",
+  "Ropa",
+  "Tecnología",
+  "Ahorro",
+  "Otros",
 ] as const;
 
 export const ESSENTIAL_CATEGORIES = [
-  'Despensa',
-  'Vivienda',
-  'Transporte',
-  'Servicios',
-  'Salud',
-  'Educación',
+  "Despensa",
+  "Vivienda",
+  "Transporte",
+  "Servicios",
+  "Salud",
+  "Educación",
 ] as const;
 
 export const DISCRETIONARY_CATEGORIES = [
-  'Alimentación',
-  'Entretenimiento',
-  'Ropa',
-  'Tecnología',
-  'Ahorro',
-  'Otros',
+  "Alimentación",
+  "Entretenimiento",
+  "Ropa",
+  "Tecnología",
+  "Ahorro",
+  "Otros",
 ] as const;
 
 export const REMINDER_CATEGORIES = [
-  'Tarjeta de Crédito',
-  'Servicios',
-  'Suscripción',
-  'Alquiler',
-  'Préstamo',
-  'Seguro',
-  'Impuestos',
-  'Otros',
+  "Tarjeta de Crédito",
+  "Servicios",
+  "Suscripción",
+  "Alquiler",
+  "Préstamo",
+  "Seguro",
+  "Impuestos",
+  "Otros",
 ] as const;
 
 export const INCOME_TYPES = [
-  { value: 'steady', label: 'Fijo' },
-  { value: 'variable', label: 'Variable' },
-  { value: 'other', label: 'Otro' },
+  { value: "steady", label: "Fijo" },
+  { value: "variable", label: "Variable" },
+  { value: "other", label: "Otro" },
 ] as const;
 
 export const RECURRENCE_TYPES = [
-  { value: 'monthly', label: 'Mensual' },
-  { value: 'yearly', label: 'Anual' },
-  { value: 'weekly', label: 'Semanal' },
+  { value: "monthly", label: "Mensual" },
+  { value: "yearly", label: "Anual" },
+  { value: "weekly", label: "Semanal" },
 ] as const;
 
-export const APP_NAME = 'Saverah';
+export const EMAIL_NOTIFICATION_TIMINGS = [
+  { value: 0, label: "El mismo día" },
+  { value: 1, label: "1 día antes" },
+  { value: 3, label: "3 días antes" },
+  { value: 7, label: "7 días antes" },
+] as const;
 
-export const DEFAULT_CURRENCY_REGION = 'es-MX';
+export const APP_NAME = "Saverah";
 
-export const DEFAULT_CURRENCY = 'MXN';
+export const DEFAULT_CURRENCY_REGION = "es-MX";
+
+export const DEFAULT_CURRENCY = "MXN";
 
 export const CATEGORY_EMOJIS: Record<string, string> = {
-  'Tarjeta de Crédito': '💳',
-  Servicios: '⚡',
-  Suscripción: '📱',
-  Alquiler: '🏠',
-  Préstamo: '📊',
-  Seguro: '🛡️',
-  Impuestos: '📄',
-  Otros: '📦',
+  "Tarjeta de Crédito": "💳",
+  Servicios: "⚡",
+  Suscripción: "📱",
+  Alquiler: "🏠",
+  Préstamo: "📊",
+  Seguro: "🛡️",
+  Impuestos: "📄",
+  Otros: "📦",
 };

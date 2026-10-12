@@ -2,7 +2,18 @@
 
 import { useState, useEffect } from 'react';
 import api from '@/lib/axios';
-import type { Reminder } from '@/types/reminder.types';
+import type { Reminder, ReminderNotificationTiming } from '@/types/reminder.types';
+
+type ReminderMutationPayload = {
+  name: string;
+  due_day: number;
+  cutoff_day?: number | null;
+  category: string;
+  recurrence: 'monthly' | 'yearly' | 'weekly';
+  notes?: string;
+  email_notifications_enabled?: boolean;
+  email_notification_timings?: ReminderNotificationTiming[];
+};
 
 export function useReminders(initialData: Reminder[] = []) {
   const [reminders, setReminders] = useState<Reminder[]>(initialData);
@@ -27,13 +38,13 @@ export function useReminders(initialData: Reminder[] = []) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const createReminder = async (data: { name: string; due_day: number; cutoff_day?: number; category: string; recurrence: 'monthly' | 'yearly' | 'weekly'; notes?: string }) => {
+  const createReminder = async (data: ReminderMutationPayload) => {
     const res = await api.post<{ data: Reminder }>('/reminders', data);
     setReminders((prev) => [...prev, res.data.data]);
     return res.data.data;
   };
 
-  const updateReminder = async (id: string, data: Partial<Reminder>) => {
+  const updateReminder = async (id: string, data: Partial<ReminderMutationPayload>) => {
     const res = await api.patch<{ data: Reminder }>(`/reminders/${id}`, data);
     setReminders((prev) => prev.map((r) => (r.id === id ? res.data.data : r)));
     return res.data.data;

@@ -9,14 +9,12 @@ import { PaymentFormClient } from "@/components/reminders/PaymentFormClient";
 import { PaymentHistory } from "@/components/reminders/PaymentHistory";
 import { ReminderActionsMenu } from "@/components/reminders/ReminderActionsMenu";
 import { RECURRENCE_TYPES } from "@/config/constants";
+import { formatNotificationTimings } from "@/lib/utils/reminders";
 import {
   deleteReminderFromForm,
   toggleReminderStatusFromForm,
 } from "./actions";
-import {
-  ArrowLeft,
-  Plus,
-} from "lucide-react";
+import { ArrowLeft, Plus, Mail } from "lucide-react";
 
 interface ReminderDetailPageProps {
   params: Promise<{
@@ -209,6 +207,38 @@ export default async function ReminderDetailPage({
           </SectionPanel>
         </div>
       </div>
+
+      <SectionPanel
+        title="Avisos por correo"
+        eyebrow="Notificaciones"
+        icon={<Mail className="w-5 h-5" />}
+      >
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4 justify-between rounded-xl bg-base-100 p-4">
+          <div>
+            <p className="font-(family-name:--font-body) text-sm font-semibold text-base-content">
+              {reminder.email_notifications_enabled
+                ? "Avisos activos"
+                : "Avisos desactivados"}
+            </p>
+            <p className="font-(family-name:--font-body) text-sm text-base-content/60 mt-1">
+              {reminder.email_notifications_enabled
+                ? formatNotificationTimings(reminder.email_notification_timings)
+                : "Este recordatorio no enviará correos."}
+            </p>
+          </div>
+          <span
+            className={`rounded-full px-3 py-1 font-(family-name:--font-body) text-[10px] font-bold uppercase tracking-widest ${
+              reminder.email_notifications_enabled
+                ? "bg-primary/10 text-primary"
+                : "bg-base-200 text-base-content/50"
+            }`}
+          >
+            {reminder.email_notifications_enabled
+              ? "Correo activo"
+              : "Sin correo"}
+          </span>
+        </div>
+      </SectionPanel>
 
       <SectionPanel
         title="Historial de pagos"

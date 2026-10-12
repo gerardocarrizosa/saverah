@@ -264,12 +264,70 @@ export type Database = {
           },
         ]
       }
+      reminder_notifications: {
+        Row: {
+          channel: string
+          created_at: string
+          due_date: string
+          error_message: string | null
+          id: string
+          notification_date: string
+          provider: string | null
+          provider_message_id: string | null
+          recipient_email: string | null
+          reminder_id: string
+          status: string
+          timing_days_before: number
+          user_id: string
+        }
+        Insert: {
+          channel?: string
+          created_at?: string
+          due_date: string
+          error_message?: string | null
+          id?: string
+          notification_date: string
+          provider?: string | null
+          provider_message_id?: string | null
+          recipient_email?: string | null
+          reminder_id: string
+          status: string
+          timing_days_before: number
+          user_id: string
+        }
+        Update: {
+          channel?: string
+          created_at?: string
+          due_date?: string
+          error_message?: string | null
+          id?: string
+          notification_date?: string
+          provider?: string | null
+          provider_message_id?: string | null
+          recipient_email?: string | null
+          reminder_id?: string
+          status?: string
+          timing_days_before?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reminder_notifications_reminder_id_fkey"
+            columns: ["reminder_id"]
+            isOneToOne: false
+            referencedRelation: "reminders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       reminders: {
         Row: {
           category: string
           created_at: string | null
           cutoff_day: number | null
           due_day: number
+          email_notification_timings: number[]
+          email_notifications_enabled: boolean
           id: string
           is_active: boolean | null
           name: string
@@ -282,6 +340,8 @@ export type Database = {
           created_at?: string | null
           cutoff_day?: number | null
           due_day: number
+          email_notification_timings?: number[]
+          email_notifications_enabled?: boolean
           id?: string
           is_active?: boolean | null
           name: string
@@ -294,6 +354,8 @@ export type Database = {
           created_at?: string | null
           cutoff_day?: number | null
           due_day?: number
+          email_notification_timings?: number[]
+          email_notifications_enabled?: boolean
           id?: string
           is_active?: boolean | null
           name?: string

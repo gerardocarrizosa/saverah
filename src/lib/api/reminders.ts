@@ -3,6 +3,29 @@ import type { Reminder, ReminderPayment, ReminderAnalytics } from '@/types/remin
 import type { CreateReminderInput, UpdateReminderInput } from '../validations/reminder.schemas';
 import { checkIfPaidForCurrentCycle } from '../utils/reminders';
 
+function normalizeCreateReminderInput(input: CreateReminderInput): CreateReminderInput {
+  if (!input.email_notifications_enabled) {
+    return {
+      ...input,
+      email_notifications_enabled: false,
+      email_notification_timings: [],
+    };
+  }
+
+  return input;
+}
+
+function normalizeUpdateReminderInput(input: UpdateReminderInput): UpdateReminderInput {
+  if (input.email_notifications_enabled === false) {
+    return {
+      ...input,
+      email_notification_timings: [],
+    };
+  }
+
+  return input;
+}
+
 export async function getReminders(userId: string): Promise<Reminder[]> {
   const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase
@@ -35,7 +58,7 @@ export async function createReminder(
   const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase
     .from('reminders')
-    .insert({ ...input, user_id: userId })
+    .insert({ ...normalizeCreateReminderInput(input), user_id: userId })
     .select()
     .single();
 
@@ -52,7 +75,7 @@ export async function updateReminder(
   const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase
     .from('reminders')
-    .update(input)
+    .update(normalizeUpdateReminderInput(input))
     .eq('user_id', userId)
     .eq('id', id)
     .select()

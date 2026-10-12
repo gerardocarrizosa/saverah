@@ -42,6 +42,92 @@ export function getDaysUntilDue(
   return diffDays;
 }
 
+export function normalizeDate(date: Date = new Date()): Date {
+  const normalized = new Date(date);
+  normalized.setHours(0, 0, 0, 0);
+  return normalized;
+}
+
+export function formatDateForDatabase(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+function getDaysInMonth(year: number, month: number): number {
+  return new Date(year, month + 1, 0).getDate();
+}
+
+function getClampedMonthlyDate(year: number, month: number, dueDay: number): Date {
+  return new Date(year, month, Math.min(dueDay, getDaysInMonth(year, month)));
+}
+
+export function getConcreteDueDate(
+  dueDay: number,
+  recurrence: 'monthly' | 'yearly' | 'weekly',
+  referenceDate: Date = new Date(),
+): Date {
+  const reference = normalizeDate(referenceDate);
+
+  switch (recurrence) {
+    case 'monthly': {
+      let dueDate = getClampedMonthlyDate(
+        reference.getFullYear(),
+        reference.getMonth(),
+        dueDay,
+      );
+
+      if (dueDate < reference) {
+        dueDate = getClampedMonthlyDate(
+          reference.getFullYear(),
+          reference.getMonth() + 1,
+          dueDay,
+        );
+      }
+
+      return dueDate;
+    }
+
+    case 'yearly': {
+      let dueDate = getClampedMonthlyDate(reference.getFullYear(), 0, dueDay);
+
+      if (dueDate < reference) {
+        dueDate = getClampedMonthlyDate(reference.getFullYear() + 1, 0, dueDay);
+      }
+
+      return dueDate;
+    }
+
+    case 'weekly': {
+      const daysUntilDueDay = (dueDay - reference.getDay() + 7) % 7;
+      const dueDate = new Date(reference);
+      dueDate.setDate(reference.getDate() + daysUntilDueDay);
+      return dueDate;
+    }
+  }
+}
+
+export function getNotificationDateForDueDate(
+  dueDate: Date,
+  timingDaysBefore: number,
+): Date {
+  const notificationDate = normalizeDate(dueDate);
+  notificationDate.setDate(notificationDate.getDate() - timingDaysBefore);
+  return notificationDate;
+}
+
+export function isNotificationDateMatch(
+  dueDate: Date,
+  notificationDate: Date,
+  timingDaysBefore: number,
+): boolean {
+  return (
+    formatDateForDatabase(getNotificationDateForDueDate(dueDate, timingDaysBefore)) ===
+    formatDateForDatabase(normalizeDate(notificationDate))
+  );
+}
+
 export function getDaysUntilCutoff(cutoffDay: number): number {
   const today = new Date();
   today.setHours(0, 0, 0, 0);

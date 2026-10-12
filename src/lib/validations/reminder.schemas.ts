@@ -1,6 +1,24 @@
 import * as Yup from 'yup';
 
 const CREDIT_CARD_CATEGORY = 'Tarjeta de Crédito';
+const VALID_EMAIL_NOTIFICATION_TIMINGS = [0, 1, 3, 7] as const;
+
+const emailNotificationFields = {
+  email_notifications_enabled: Yup.boolean().default(false),
+  email_notification_timings: Yup.array()
+    .of(
+      Yup.number()
+        .oneOf([...VALID_EMAIL_NOTIFICATION_TIMINGS], 'Selecciona un momento de aviso válido')
+        .required(),
+    )
+    .default([])
+    .when('email_notifications_enabled', {
+      is: true,
+      then: (schema) =>
+        schema.min(1, 'Selecciona al menos un momento para recibir avisos por correo'),
+      otherwise: (schema) => schema.max(0).default([]),
+    }),
+};
 
 export const createReminderSchema = Yup.object({
   name: Yup.string()
@@ -24,6 +42,7 @@ export const createReminderSchema = Yup.object({
     .oneOf(['monthly', 'yearly', 'weekly'])
     .required('La recurrencia es requerida'),
   notes: Yup.string().optional().max(500),
+  ...emailNotificationFields,
 });
 
 export const updateReminderSchema = createReminderSchema.partial();
