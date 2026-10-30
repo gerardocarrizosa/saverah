@@ -10,7 +10,13 @@ import { redirect } from "next/navigation";
 import { BudgetHero } from "@/components/budget/BudgetHero";
 import { CategoryGrid } from "@/components/budget/CategoryGrid";
 import { QuickLogPanel } from "@/components/budget/QuickLogPanel";
-import { PieChart, TrendingUp, TrendingDown } from "lucide-react";
+import {
+  PieChart,
+  TrendingUp,
+  TrendingDown,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import Link from "next/link";
 
 interface BudgetPageProps {
@@ -70,6 +76,14 @@ export default async function BudgetPage({ searchParams }: BudgetPageProps) {
 
   const hasTransactions = income.length > 0 || expenses.length > 0;
 
+  // Month navigation derived from the validated monthContext using UTC dates
+  const [year, monthNumber] = monthContext.split("-").map(Number);
+  const previousMonthDate = new Date(Date.UTC(year, monthNumber - 2, 1));
+  const nextMonthDate = new Date(Date.UTC(year, monthNumber, 1));
+  const currentMonth = getMonthRange().month;
+  const toMonthParam = (date: Date) =>
+    `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, "0")}`;
+
   return (
     <main className="space-y-10">
       {!hasTransactions ? (
@@ -115,7 +129,34 @@ export default async function BudgetPage({ searchParams }: BudgetPageProps) {
             incomeCount={incomeCount}
             expenseCount={expenseCount}
             monthLabel={getMonthLabel(monthContext)}
+            selectedMonth={monthContext}
           />
+
+          {/* Month Navigation */}
+          <nav className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="grid grid-cols-3 gap-2 sm:flex">
+              <Link
+                href={`/budget?month=${toMonthParam(previousMonthDate)}`}
+                className="inline-flex items-center justify-center gap-1 rounded-full bg-base-300 px-3 py-2 text-xs font-bold text-base-content/60 transition-colors hover:text-base-content"
+              >
+                <ChevronLeft className="h-3.5 w-3.5" />
+                Anterior
+              </Link>
+              <Link
+                href={`/budget?month=${currentMonth}`}
+                className="inline-flex items-center justify-center rounded-full bg-primary/10 px-3 py-2 text-xs font-bold text-primary transition-colors hover:bg-primary/20"
+              >
+                Actual
+              </Link>
+              <Link
+                href={`/budget?month=${toMonthParam(nextMonthDate)}`}
+                className="inline-flex items-center justify-center gap-1 rounded-full bg-base-300 px-3 py-2 text-xs font-bold text-base-content/60 transition-colors hover:text-base-content"
+              >
+                Siguiente
+                <ChevronRight className="h-3.5 w-3.5" />
+              </Link>
+            </div>
+          </nav>
 
           {/* Quick Actions & Categories */}
           <section className="grid grid-cols-1 gap-8">
