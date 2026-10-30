@@ -12,6 +12,7 @@ interface BudgetHeroProps {
   incomeCount: number;
   expenseCount: number;
   monthLabel: string;
+  selectedMonth: string;
 }
 
 export function BudgetHero({
@@ -21,6 +22,7 @@ export function BudgetHero({
   incomeCount,
   expenseCount,
   monthLabel,
+  selectedMonth,
 }: BudgetHeroProps) {
   const [isVisible, setIsVisible] = useState(true);
 
@@ -104,7 +106,7 @@ export function BudgetHero({
       {/* Right: Income & Spent Cards */}
       <div className="md:col-span-5 grid grid-cols-2 gap-4">
         <Link
-          href="/budget/income"
+          href={`/budget/income?month=${selectedMonth}`}
           className="bg-base-200 p-6 rounded-xl space-y-2"
         >
           <div className="flex items-center gap-2 mb-1">
@@ -121,7 +123,7 @@ export function BudgetHero({
         </Link>
 
         <Link
-          href="/budget/expenses"
+          href={`/budget/expenses?month=${selectedMonth}`}
           className="bg-base-200 p-6 rounded-xl space-y-2"
         >
           <div className="flex items-center gap-2 mb-1">

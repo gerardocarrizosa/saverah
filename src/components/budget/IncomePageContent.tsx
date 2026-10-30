@@ -52,7 +52,7 @@ export function IncomePageContent({
     <div className="space-y-10">
       {/* Back Navigation */}
       <Link
-        href="/budget"
+        href={`/budget?month=${selectedMonth}`}
         className="inline-flex items-center gap-2 text-sm text-base-content/60 hover:text-base-content transition-colors -my-1"
       >
         <ArrowLeft className="w-4 h-4" />
